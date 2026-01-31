@@ -40,7 +40,10 @@ public class User {
 	private String password;
 	
 	@Column(name = "OTP")
-	private String OTP;
+	private String otp;
+	
+	@Column(name = "OTPExpiredAt")
+	private LocalDateTime otpExpiredAt;
 	
 	@Column(name = "FirstName", columnDefinition = "NVARCHAR(250)")
 	private String firstName;
@@ -74,6 +77,8 @@ public class User {
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JsonIgnore
 	private List<Budget> budgets;
+
+
 
 
 }

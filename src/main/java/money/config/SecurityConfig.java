@@ -16,7 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
 	@Autowired
-    private JwtAuthFilter jwtAuthFilter; // Inject Filter vào
+    private JwtAuthFilter jwtAuthFilter; 
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -32,10 +32,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            // QUAN TRỌNG: API là stateless, không lưu session
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/**").permitAll() // Login/Signup thì thả cửa
+                .requestMatchers("/api/auth/**").permitAll() // Login/Signup thì thả cửa
                 .anyRequest().authenticated() // Còn lại phải có Token mới cho qua
             );
         
