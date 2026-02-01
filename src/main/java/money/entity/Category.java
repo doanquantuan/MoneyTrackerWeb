@@ -62,8 +62,6 @@ public class Category {
 	@JsonIgnore
 	private List<Transaction> transactions;
 	
-	@Column(name = "IsDeleted")
-	private boolean isDeleted = false;
 
 	
 }

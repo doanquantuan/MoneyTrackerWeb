@@ -11,7 +11,7 @@ import money.entity.Account;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long>{
 	
-	List<Account> findByUser_UserIdAndIsActiveTrue(long userId);
+//	List<Account> findByUser_UserIdAndIsActiveTrue(long userId);
 
     List<Account> findByUser_UserId(long userId);
 	

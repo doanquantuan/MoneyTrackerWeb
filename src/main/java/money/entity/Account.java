@@ -56,9 +56,9 @@ public class Account {
 	@Column(name = "Currency")
 	private String currency;
 	
-	@Column(name = "IsActive")
-	private Boolean isActive;
-	
+//	@Column(name = "IsActive")
+//	private Boolean isActive;
+//	
 	@OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JsonIgnore
 	private List<Transaction> transactions;
