@@ -10,4 +10,6 @@ public interface ICategoryService {
 	List<Category> getListCategory(String email);
 	
 	Category addCategory(String email, CategoryRequest request);
+	
+	Category editCategory(String email, Long categoryId, CategoryRequest request);
 }

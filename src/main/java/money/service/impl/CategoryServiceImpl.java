@@ -60,4 +60,30 @@ public class CategoryServiceImpl implements ICategoryService{
 	    return cateRepo.save(cate);
 	}
 
+	@Override
+	public Category editCategory(String email, Long categoryId, CategoryRequest request) {
+		Category cate = cateRepo.findById(categoryId)
+	              .orElseThrow(() -> new RuntimeException("Danh mục không tồn tại"));
+
+	    if (!cate.getUser().getEmail().equals(email)) {
+	          throw new RuntimeException("Bạn không có quyền sửa tài khoản này!");
+	    }
+		
+		cate.setCategoryName(request.getCategoryName());
+		cate.setIcon(request.getIcon());
+		if (request.getParentId() != null) {
+			Category parent = cateRepo.findById(request.getParentId())
+	                .orElseThrow(() -> new RuntimeException("Parent category not found"));
+			if (!parent.getCategoryType().equals(request.getCategoryType())) {
+				throw new RuntimeException("Kiểu danh mục cha khác với kiểu danh mục con");
+			}
+			cate.setParent(parent);
+		} else {
+	        cate.setParent(null);
+	    }
+		cate.setCategoryType(CategoryType.valueOf(request.getCategoryType().toUpperCase()));
+		
+		return cateRepo.save(cate);
+	}
+
 }

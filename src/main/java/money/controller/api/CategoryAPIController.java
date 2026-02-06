@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,19 +36,24 @@ public class CategoryAPIController {
 
 	@PostMapping
     public ResponseEntity<?> addCategory(@Valid @RequestBody CategoryRequest request) {
-		String email = SecurityContextHolder.getContext().getAuthentication().getName(); 
+		String email = getCurrentUserEmail();
 
 	    Category cate = categoryService.addCategory(email, request);
 	    return ResponseEntity.ok(cate);
    
     }
 	
-//	@PutMapping("/{id}")
-//	public ResponseEntity<?> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryRequest request) {
-//        String username = getCurrentUsername();
-//        CategoryResponse response = categoryService.updateCategory(username, id, request);
-//        return ResponseEntity.ok(response);
-//    }
+	@PutMapping("/{id}")
+	public ResponseEntity<?> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryRequest request) {
+		try {
+			String email = getCurrentUserEmail();
+	
+		    Category cate = categoryService.editCategory(email, id, request);
+		    return ResponseEntity.ok(cate);
+		} catch (RuntimeException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+    }
 //	
 //	@DeleteMapping("/{id}")
 //	public ResponseEntity<?> deleteCategory(@PathVariable Long id){
