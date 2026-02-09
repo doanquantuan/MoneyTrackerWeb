@@ -1,7 +1,6 @@
 package money.dto.category;
 
 import lombok.Data;
-import money.enums.CategoryType;
 
 @Data
 public class CategoryRequest {

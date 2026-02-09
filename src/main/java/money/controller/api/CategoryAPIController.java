@@ -36,10 +36,14 @@ public class CategoryAPIController {
 
 	@PostMapping
     public ResponseEntity<?> addCategory(@Valid @RequestBody CategoryRequest request) {
-		String email = getCurrentUserEmail();
-
-	    Category cate = categoryService.addCategory(email, request);
-	    return ResponseEntity.ok(cate);
+		try {
+			String email = getCurrentUserEmail();
+	
+		    Category cate = categoryService.addCategory(email, request);
+		    return ResponseEntity.ok(cate);
+		} catch (RuntimeException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
    
     }
 	

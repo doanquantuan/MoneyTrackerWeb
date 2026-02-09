@@ -46,6 +46,10 @@ public class Transaction {
 	private Account account;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "ToAccountID")
+	private Account toAccount;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "CategoryID")
 	private Category category;
 	

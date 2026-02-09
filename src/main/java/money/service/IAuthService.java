@@ -1,6 +1,5 @@
 package money.service;
 
-import money.dto.auth.JwtResponse;
 import money.dto.auth.LoginRequest;
 import money.dto.auth.ResetPasswordRequest;
 import money.dto.auth.SignupRequest;

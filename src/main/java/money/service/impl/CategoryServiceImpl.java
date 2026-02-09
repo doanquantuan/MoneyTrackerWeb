@@ -42,7 +42,6 @@ public class CategoryServiceImpl implements ICategoryService{
 		Category cate = new Category();
 		cate.setUser(user);
 		cate.setCategoryName(request.getCategoryName());
-		cate.setCategoryType(CategoryType.valueOf(request.getCategoryType().toUpperCase()));
 		cate.setIcon(request.getIcon());
 		if (request.getParentId() != null) {
 	        Category parent = cateRepo.findById(request.getParentId())
@@ -51,11 +50,14 @@ public class CategoryServiceImpl implements ICategoryService{
 	        if (parent.getUser() != null && parent.getUser().getUserId() != user.getUserId()) {
 	            throw new RuntimeException("You do not have permission to use this parent category");
 	        }
+	        if (!parent.getCategoryType().equals(CategoryType.valueOf(request.getCategoryType().toUpperCase()))) {
+				throw new RuntimeException("Kiểu danh mục cha khác với kiểu danh mục con");
+			}
 	        cate.setParent(parent);
 	    } else {
 	        cate.setParent(null);
 	    }
-
+		cate.setCategoryType(CategoryType.valueOf(request.getCategoryType().toUpperCase()));
 
 	    return cateRepo.save(cate);
 	}
@@ -74,7 +76,7 @@ public class CategoryServiceImpl implements ICategoryService{
 		if (request.getParentId() != null) {
 			Category parent = cateRepo.findById(request.getParentId())
 	                .orElseThrow(() -> new RuntimeException("Parent category not found"));
-			if (!parent.getCategoryType().equals(request.getCategoryType())) {
+			if (!parent.getCategoryType().equals(CategoryType.valueOf(request.getCategoryType().toUpperCase()))) {
 				throw new RuntimeException("Kiểu danh mục cha khác với kiểu danh mục con");
 			}
 			cate.setParent(parent);
