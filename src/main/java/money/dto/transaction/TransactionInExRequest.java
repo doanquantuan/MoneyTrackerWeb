@@ -5,11 +5,9 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
-public class TransactionRequest {
+public class TransactionInExRequest {
 
 	private Long accountId;
-	
-	private Long toAccountId;
 
 	private Long categoryId;
 
@@ -18,5 +16,4 @@ public class TransactionRequest {
 	private Double amount;
 
 	private String note;
-
 }

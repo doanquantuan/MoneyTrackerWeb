@@ -6,7 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import money.dto.transaction.TransactionRequest;
+import money.dto.transaction.TransactionInExRequest;
+import money.dto.transaction.TransferRequest;
 import money.entity.Account;
 import money.entity.Category;
 import money.entity.Transaction;
@@ -36,7 +37,7 @@ public class TransactionServiceImpl implements ITransactionService{
 	private TransactionRepository transactionRepo;
 
 	@Override
-	public Transaction createStandardTransaction(String email, TransactionRequest request) {
+	public Transaction createStandardTransaction(String email, TransactionInExRequest request) {
 		User user = userRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User không tìm thấy"));
 		
@@ -60,13 +61,48 @@ public class TransactionServiceImpl implements ITransactionService{
 		trans.setTransactionDate(LocalDateTime.now());
 		trans.setNote(request.getNote());
 		
+		if (request.getType().toUpperCase() == "INCOME") {
+			account.setCurrentBalance(account.getCurrentBalance() + request.getAmount());
+		} else {
+			account.setCurrentBalance(account.getCurrentBalance() - request.getAmount());
+		}
+		
+		accountRepo.save(account);
+		
 		return transactionRepo.save(trans);
 	}
 
 	@Override
-	public Transaction transferMoney() {
-		// TODO Auto-generated method stub
-		return null;
+	public Transaction transferMoney(String email, TransferRequest request) {
+		User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User không tìm thấy"));
+		
+		if (request.getAccountId().equals(request.getToAccountId())) {
+			throw new RuntimeException("Không thể tự chuyển cho chính tài khoản này");
+		}
+		
+		Account fromAccount = accountRepo.findById(request.getAccountId())
+                .orElseThrow(() -> new RuntimeException("Tài khoản chuyển tiền không tìm thấy"));
+		
+		Account toAccount = accountRepo.findById(request.getToAccountId())
+                .orElseThrow(() -> new RuntimeException("Tài khoản nhận tiền không tìm thấy"));
+		
+		Transaction trans = new Transaction();
+		trans.setUser(user);
+		trans.setAccount(fromAccount);
+		trans.setToAccount(toAccount);
+		trans.setCategory(null);
+		trans.setType(TransactionType.valueOf(request.getType().toUpperCase()));
+		trans.setAmount(request.getAmount());
+		trans.setTransactionDate(LocalDateTime.now());
+		trans.setNote(request.getNote());
+		
+		fromAccount.setCurrentBalance(fromAccount.getCurrentBalance() - request.getAmount());
+		toAccount.setCurrentBalance(fromAccount.getCurrentBalance() + request.getAmount());
+		accountRepo.save(fromAccount);
+		accountRepo.save(toAccount);
+		
+		return transactionRepo.save(trans);
 	}
 
 	@Override

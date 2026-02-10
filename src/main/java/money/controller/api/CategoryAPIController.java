@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import money.dto.category.CategoryRequest;
-import money.entity.Account;
 import money.entity.Category;
 import money.service.ICategoryService;
 

@@ -1,7 +1,6 @@
 package money.controller.api;
 
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +15,6 @@ import money.dto.auth.LoginRequest;
 import money.dto.auth.ResetPasswordRequest;
 import money.dto.auth.SignupRequest;
 import money.dto.auth.VerifyOtpRequest;
-import money.entity.User;
 import money.repository.UserRepository;
 import money.service.IAuthService;
 import money.util.JwtUtil;
