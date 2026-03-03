@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,9 +41,7 @@ public class TransactionAPIController {
 			String email = getCurrentUserEmail();
 			
 			Transaction transaction = new Transaction();
-			
-		
-			System.out.print(request.getType());
+
 			if ("INCOME".equals(request.getType()) || "EXPENSE".equals(request.getType())) {
 				TransactionInExRequest req = new TransactionInExRequest();
 				req.setAccountId(request.getAccountId());
@@ -60,6 +60,38 @@ public class TransactionAPIController {
 				req.setType(request.getType());
 				
 				transaction = transactionService.transferMoney(email, req);
+				return ResponseEntity.ok(transaction);
+			} 
+		    return ResponseEntity.ok(transaction);
+		} catch (RuntimeException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+	
+	@PutMapping("/{id}")
+	public ResponseEntity<?> updateTransaction(@PathVariable Long id, @RequestBody TransactionRequest request) {
+		try {
+			String email = getCurrentUserEmail();
+			
+			Transaction transaction = new Transaction();
+
+			if ("INCOME".equals(request.getType()) || "EXPENSE".equals(request.getType())) {
+				TransactionInExRequest req = new TransactionInExRequest();
+				req.setAccountId(request.getAccountId());
+				req.setAmount(request.getAmount());
+				req.setCategoryId(request.getCategoryId());
+				req.setNote(request.getNote());
+				req.setType(request.getType());
+				transaction = transactionService.updateTransaction(email, id, req);
+				return ResponseEntity.ok(transaction);
+			} else if ("TRANSFER".equals(request.getType())) {
+				TransferRequest req = new TransferRequest();
+				req.setAccountId(request.getAccountId());
+				req.setToAccountId(request.getToAccountId());
+				req.setAmount(request.getAmount());
+				req.setNote(request.getNote());
+				req.setType(request.getType());
+				transaction = transactionService.updateTransfer(email, id, req);
 				return ResponseEntity.ok(transaction);
 			} 
 		    return ResponseEntity.ok(transaction);

@@ -18,7 +18,9 @@ public interface ITransactionService {
 	
 	void getTransactionById();
 	
-	void updateTransaction();
+	Transaction updateTransaction(String email, long id, TransactionInExRequest request);
+	
+	Transaction updateTransfer(String email, long id, TransferRequest request);
 	
 	void deleteTransaction();
 	
