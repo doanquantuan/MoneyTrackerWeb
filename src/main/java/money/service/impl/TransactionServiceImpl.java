@@ -1,6 +1,7 @@
 package money.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -133,6 +134,13 @@ public class TransactionServiceImpl implements ITransactionService{
 	public void searchTransactions() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public List<Transaction> getListRecentTransaction(String email) {
+		User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User không tìm thấy"));
+		return transactionRepo.findByUserOrderByTransactionDateDesc(user);
 	}
 
 }
