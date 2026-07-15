@@ -62,10 +62,12 @@ public class TransactionServiceImpl implements ITransactionService{
 		trans.setTransactionDate(LocalDateTime.now());
 		trans.setNote(request.getNote());
 		
-		if (request.getType().toUpperCase() == "INCOME") {
+		if ("INCOME".equals(request.getType().toUpperCase())) {
 			account.setCurrentBalance(account.getCurrentBalance() + request.getAmount());
-		} else {
+		} else if ("EXPENSE".equals(request.getType().toUpperCase())) {
 			account.setCurrentBalance(account.getCurrentBalance() - request.getAmount());
+		} else if ("DEBT_LOAN".equals(request.getType().toUpperCase())) {
+			
 		}
 		
 		accountRepo.save(account);

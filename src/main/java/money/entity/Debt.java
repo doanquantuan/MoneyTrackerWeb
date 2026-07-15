@@ -23,6 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import money.enums.DebtStatus;
 import money.enums.DebtType;
 import money.enums.InterestType;
 
@@ -43,6 +44,10 @@ public class Debt {
 	@ManyToOne(fetch = FetchType.LAZY, optional = true) 
 	@JoinColumn(name = "UserID", nullable = true)    
 	private User user;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "AccountID")
+	private Account account;
 	
 	@Column(name = "PartnerName", columnDefinition = "NVARCHAR(250)")
 	private String partnerName;
@@ -68,10 +73,11 @@ public class Debt {
 	private LocalDateTime dueDate;
 	
 	@Enumerated(EnumType.STRING)
-	@Column(name = "Status", length = 20)
-	private Status status;
+	@Column(name = "DebtStatus", length = 20)
+	private DebtStatus status;
 	
 	@OneToMany(mappedBy = "debt", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JsonIgnore
 	private List<DebtRepayment> repayments;
+
 }
