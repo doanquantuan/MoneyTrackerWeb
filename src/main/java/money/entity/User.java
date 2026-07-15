@@ -78,7 +78,12 @@ public class User {
 	@JsonIgnore
 	private List<Budget> budgets;
 
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JsonIgnore
+	private List<Notification> notifications;
 
-
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JsonIgnore
+	private List<RecurringTransaction> recurringTransactions;
 
 }

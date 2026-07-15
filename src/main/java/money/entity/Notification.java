@@ -1,6 +1,6 @@
 package money.entity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,48 +17,38 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import money.enums.Period;
+import money.enums.NotificationType;
 
 @Entity
-@Table(name = "Budgets")
+@Table(name = "Notifications")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Budget {
-	
+public class Notification {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "BudgetID")
-	private long budgetId;
+	@Column(name = "NotificationID")
+	private long notificationId;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "UserID")
 	private User user;
 	
-	@ManyToOne(fetch = FetchType.LAZY, optional = true)
-	@JoinColumn(name = "CategoryID", nullable = true)
-	private Category category;
+	@Column(name = "Title", columnDefinition = "NVARCHAR(255)")
+	private String title;
 	
-	@Column(name = "BudgetName", columnDefinition = "NVARCHAR(255)")
-	private String budgetName;
-	
-	@Column(name = "Percentage")
-	private Double percentage;
-	
-	@Column(name = "AmountLimit")
-	private Double amountLimit;
+	@Column(name = "Message", columnDefinition = "NVARCHAR(1000)")
+	private String message;
 	
 	@Enumerated(EnumType.STRING)
-	@Column(name = "Period", length = 20)
-	private Period period;
+	@Column(name = "NotificationType", length = 20)
+	private NotificationType type;
 	
-	@Column(name = "CurrentSpending")
-	private Double currentSpending = 0.0;
+	@Column(name = "IsRead")
+	private Boolean isRead = false;
 	
-	@Column(name = "StartDate")
-	private LocalDate startDate;
-	
-	@Column(name = "EndDate")
-	private LocalDate endDate;
+	@Column(name = "CreatedAt")
+	private LocalDateTime createdAt = LocalDateTime.now();
 }

@@ -1,5 +1,6 @@
 package money.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import money.dto.transaction.TransactionInExRequest;
@@ -16,13 +17,16 @@ public interface ITransactionService {
 	
 	List<Transaction> getListRecentTransaction(String email);
 	
-	void getTransactionById();
+	Transaction getTransactionById(String email, long id);
 	
 	Transaction updateTransaction(String email, long id, TransactionInExRequest request);
 	
 	Transaction updateTransfer(String email, long id, TransferRequest request);
 	
-	void deleteTransaction();
+	void deleteTransaction(String email, long id);
 	
-	void searchTransactions();
+	List<Transaction> searchTransactions(
+		String email, Long accountId, Long categoryId, String type, 
+		LocalDateTime startDate, LocalDateTime endDate
+	);
 }

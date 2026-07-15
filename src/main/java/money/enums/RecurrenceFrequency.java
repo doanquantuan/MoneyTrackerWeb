@@ -1,6 +1,6 @@
 package money.enums;
 
-public enum Period {
+public enum RecurrenceFrequency {
 	DAILY,
 	WEEKLY,
 	MONTHLY,

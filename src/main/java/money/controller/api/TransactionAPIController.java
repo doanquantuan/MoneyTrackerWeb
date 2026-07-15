@@ -1,14 +1,19 @@
 package money.controller.api;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import money.dto.transaction.TransactionInExRequest;
@@ -32,6 +37,17 @@ public class TransactionAPIController {
 	public ResponseEntity<?> getTransactions(){
 		String email = getCurrentUserEmail();
         return ResponseEntity.ok(transactionService.getListRecentTransaction(email));
+	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getTransaction(@PathVariable Long id) {
+		try {
+			String email = getCurrentUserEmail();
+			Transaction tx = transactionService.getTransactionById(email, id);
+			return ResponseEntity.ok(tx);
+		} catch (RuntimeException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 	}
 
 	@SuppressWarnings("null")
@@ -95,6 +111,33 @@ public class TransactionAPIController {
 				return ResponseEntity.ok(transaction);
 			} 
 		    return ResponseEntity.ok(transaction);
+		} catch (RuntimeException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<?> deleteTransaction(@PathVariable Long id) {
+		try {
+			String email = getCurrentUserEmail();
+			transactionService.deleteTransaction(email, id);
+			return ResponseEntity.ok("Xóa giao dịch thành công");
+		} catch (RuntimeException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+
+	@GetMapping("/search")
+	public ResponseEntity<?> searchTransactions(
+			@RequestParam(required = false) Long accountId,
+			@RequestParam(required = false) Long categoryId,
+			@RequestParam(required = false) String type,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
+	) {
+		try {
+			String email = getCurrentUserEmail();
+			return ResponseEntity.ok(transactionService.searchTransactions(email, accountId, categoryId, type, startDate, endDate));
 		} catch (RuntimeException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
