@@ -40,8 +40,27 @@ public class SecurityConfig {
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
                         "/swagger-ui.html",
-                        "/api/auth/**").permitAll() 
+                        "/api/auth/**",
+                        "/login",
+                        "/register",
+                        "/forgetPassword",
+                        "/verifyOTP",
+                        "/resetPassword",
+                        "/assets/**",
+                        "/lib/**",
+                        "/favicon.ico"
+                ).permitAll() 
                 .anyRequest().authenticated() 
+            )
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    String path = request.getServletPath();
+                    if (path.startsWith("/api/")) {
+                        response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                    } else {
+                        response.sendRedirect("/login");
+                    }
+                })
             );
         
         // Thêm cái Filter JWT vào trước filter mặc định của Spring

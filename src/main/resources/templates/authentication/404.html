@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error</title>
+    
+    <!-- bootstrap css link -->
+    <link rel="stylesheet" th:href="@{/lib/bootstrap_5/bootstrap.min.css}">
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="@{/lib/fontawesome/css/all.min.css}">
+    <!-- main css -->
+    <link rel="stylesheet" href="@{/assets/css/global.css}">
+    <link rel="stylesheet" href="@{/assets/css/style.css}">
+    <!-- responsive css -->
+    <link rel="stylesheet" href="@{/assets/css/responsive.css}">
+</head>
+
+<body class="d2c_theme_light">
+    <section class="d2c_error d-flex align-items-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-10 col-lg-6 offset-md-1 offset-lg-3">
+                    <div class="d2c_error_content text-center">
+                        <h1 class="text-primary fw-semibold">404</h1>
+                        <h3 class="text-danger text-capitalize">Page Not Found</h3>
+                        <p class="text-capitalize text-muted">Sorry! The page you are looking for Doesn’t exists!</p>
+                        <a th:href="@{login}" class="btn btn-primary">Back to Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Initial  Javascript -->
+    <script th:src="@{/lib/jQuery/jquery-3.5.1.min.js}"></script>
+    <script th:src="@{/lib/bootstrap_5/bootstrap.bundle.min.js}"></script>
+
+    <!-- custom js -->
+    <script th:src="@{/assets/js/main.js}"></script>
+</body>
+</html>
+
