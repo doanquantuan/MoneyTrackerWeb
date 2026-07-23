@@ -17,6 +17,294 @@
 
     <!-- responsive css -->
     <link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
+    
+    <style>
+    /* Premium Sidebar UI overrides */
+    #d2c_sidebar {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(243, 244, 246, 0.95)) !important;
+        backdrop-filter: blur(16px);
+        border-right: 1px solid rgba(229, 231, 235, 0.8) !important;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Dark mode sidebar */
+    .d2c_theme_dark #d2c_sidebar {
+        background: linear-gradient(180deg, rgba(17, 24, 39, 0.98), rgba(31, 41, 55, 0.98)) !important;
+        border-right: 1px solid rgba(55, 65, 81, 0.8) !important;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* Unified cards - make them borderless and clean background */
+    #d2c_sidebar .card {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    /* Style profile card */
+    #d2c_sidebar .d2c_profile_card {
+        background: rgba(255, 255, 255, 0.7) !important;
+        border: 1px solid rgba(229, 231, 235, 0.8) !important;
+        border-radius: 16px !important;
+        padding: 2.2rem 1rem 1.2rem 1rem !important;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.015) !important;
+        position: relative;
+        margin-top: 2.5rem !important; /* give space for floating avatar */
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .d2c_theme_dark #d2c_sidebar .d2c_profile_card {
+        background: rgba(31, 41, 55, 0.5) !important;
+        border: 1px solid rgba(55, 65, 81, 0.5) !important;
+    }
+    
+    #d2c_sidebar .d2c_profile_card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03) !important;
+    }
+    
+    .d2c_theme_dark #d2c_sidebar .d2c_profile_card:hover {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    #d2c_sidebar .d2c_profile_image {
+        border: 4px solid #fff !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 72px !important;
+        height: 72px !important;
+    }
+    
+    .d2c_theme_dark #d2c_sidebar .d2c_profile_image {
+        border-color: #1f2937 !important;
+    }
+    
+    #d2c_sidebar .d2c_profile_card:hover .d2c_profile_image {
+        transform: translate(-50%, -6px) scale(1.06);
+    }
+
+    /* Profile buttons */
+    #d2c_sidebar .list-inline-item a {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(243, 244, 246, 0.8) !important;
+        color: #4b5563 !important;
+        border-radius: 12px !important;
+        transition: all 0.2s ease;
+    }
+    
+    .d2c_theme_dark #d2c_sidebar .list-inline-item a {
+        background: rgba(55, 65, 81, 0.8) !important;
+        color: #d1d5db !important;
+    }
+    
+    #d2c_sidebar .list-inline-item a:hover {
+        background: #3b82f6 !important;
+        color: #fff !important;
+        transform: translateY(-2px);
+    }
+
+    /* Search input */
+    #d2c_sidebar .d2c_profile_card .form-control {
+        background: rgba(243, 244, 246, 0.8) !important;
+        border: 1px solid rgba(229, 231, 235, 0.8) !important;
+        border-radius: 12px !important;
+        padding: 9px 14px !important;
+        font-size: 0.85rem !important;
+        transition: all 0.2s ease;
+    }
+    
+    .d2c_theme_dark #d2c_sidebar .d2c_profile_card .form-control {
+        background: rgba(17, 24, 39, 0.5) !important;
+        border-color: rgba(55, 65, 81, 0.5) !important;
+        color: #f3f4f6 !important;
+    }
+    
+    #d2c_sidebar .d2c_profile_card .form-control:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+        background: #fff !important;
+    }
+    
+    .d2c_theme_dark #d2c_sidebar .d2c_profile_card .form-control:focus {
+        background: #111827 !important;
+    }
+
+    /* Menu styling */
+    #d2c_sidebar .d2c_menu_card {
+        padding: 0 !important;
+    }
+    
+    #d2c_sidebar .d2c_menu_card .card-body {
+        padding: 0 !important;
+    }
+    
+    #d2c_sidebar .navbar-nav {
+        gap: 6px;
+    }
+    
+    #d2c_sidebar .nav-link {
+        font-size: 0.75rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.06em !important;
+        font-weight: 700 !important;
+        color: #9ca3af !important;
+        padding: 0.5rem 0.5rem !important;
+        margin-bottom: 0.3rem !important;
+    }
+    
+    /* Sub Menu styling */
+    #d2c_sidebar .sub-menu {
+        padding-left: 0 !important;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    #d2c_sidebar .sub-menu-link {
+        display: flex;
+        align-items: center;
+        padding: 11px 16px !important;
+        border-radius: 12px !important;
+        color: #374151 !important;
+        font-weight: 500 !important;
+        font-size: 0.92rem !important;
+        transition: all 0.2s ease !important;
+        position: relative;
+        text-decoration: none !important;
+        background: transparent !important;
+    }
+    
+    .d2c_theme_dark #d2c_sidebar .sub-menu-link {
+        color: #e5e7eb !important;
+    }
+    
+    /* Remove original dotted borders or dots if any */
+    #d2c_sidebar .sub-menu-link::before {
+        display: none !important; /* Hide old dots/lines */
+    }
+
+    #d2c_sidebar .sub-menu-link .d2c_icon {
+        margin-right: 12px !important;
+        font-size: 1.05rem !important;
+        color: #4b5563 !important;
+        transition: all 0.2s ease !important;
+        width: 22px;
+        display: inline-flex;
+        justify-content: center;
+    }
+    
+    .d2c_theme_dark #d2c_sidebar .sub-menu-link .d2c_icon {
+        color: #9ca3af !important;
+    }
+
+    /* Active & Hover states */
+    #d2c_sidebar .sub-menu .nav-item.active .sub-menu-link,
+    #d2c_sidebar .sub-menu .nav-item .sub-menu-link:hover {
+        background: rgba(59, 130, 246, 0.08) !important;
+        color: #2563eb !important;
+    }
+    
+    .d2c_theme_dark #d2c_sidebar .sub-menu .nav-item.active .sub-menu-link,
+    .d2c_theme_dark #d2c_sidebar .sub-menu .nav-item .sub-menu-link:hover {
+        background: rgba(59, 130, 246, 0.15) !important;
+        color: #60a5fa !important;
+    }
+
+    #d2c_sidebar .sub-menu .nav-item.active .sub-menu-link .d2c_icon,
+    #d2c_sidebar .sub-menu .nav-item .sub-menu-link:hover .d2c_icon {
+        color: #2563eb !important;
+        transform: scale(1.08);
+    }
+    
+    .d2c_theme_dark #d2c_sidebar .sub-menu .nav-item.active .sub-menu-link .d2c_icon,
+    .d2c_theme_dark #d2c_sidebar .sub-menu .nav-item .sub-menu-link:hover .d2c_icon {
+        color: #60a5fa !important;
+    }
+    
+    /* Left indicator for active page */
+    #d2c_sidebar .sub-menu .nav-item.active .sub-menu-link::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 20%;
+        height: 60%;
+        width: 4px;
+        background: #3b82f6;
+        border-radius: 0 4px 4px 0;
+    }
+
+    /* Theme switcher & logout card */
+    #d2c_sidebar .d2c_single_menu,
+    #d2c_sidebar .d2c_switch_card {
+        background: rgba(243, 244, 246, 0.6) !important;
+        border: 1px solid rgba(229, 231, 235, 0.8) !important;
+        border-radius: 14px !important;
+        padding: 12px 16px !important;
+        margin-top: 0.6rem !important;
+        transition: all 0.2s ease;
+    }
+    
+    .d2c_theme_dark #d2c_sidebar .d2c_single_menu,
+    .d2c_theme_dark #d2c_sidebar .d2c_switch_card {
+        background: rgba(31, 41, 55, 0.4) !important;
+        border-color: rgba(55, 65, 81, 0.5) !important;
+    }
+    
+    #d2c_sidebar .d2c_single_menu .nav-link,
+    #d2c_sidebar .d2c_switch_card .nav-item {
+        display: flex;
+        align-items: center;
+        font-size: 0.92rem !important;
+        font-weight: 500 !important;
+        color: #374151 !important;
+        text-transform: none !important;
+        letter-spacing: normal !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100%;
+        text-decoration: none !important;
+        background: transparent !important;
+    }
+    
+    .d2c_theme_dark #d2c_sidebar .d2c_single_menu .nav-link,
+    .d2c_theme_dark #d2c_sidebar .d2c_switch_card .nav-item {
+        color: #e5e7eb !important;
+    }
+
+    #d2c_sidebar .d2c_single_menu .nav-link .d2c_icon,
+    #d2c_sidebar .d2c_switch_card .d2c_icon {
+        margin-right: 12px !important;
+        font-size: 1.05rem !important;
+        color: #4b5563 !important;
+        width: 22px;
+        display: inline-flex;
+        justify-content: center;
+    }
+    
+    .d2c_theme_dark #d2c_sidebar .d2c_single_menu .nav-link .d2c_icon,
+    .d2c_theme_dark #d2c_sidebar .d2c_switch_card .d2c_icon {
+        color: #9ca3af !important;
+    }
+    
+    #d2c_sidebar .d2c_single_menu:hover {
+        background: rgba(239, 68, 68, 0.08) !important;
+        border-color: rgba(239, 68, 68, 0.2) !important;
+    }
+    
+    #d2c_sidebar .d2c_single_menu:hover .nav-link {
+        color: #dc2626 !important;
+    }
+    
+    #d2c_sidebar .d2c_single_menu:hover .d2c_icon {
+        color: #dc2626 !important;
+    }
+    </style>
 </head>
 
 <body class="d2c_theme_light">
@@ -168,7 +456,7 @@
                                             <i class="fas fa-user-cog"></i>
                                             <p class="mb-0 ms-2 fw-normal">Profile Settings</p>
                                         </a>
-                                        <a class="dropdown-item d-flex align-items-center py-2" href="#">
+                                        <a class="dropdown-item d-flex align-items-center py-2" th:href="@{/logout}">
                                             <i class="fas fa-sign-out-alt"></i>
                                             <p class="mb-0 ms-2 fw-normal">Log Out</p>
                                         </a>
@@ -202,7 +490,7 @@
                                 <ul class="sub-menu collapse show">
                                     <!-- Sub Menu Item -->
                                     <li class="nav-item active">
-                                        <a class="sub-menu-link" href="./index.html">
+                                        <a class="sub-menu-link" th:href="@{/}">
                                             <span class="d2c_icon">
                                                 <i class="fas fa-home"></i>
                                             </span>
@@ -228,7 +516,7 @@
 
                                     <!-- Sub Menu Item -->
                                     <li class="nav-item">
-                                        <a class="sub-menu-link" href="./pages/transaction.html">
+                                        <a class="sub-menu-link" th:href="@{/transaction}">
                                             <span class="d2c_icon">
                                                 <i class="fas fa-list-alt"></i>
                                             </span>
@@ -241,7 +529,7 @@
 
                                     <!-- Sub Menu Item -->
                                     <li class="nav-item">
-                                        <a class="sub-menu-link" href="./pages/wallet.html">
+                                        <a class="sub-menu-link" th:href="@{/wallet}">
                                             <span class="d2c_icon">
                                                 <i class="fas fa-wallet"></i>
                                             </span>
@@ -254,7 +542,7 @@
 
                                     <!-- Sub Menu Item -->
                                     <li class="nav-item">
-                                        <a class="sub-menu-link" href="./pages/investment.html">
+                                        <a class="sub-menu-link" th:href="@{/investment}">
                                             <span class="d2c_icon">
                                                 <i class="fas fa-network-wired"></i>
                                             </span>
@@ -269,7 +557,7 @@
 
                                     <!-- Sub Menu Item -->
                                     <li class="nav-item">
-                                        <a class="sub-menu-link" href="./pages/stocksFund.html">
+                                        <a class="sub-menu-link" th:href="@{/stocks-fund}">
                                             <span class="d2c_icon">
                                                 <i class="fas fa-chart-line"></i>
                                             </span>
@@ -293,7 +581,7 @@
                                 <ul class="sub-menu collapse show" id="support">
                                     <!-- Sub Menu Item -->
                                     <li class="nav-item">
-                                        <a class="sub-menu-link" href="./pages/community.html">
+                                        <a class="sub-menu-link" th:href="@{/community}">
                                             <span class="d2c_icon">
                                                 <i class="fas fa-users"></i>
                                             </span>
@@ -306,7 +594,7 @@
 
                                     <!-- Sub Menu Item -->
                                     <li class="nav-item">
-                                        <a class="sub-menu-link" href="./pages/support.html">
+                                        <a class="sub-menu-link" th:href="@{/support}">
                                             <span class="d2c_icon">
                                                 <i class="fas fa-hands-helping"></i>
                                             </span>
@@ -319,7 +607,7 @@
 
                                     <!-- Sub Menu Item -->
                                     <li class="nav-item">
-                                        <a class="sub-menu-link" href="./pages/documentation.html">
+                                        <a class="sub-menu-link" th:href="@{/documentation}">
                                             <span class="d2c_icon">
                                                 <i class="fas fa-book-open"></i>
                                             </span>
@@ -346,7 +634,7 @@
                         <ul class="navbar-nav">
                             <!-- Item -->
                             <li class="nav-item">
-                                <a class="nav-link" href="#">
+                                <a class="nav-link" th:href="@{/logout}">
                                     <span class="d2c_icon text-danger">
                                         <i class="fas fa-sign-out-alt"></i>
                                     </span>
@@ -410,5 +698,25 @@
     <!-- custom js -->
     <script th:src="@{/assets/js/main.js}"></script>
 
+    <script>
+        $(document).ready(function() {
+            const currentPath = window.location.pathname;
+            
+            // Remove active class from all nav-items inside sidebar
+            $('#d2c_sidebar .sub-menu .nav-item').removeClass('active');
+            
+            // Find link that matches the current pathname
+            $('#d2c_sidebar .sub-menu-link').each(function() {
+                const href = $(this).attr('href');
+                if (href) {
+                    if (currentPath === href || 
+                        (href !== '/' && currentPath.endsWith(href)) ||
+                        (currentPath === '/' && (href.endsWith('index.html') || href === '/'))) {
+                        $(this).closest('.nav-item').addClass('active');
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>

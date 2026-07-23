@@ -43,6 +43,41 @@ public class WebViewController {
         return "pages/account";
     }
 
+    @GetMapping("/transaction")
+    public String transaction() {
+        return "pages/transaction";
+    }
+
+    @GetMapping("/wallet")
+    public String wallet() {
+        return "pages/wallet";
+    }
+
+    @GetMapping("/investment")
+    public String investment() {
+        return "pages/investment";
+    }
+
+    @GetMapping("/stocks-fund")
+    public String stocksFund() {
+        return "pages/stocksFund";
+    }
+
+    @GetMapping("/community")
+    public String community() {
+        return "pages/community";
+    }
+
+    @GetMapping("/support")
+    public String support() {
+        return "pages/support";
+    }
+
+    @GetMapping("/documentation")
+    public String documentation() {
+        return "pages/documentation";
+    }
+
     @GetMapping("/logout")
     public String logout(HttpServletResponse response) {
         Cookie cookie = new Cookie("auth_token", null);
