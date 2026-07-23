@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verify OTP</title>
     <!-- bootstrap css link -->
-    <link rel="stylesheet" th:href="@{lib/bootstrap_5/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/lib/bootstrap_5/bootstrap.min.css}">
     <!-- Font Awesome CDN -->
     <link rel="stylesheet" th:href="@{/lib/fontawesome/css/all.min.css}">
     <!-- main css -->
@@ -34,7 +34,7 @@
 	                    </div>
 	
 	                    <!-- VERIFY OTP FORM -->
-	                    <form th:action="@{/verifyOTP}" method="post" novalidate>
+	                    <form id="verifyOtpForm" novalidate>
 	
 	                        <div class="mb-3">
 	                            <label class="form-label">Your OTP</label>
@@ -45,9 +45,9 @@
 	                                   maxlength="6"
 	                                   required>
 	                        </div>
-	                        <div th:if="${error}" class="alert alert-danger">
-						        <span th:text="${error}"></span>
-						    </div>
+	                        
+	                        <!-- Alert placeholder for AJAX feedback -->
+                            <div id="alertMessage" class="alert" style="display:none; padding: 12px; margin-bottom: 15px; border-radius: 8px; font-weight: 500;"></div>
 	
 	                        <div class="mb-3">
 	                            <button type="submit"
@@ -57,13 +57,14 @@
 	                        </div>
 	                    </form>
 	
-	                    <!-- RESEND OTP FORM -->
-	                    <form th:action="@{/resend-otp}" method="post">
-	                        <button type="submit"
-	                                class="d2c_link_btn btn w-100 d-flex align-items-center justify-content-center text-capitalize mb-2">
+	                    <!-- RESEND OTP BUTTON -->
+	                    <div class="mb-2">
+	                        <button type="button"
+	                                id="resendOtpBtn"
+	                                class="d2c_link_btn btn w-100 d-flex align-items-center justify-content-center text-capitalize">
 	                            Resend OTP
 	                        </button>
-	                    </form>
+	                    </div>
 	
 	                    <!-- BACK TO LOGIN -->
 	                    <a th:href="@{/login}"
@@ -83,6 +84,105 @@
 
     <!-- custom js -->
     <script th:src="@{/assets/js/main.js}"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Retrieve email from sessionStorage
+            const email = sessionStorage.getItem('resetEmail');
+            if (!email) {
+                // If no email context, redirect back to forgetPassword
+                window.location.href = '/forgetPassword';
+                return;
+            }
+            
+            const $alert = $('#alertMessage');
+            
+            // Handle Verify OTP Submit
+            $('#verifyOtpForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const $form = $(this);
+                const $btn = $form.find('button[type="submit"]');
+                const otp = $('input[name="otp"]').val();
+                
+                if ($form[0].checkValidity() === false) {
+                    e.stopPropagation();
+                    $form.addClass('was-validated');
+                    return;
+                }
+                
+                $alert.hide().removeClass('alert-danger alert-success');
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Verifying...');
+                
+                $.ajax({
+                    url: '/api/auth/verify-otp',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ email: email, otp: otp }),
+                    success: function(response) {
+                        $alert.addClass('alert-success')
+                              .text("Xác thực OTP thành công! Đang chuyển hướng thiết lập mật khẩu mới...")
+                              .fadeIn();
+                        
+                        setTimeout(function() {
+                            window.location.href = '/resetPassword';
+                        }, 1500);
+                    },
+                    error: function(xhr) {
+                        $btn.prop('disabled', false).text('Submit');
+                        let errMsg = "Mã OTP không hợp lệ hoặc đã hết hạn.";
+                        if (xhr.status === 400 || xhr.status === 500) {
+                            try {
+                                const errObj = JSON.parse(xhr.responseText);
+                                if (errObj && errObj.message) {
+                                    errMsg = errObj.message;
+                                }
+                            } catch(e) {
+                                if (xhr.responseText) {
+                                    errMsg = xhr.responseText;
+                                }
+                            }
+                        }
+                        $alert.addClass('alert-danger')
+                              .text(errMsg)
+                              .fadeIn();
+                    }
+                });
+            });
+            
+            // Handle Resend OTP
+            $('#resendOtpBtn').on('click', function(e) {
+                e.preventDefault();
+                
+                const $btn = $(this);
+                $alert.hide().removeClass('alert-danger alert-success');
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Sending...');
+                
+                $.ajax({
+                    url: '/api/auth/forget-password',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ email: email }),
+                    success: function(response) {
+                        $btn.prop('disabled', false).text('Resend OTP');
+                        $alert.addClass('alert-success')
+                              .text("Mã OTP mới đã được gửi thành công đến email của bạn!")
+                              .fadeIn();
+                    },
+                    error: function(xhr) {
+                        $btn.prop('disabled', false).text('Resend OTP');
+                        let errMsg = "Không thể gửi lại mã OTP. Vui lòng thử lại sau!";
+                        if (xhr.responseText) {
+                            errMsg = xhr.responseText;
+                        }
+                        $alert.addClass('alert-danger')
+                              .text(errMsg)
+                              .fadeIn();
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
 
