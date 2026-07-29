@@ -1,12 +1,19 @@
 package money.controller.web;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import money.service.IAccountService;
 
 @Controller
 public class WebViewController {
+
+    @Autowired
+    private IAccountService accountService;
 
     @GetMapping("/login")
     public String login() {
@@ -39,7 +46,9 @@ public class WebViewController {
     }
 
     @GetMapping("/accounts")
-    public String accounts() {
+    public String accounts(Model model) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("accountsByType", accountService.getAccountListByAccountType(email));
         return "pages/account";
     }
 
