@@ -1,995 +1,651 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/sidebar}">
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Giao dịch - Money Tracker</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="../assets/images/logo/logo-sm.png" type="image/gif" sizes="16x16">
-    <title>Transaction</title>
-    <meta name="og:description" content="FinDeshY is a free financial Bootstrap dashboard template to manage your financial data easily. This free financial dashboard uses Bootstrap to provide a responsive and user-friendly interface. Whether you're a small business owner seeking insights into your company's financial health or an individual looking to simplify your personal finances, this free Bootstrap dashboard template has you covered.">
-    <meta name="robots" content="index, follow">
-    <meta name="og:title" property="og:title" content="FinDeshY - Free Financial Bootstrap Dashboard Template">
-    <meta property="og:image" content="https://www.designtocodes.com/wp-content/uploads/2023/10/FinDeshY-Professional-Financial-Bootstrap-Dashboard-Template.jpg">
-    <!-- bootstrap css link -->
-    <link rel="stylesheet" href="../lib/bootstrap_5/bootstrap.min.css">
-    <!-- Font Awesome CDN -->
-    <link rel="stylesheet" href="../lib/fontawesome/css/all.min.css">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- favicon -->
+    <link rel="icon" th:href="@{/assets/images/logo/logo-sm.png}" sizes="16x16">
+    
+    <!-- bootstrap -->
+    <link rel="stylesheet" th:href="@{/lib/bootstrap_5/bootstrap.min.css}">
+    
+    <!-- font awesome -->
+    <link rel="stylesheet" th:href="@{/lib/fontawesome/css/all.min.css}">
+    
     <!-- main css -->
-    <link rel="stylesheet" href="../assets/css/global.css">
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <!-- responsive css -->
-    <link rel="stylesheet" href="../assets/css/responsive.css">
+    <link rel="stylesheet" th:href="@{/assets/css/global.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
 </head>
 
-<body class="d2c_theme_light">
-    <!-- Preloader Start -->
-    <div class="preloader">
-        <img src="../assets/images/logo/logo.png" alt="DesignToCodes">
-    </div>
-    <!-- Preloader End -->
+<body>
 
-    <div class="d2c_wrapper">
+    <!-- ================= CONTENT ================= -->
+    <div layout:fragment="content">
 
-        <!-- Main sidebar -->
-        <div class="d2c_sidebar offcanvas-lg offcanvas-start p-4 pe-lg-2" tabindex="-1" id="d2c_sidebar">
-            <div class="d-flex flex-column">
-                <!-- Logo -->
-                <a href="../index.html" class="mb-5 brand-icon">
-                    <img class="navbar-brand" src="../assets/images/logo/logo.png" alt="logo">
-                </a>
-                <!-- End:Logo -->
+        <!-- Title -->
+        <h4 class="mb-4 text-capitalize">Quản lý giao dịch</h4>
 
-                <!-- Profile -->
-                <div class="card d2c_profile_card text-center mb-4">
-                    <!-- Profile Image -->
-                    <a href="../pages/elements/profile.html">
-                        <img class="rounded-circle d2c_profile_image position-absolute top-0 start-50 translate-middle mb-2" src="../assets/images/profile/profile-1.jpg" alt="d2c Profile Image">
-                    </a>
-                    <!-- End:Profile Image-->
+        <div class="row">
+            <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
+                <button type="button" class="btn btn-primary" id="addTransactionBtn">
+                    <i class="fas fa-plus"></i> Thêm giao dịch
+                </button>
+            </div>
+        </div>
 
-                    <div class="card-body mt-4">
-                        <h6 class="fw-bold mb-3">Wade Warren</h6>
-                        <ul class="list-inline">
-                            <!-- Notification -->
-                            <li class="list-inline-item position-relative me-3">
-                                <a class="nav-link p-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-bell fa-fw"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-secondary border rounded-circle"></span>
-                                </a>
-                                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow border-0 py-0 mt-3">
-                                    <h6 class="dropdown-header text-white bg-primary rounded-top py-3">Notifications</h6>
-                                    <a class="dropdown-item d-flex align-items-center" href="../pages/elements/notification.html">
-                                        <div class="text-truncate d-block">
-                                            <p class="mb-0"><small>19 sec ago</small></p>
-                                            <h6 class="mb-0">Hi there! I am wondering if you can help me with a problem I've been having.</h6>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="../pages/elements/notification.html">
-                                        <div class="text-truncate d-block">
-                                            <p class="mb-0"><small>2 min ago</small></p>
-                                            <h6 class="mb-0">
-                                                I have the photos that you ordered last month, how would
-                                                you like them sent to you?
-                                            </h6>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="../pages/elements/notification.html">
-                                        <div class="text-truncate d-block">
-                                            <p class="mb-0"><small>3 min ago</small></p>
-                                            <h6 class="mb-0">Last month's report looks great, I am very happy with
-                                                the progress so far, keep up the good work!</h6>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="../pages/elements/notification.html">
-                                        <div class="text-truncate d-block">
-                                            <p class="mb-0"><small>4 min ago</small></p>
-                                            <h6 class="mb-0">Am I a good boy? The reason I ask is because someone
-                                                told me that people say this to all dogs, even if they
-                                                aren't good...</h6>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item text-center small text-gray-500 py-2" href="../pages/elements/notification.html">See All
-                                        Notifications</a>
+        <!-- Filter Card -->
+        <div class="card h-auto mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-filter me-2"></i>Bộ lọc Tìm kiếm</h6>
+            </div>
+            <div class="card-body">
+                <form id="filterForm">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Loại giao dịch</label>
+                            <select class="form-select" id="filterType">
+                                <option value="">Tất cả</option>
+                                <option value="INCOME">Thu nhập (Income)</option>
+                                <option value="EXPENSE">Chi tiêu (Expense)</option>
+                                <option value="TRANSFER">Chuyển khoản (Transfer)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Tài khoản</label>
+                            <select class="form-select" id="filterAccount">
+                                <option value="">Tất cả tài khoản</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Danh mục</label>
+                            <select class="form-select" id="filterCategory">
+                                <option value="">Tất cả danh mục</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Từ ngày</label>
+                            <input type="datetime-local" class="form-control" id="filterStartDate">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Đến ngày</label>
+                            <input type="datetime-local" class="form-control" id="filterEndDate">
+                        </div>
+                        <div class="col-md-9 d-flex justify-content-end gap-2 align-items-end">
+                            <button type="button" class="btn btn-secondary" id="resetFilterBtn">
+                                <i class="fas fa-undo me-1"></i> Xóa bộ lọc
+                            </button>
+                            <button type="button" class="btn btn-primary" id="applyFilterBtn">
+                                <i class="fas fa-search me-1"></i> Lọc
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-                                    <div class="dropdown-arrow bg-info"></div>
-                                </div>
-                            </li>
-                            <!-- End:Notification -->
+        <!-- Transactions Datatable Card -->
+        <div class="card h-auto d2c_projects_datatable mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-history me-2"></i>Lịch sử giao dịch</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table align-middle" id="transactionTable">
+                        <thead>
+                            <tr>
+                                <th style="min-width: 140px;">Thời gian</th>
+                                <th style="min-width: 110px;">Loại</th>
+                                <th style="min-width: 180px;">Tài khoản</th>
+                                <th style="min-width: 150px;">Danh mục</th>
+                                <th style="min-width: 130px;">Số tiền</th>
+                                <th style="min-width: 160px;">Ghi chú</th>
+                                <th class="text-center" style="min-width: 90px;">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionTableBody">
+                            <!-- JS will inject rows here -->
+                            <tr id="emptyRowPlaceholder">
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    <i class="fas fa-info-circle fa-2x mb-2 d-block"></i>
+                                    Đang tải dữ liệu giao dịch...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-                            <!-- MailBox -->
-                            <li class="list-inline-item position-relative me-3">
-                                <a class="nav-link p-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-envelope-open-text"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-                                </a>
-                                <div class="dropdown-list dropdown-menu shadow border-0 end-0 py-0 mt-3">
-                                    <h6 class="dropdown-header text-white bg-primary rounded-top py-3">Mail</h6>
-                                    <a class="dropdown-item d-flex align-items-center" href="../pages/mailDetails.html">
-                                        <div class="text-truncate d-flex align-items-center">
-                                            <div>
-                                                <img src="../assets/images/avatar/man-1.png" class="d2c_mail_avatar" alt="profile avatar">
-                                            </div>
-                                            <div>
-                                                <p class="mb-0"><small>3 min ago</small></p>
-                                                <h6 class="mb-0">Hi there! I am wondering if you can help me with a
-                                                    problem I've been having.</h6>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="../pages/mailDetails.html">
-                                        <div class="text-truncate d-flex align-items-center">
-                                            <div>
-                                                <img src="../assets/images/avatar/man-2.png" class="d2c_mail_avatar" alt="profile avatar">
-                                            </div>
-                                            <div>
-                                                <p class="mb-0"><small>4 min ago</small></p>
-                                                <h6 class="mb-0">I have the photos that you ordered last month, how would you like them sent to you?</h6>
-                                            </div>
-
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="../pages/mailDetails.html">
-                                        <div class="text-truncate d-flex align-items-center">
-                                            <div>
-                                                <img src="../assets/images/avatar/man-3.png" class="d2c_mail_avatar" alt="profile avatar">
-                                            </div>
-                                            <div>
-                                                <p class="mb-0"><small>6 min ago</small></p>
-                                                <h6 class="mb-0">Last month's report looks great, I am very happy with
-                                                    the progress so far, keep up the good work!</h6>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="../pages/mailDetails.html">
-                                        <div class="text-truncate d-flex align-items-center">
-                                            <div>
-                                                <img src="../assets/images/avatar/man-4.png" class="d2c_mail_avatar" alt="profile avatar">
-                                            </div>
-                                            <div>
-                                                <p class="mb-0"><small>10 min ago</small></p>
-                                                <h6 class="mb-0">Am I a good boy? The reason I ask is because someone
-                                                    told me that people say this to all dogs, even if they
-                                                    aren't good..</h6>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item text-center small text-gray-500 py-2" href="../pages/mailDetails.html">See All Mail</a>
-
-                                    <div class="dropdown-arrow bg-info"></div>
-                                </div>
-                            </li>
-                            <!-- End:MailBox -->
-
-                            <!-- Setting-->
-                            <li class="list-inline-item position-relative">
-                                <a class="nav-link p-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-cog"></i>
-                                </a>
-                                <div class="dropdown-list dropdown-menu shadow border-0 end-0 py-0 mt-3">
-                                    <h6 class="dropdown-header text-white bg-primary rounded-top py-3">Settings</h6>
-                                    <div class="d2c_profile_settings">
-                                        <a class="dropdown-item d-flex align-items-center py-2" href="../pages/support.html">
-                                            <i class="fas fa-sms"></i>
-                                            <p class="mb-0 ms-2 fw-normal">Messages</p>
-                                        </a>
-                                        <a class="dropdown-item d-flex align-items-center py-2" href="../pages/elements/profile.html">
-                                            <i class="fas fa-user-cog"></i>
-                                            <p class="mb-0 ms-2 fw-normal">Profile Settings</p>
-                                        </a>
-                                        <a class="dropdown-item d-flex align-items-center py-2" href="#">
-                                            <i class="fas fa-sign-out-alt"></i>
-                                            <p class="mb-0 ms-2 fw-normal">Log Out</p>
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-                            <!-- End:Setting -->
-                        </ul>
-
-                        <!-- Search -->
-                        <form>
-                            <div class="input-group">
-                                <input class="form-control" type="search" placeholder="Search">
+        <!-- Add/Edit Transaction Modal -->
+        <div class="modal fade" id="transactionModal" tabindex="-1" aria-labelledby="transactionModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="transactionModalLabel">Thêm giao dịch mới</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger d-none" id="modalErrorAlert"></div>
+                        <form id="transactionForm">
+                            <input type="hidden" id="transactionId">
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Loại giao dịch <span class="text-danger">*</span></label>
+                                <select class="form-select" id="txType" required>
+                                    <option value="EXPENSE">Chi tiêu (Expense)</option>
+                                    <option value="INCOME">Thu nhập (Income)</option>
+                                    <option value="TRANSFER">Chuyển khoản (Transfer)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3" id="sourceAccountGroup">
+                                <label class="form-label fw-bold" id="sourceAccountLabel">Tài khoản nguồn <span class="text-danger">*</span></label>
+                                <select class="form-select" id="txAccountId" required>
+                                    <option value="">-- Chọn tài khoản --</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3 d-none" id="toAccountGroup">
+                                <label class="form-label fw-bold">Tài khoản nhận <span class="text-danger">*</span></label>
+                                <select class="form-select" id="txToAccountId">
+                                    <option value="">-- Chọn tài khoản nhận --</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3" id="categoryGroup">
+                                <label class="form-label fw-bold">Danh mục <span class="text-danger">*</span></label>
+                                <select class="form-select" id="txCategoryId" required>
+                                    <option value="">-- Chọn danh mục --</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Số tiền <span class="text-danger">*</span></label>
+                                <input type="number" step="any" min="0.01" class="form-control" id="txAmount" required placeholder="Nhập số tiền...">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Ghi chú</label>
+                                <textarea class="form-control" id="txNote" rows="2" placeholder="Nhập ghi chú (không bắt buộc)..."></textarea>
                             </div>
                         </form>
-                        <!-- End:Search -->
                     </div>
-                </div>
-                <!-- End:Profile -->
-
-                <!-- Menu -->
-                <div class="card d2c_menu_card mb-4">
-                    <div class="card-body">
-                        <ul class="navbar-nav flex-grow-1">
-                            <!-- Menu Item -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <span>Menu</span>
-                                </a>
-                                <!-- Sub Menu -->
-                                <ul class="sub-menu collapse show">
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../index.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-home"></i>
-                                            </span>
-                                            <span>
-                                                Overview
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../pages/payment.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-money-check-alt"></i>
-                                            </span>
-                                            <span>
-                                                Payment
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item active">
-                                        <a class="sub-menu-link" href="../pages/transaction.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-list-alt"></i>
-                                            </span>
-                                            <span>
-                                                Transaction
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../pages/wallet.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-wallet"></i>
-                                            </span>
-                                            <span>
-                                                Wallet
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../pages/investment.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-network-wired"></i>
-                                            </span>
-                                            <span>
-                                                Investment
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../pages/stocksFund.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-chart-line"></i>
-                                            </span>
-                                            <span>
-                                                Stock & Fund
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-                                </ul>
-                                <!-- End:Sub Menu -->
-                            </li>
-                            <!-- End:Menu Item -->
-
-
-
-                            <!-- Menu Item -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <span>Extra</span>
-                                </a>
-
-                                <!-- Sub Menu-->
-                                <ul class="sub-menu collapse show" id="extra">
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../pages/faq.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-question-circle"></i>
-                                            </span>
-                                            <span>
-                                                FAQ
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#authentication" aria-expanded="false" href="#">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-sticky-note"></i>
-                                            </span>
-                                            <span>
-                                                Authentication
-                                            </span>
-                                            <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                        </a>
-                                        <!-- Child Sub Menu -->
-                                        <ul class="sub-menu collapse" id="authentication">
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="../pages/authentication/signUp.html">
-                                                    <span>
-                                                        Sing up
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="../pages/authentication/signIn.html">
-                                                    <span>
-                                                        Login
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="../pages/authentication/forgetPassword.html">
-                                                    <span>
-                                                        Forget Password
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="../pages/authentication/404.html">
-                                                    <span>
-                                                        404
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-                                        </ul>
-                                        <!-- End:Child Sub Menu -->
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#elements" aria-expanded="false" href="#">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-th"></i>
-                                            </span>
-                                            <span>
-                                                Elements
-                                            </span>
-                                            <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                        </a>
-                                        <!-- Child Sub Menu -->
-                                        <ul class="sub-menu collapse" id="elements">
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="../pages/elements/notification.html">
-                                                    <span>
-                                                        Notification
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="../pages/elements/profile.html">
-                                                    <span>
-                                                        User Profile
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="../pages/elements/invoice.html">
-                                                    <span>
-                                                        Invoice
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#charts-elements" aria-expanded="false" href="#">
-                                                    <span>
-                                                        Charts
-                                                    </span>
-                                                    <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                                </a>
-
-                                                <!-- Start:Submenu List-->
-                                                <ul class="sub-menu collapse" id="charts-elements">
-                                                    <!-- Child Sub Menu Item -->
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="../pages/elements/chartsjs.html">
-                                                            <span>
-                                                                ChartJs
-                                                            </span>
-                                                        </a>
-                                                    </li>
-                                                    <!-- End:Child Sub Menu Item -->
-                                                    <!-- Child Sub Menu Item -->
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="../pages/elements/apexchart.html">
-                                                            <span>
-                                                                ApexChart
-                                                            </span>
-                                                        </a>
-                                                    </li>
-                                                    <!-- End:Child Sub Menu Item -->
-
-
-
-
-                                                </ul>
-                                                <!-- End:Submenu List-->
-
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#table-elements" aria-expanded="false" href="#">
-                                                    <span>
-                                                        Table
-                                                    </span>
-                                                    <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                                </a>
-
-                                                <!-- Start:Submenu List-->
-                                                <ul class="sub-menu collapse" id="table-elements">
-                                                    <!-- Child Sub Menu Item -->
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="../pages/elements/basictables.html">
-                                                            <span>
-                                                                Basic Table
-                                                            </span>
-                                                        </a>
-                                                    </li>
-                                                    <!-- End:Child Sub Menu Item -->
-
-
-                                                </ul>
-                                                <!-- End:Submenu List-->
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#form-elements" aria-expanded="false" href="#">
-                                                    <span>
-                                                        Form
-                                                    </span>
-                                                    <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                                </a>
-
-                                                <!-- Start:Submenu List-->
-                                                <ul class="sub-menu collapse" id="form-elements">
-                                                    <!-- Child Sub Menu Item -->
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="../pages/elements/basicformselement.html">
-                                                            <span> Basic Element </span>
-                                                        </a>
-                                                    </li>
-
-
-
-
-
-
-                                                    <!-- End:Child Sub Menu Item -->
-                                                </ul>
-                                                <!-- End:Submenu List-->
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-
-                                            <!-- End:Child Sub Menu Item -->
-                                            <!-- Child Sub Menu Item -->
-
-                                            <!-- End:Child Sub Menu Item -->
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="../pages/elements/tab.html">
-                                                    <span>
-                                                        Tab
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#modal-elements" aria-expanded="false" href="#">
-                                                    <span>
-                                                        Modal
-                                                    </span>
-                                                    <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                                </a>
-
-                                                <!-- Start:Submenu List-->
-                                                <ul class="sub-menu collapse" id="modal-elements">
-                                                    <!-- Child Sub Menu Item -->
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="../pages/elements/basicmodal.html">
-                                                            <span> Basic Modal </span>
-                                                        </a>
-                                                    </li>
-
-
-                                                    <!-- End:Child Sub Menu Item -->
-
-                                                </ul>
-                                                <!-- End:Submenu List-->
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="../pages/elements/breadcrumbs.html">
-                                                    <span>
-                                                        Breadcrumbs
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                        </ul>
-                                        <!-- End:Child Sub Menu -->
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-                                </ul>
-                                <!-- End:Sub Menu -->
-                            </li>
-                            <!-- End:Menu Item -->
-
-                            <!-- Menu Item -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <span>Support</span>
-                                </a>
-                                <!-- Sub Menu -->
-                                <ul class="sub-menu collapse show" id="support">
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../pages/community.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-users"></i>
-                                            </span>
-                                            <span>
-                                                Community
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../pages/support.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-hands-helping"></i>
-                                            </span>
-                                            <span>
-                                                Help & Support
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../pages/documentation.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-book-open"></i>
-                                            </span>
-                                            <span>
-                                                Documentation
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-                                </ul>
-                                <!-- End:Sub Menu -->
-                            </li>
-                            <!-- End:Menu Item -->
-                        </ul>
-                    </div>
-                </div>
-                <!-- End:Menu -->
-
-                <!-- Logout -->
-                <div class="card d2c_single_menu mb-4">
-                    <div class="card-body p-0">
-                        <ul class="navbar-nav">
-                            <!-- Item -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <span class="d2c_icon text-danger">
-                                        <i class="fas fa-sign-out-alt"></i>
-                                    </span>
-                                    <span>
-                                        Logout
-                                    </span>
-                                </a>
-                            </li>
-                            <!-- End:Item -->
-                        </ul>
-                    </div>
-                </div>
-                <!-- End:Logout -->
-
-                <!-- Theme Mode -->
-                <div class="card d2c_switch_card">
-                    <div class="card-body p-0">
-                        <ul class="navbar-nav">
-                            <!-- Item -->
-                            <li class="nav-item d-flex align-items-center">
-                                <span class="d2c_icon">
-                                    <i class="fas fa-moon"></i>
-                                </span>
-                                <span>Dark Mood</span>
-                                <span class="form-switch d-flex ms-auto">
-                                    <input class="form-check-input" id="d2c_theme_changer" type="checkbox" role="switch">
-                                </span>
-                            </li>
-                            <!-- End:Item -->
-                        </ul>
-                    </div>
-                </div>
-                <!-- End:Theme Mode -->
-            </div>
-        </div>
-        <!-- End:Sidebar -->
-
-        <!-- Main Body-->
-        <div class="d2c_main p-4 ps-lg-3">
-
-            <!-- Title -->
-            <h4 class="mb-4 text-capitalize">Transaction</h4>
-            <!-- End:Title -->
-
-            <div class="row">
-                <div class="col-12">
-                    <div class="card h-auto d2c_projects_datatable">
-                        <div class="card-header">
-                            <h6>Payment Data</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive table-responsive">
-                                <table class="table" id="d2c_advanced_table_2">
-                                    <thead>
-                                        <tr>
-                                            <th style="min-width: 150px;">Date</th>
-                                            <th style="min-width: 150px;">Client Name</th>
-                                            <th style="min-width: 130px;">Account</th>
-                                            <th style="min-width: 130px;">Account Number</th>
-                                            <th style="min-width: 150px;">Transaction ID</th>
-                                            <th style="min-width: 130px;">Amount</th>
-                                            <th class="text-center text-primary" style="min-width: 50px;"><i class="fas fa-ellipsis-h"></i></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>20 Mar 2023</td>
-                                            <td>Jane Cooper</td>
-                                            <td>Paypal</td>
-                                            <td>58755780</td>
-                                            <td>1259983MN421ER9H</td>
-                                            <td>$4,582.39</td>
-                                            <td class="text-center">
-                                                <div class="dropdown">
-                                                    <button class="btn text-primary bg-transparent border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-ellipsis-h"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="#">Edit</a></li>
-                                                        <li><a class="dropdown-item" href="#">Delete</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>22 Mar 2023</td>
-                                            <td>Lina Davis</td>
-                                            <td>Payoneer</td>
-                                            <td>34755870</td>
-                                            <td>4359983MN421ER9H</td>
-                                            <td>$3,582.39</td>
-                                            <td class="text-center">
-                                                <div class="dropdown">
-                                                    <button class="btn text-primary bg-transparent border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-ellipsis-h"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="#">Edit</a></li>
-                                                        <li><a class="dropdown-item" href="#">Delete</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>26 Mar 2023</td>
-                                            <td>Terry Acker</td>
-                                            <td>Payoneer</td>
-                                            <td>58342780</td>
-                                            <td>7859983MN421ER9H</td>
-                                            <td>$2,456.39</td>
-                                            <td class="text-center">
-                                                <div class="dropdown">
-                                                    <button class="btn text-primary bg-transparent border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-ellipsis-h"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="#">Edit</a></li>
-                                                        <li><a class="dropdown-item" href="#">Delete</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>28 Mar 2023</td>
-                                            <td>Pedro Myers</td>
-                                            <td>Paypal</td>
-                                            <td>37755908</td>
-                                            <td>1259983MN421ET50</td>
-                                            <td>$2,582.39</td>
-                                            <td class="text-center">
-                                                <div class="dropdown">
-                                                    <button class="btn text-primary bg-transparent border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-ellipsis-h"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="#">Edit</a></li>
-                                                        <li><a class="dropdown-item" href="#">Delete</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>29 Mar 2023</td>
-                                            <td>Cory Cash</td>
-                                            <td>Payoneer</td>
-                                            <td>25875562</td>
-                                            <td>1259983MN421ER9T</td>
-                                            <td>$5,362.39</td>
-                                            <td class="text-center">
-                                                <div class="dropdown">
-                                                    <button class="btn text-primary bg-transparent border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-ellipsis-h"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="#">Edit</a></li>
-                                                        <li><a class="dropdown-item" href="#">Delete</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>1 April 2023</td>
-                                            <td>Fred Proctor</td>
-                                            <td>Paypal</td>
-                                            <td>18655657</td>
-                                            <td>1259983MN421TY9E</td>
-                                            <td>$1,582.39</td>
-                                            <td class="text-center">
-                                                <div class="dropdown">
-                                                    <button class="btn text-primary bg-transparent border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-ellipsis-h"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="#">Edit</a></li>
-                                                        <li><a class="dropdown-item" href="#">Delete</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>2 April 2023</td>
-                                            <td>Fred B. Proctor</td>
-                                            <td>Payoneer</td>
-                                            <td>43755231</td>
-                                            <td>1259983MN421RF7W</td>
-                                            <td>$7,582.39</td>
-                                            <td class="text-center">
-                                                <div class="dropdown">
-                                                    <button class="btn text-primary bg-transparent border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-ellipsis-h"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="#">Edit</a></li>
-                                                        <li><a class="dropdown-item" href="#">Delete</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>6 April 2023</td>
-                                            <td>Thomas Fargo</td>
-                                            <td>Paypal</td>
-                                            <td>56289231</td>
-                                            <td>1259983MN421WK7Y</td>
-                                            <td>$4,582.39</td>
-                                            <td class="text-center">
-                                                <div class="dropdown">
-                                                    <button class="btn text-primary bg-transparent border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-ellipsis-h"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="#">Edit</a></li>
-                                                        <li><a class="dropdown-item" href="#">Delete</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>10 April 2023</td>
-                                            <td>Alfred Brown</td>
-                                            <td>Payoneer</td>
-                                            <td>76755234</td>
-                                            <td>1259983MN421IK8D</td>
-                                            <td>$4,456.30</td>
-                                            <td class="text-center">
-                                                <div class="dropdown">
-                                                    <button class="btn text-primary bg-transparent border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-ellipsis-h"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="#">Edit</a></li>
-                                                        <li><a class="dropdown-item" href="#">Delete</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>11 April 2023</td>
-                                            <td>Jane Cooper</td>
-                                            <td>Payoneer</td>
-                                            <td>87695342</td>
-                                            <td>1259983MN421BJ9P</td>
-                                            <td>$5,234.39</td>
-                                            <td class="text-center">
-                                                <div class="dropdown">
-                                                    <button class="btn text-primary bg-transparent border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-ellipsis-h"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="#">Edit</a></li>
-                                                        <li><a class="dropdown-item" href="#">Delete</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>20 April 2023</td>
-                                            <td>Toby Kellum</td>
-                                            <td>Payoneer</td>
-                                            <td>89765454</td>
-                                            <td>1259983MN421IS82</td>
-                                            <td>$4,582.39</td>
-                                            <td class="text-center">
-                                                <div class="dropdown">
-                                                    <button class="btn text-primary bg-transparent border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-ellipsis-h"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="#">Edit</a></li>
-                                                        <li><a class="dropdown-item" href="#">Delete</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>26 April 2023</td>
-                                            <td>Ken Davis</td>
-                                            <td>Paypal</td>
-                                            <td>36786345</td>
-                                            <td>1259983MN421GH7R</td>
-                                            <td>$3,908.30</td>
-                                            <td class="text-center">
-                                                <div class="dropdown">
-                                                    <button class="btn text-primary bg-transparent border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-ellipsis-h"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="#">Edit</a></li>
-                                                        <li><a class="dropdown-item" href="#">Delete</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>29 April 2023</td>
-                                            <td>Jane Cooper</td>
-                                            <td>Paypal</td>
-                                            <td>34565345</td>
-                                            <td>1259983MN421ER9T</td>
-                                            <td>$2,343.39</td>
-                                            <td class="text-center">
-                                                <div class="dropdown">
-                                                    <button class="btn text-primary bg-transparent border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-ellipsis-h"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="#">Edit</a></li>
-                                                        <li><a class="dropdown-item" href="#">Delete</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="button" class="btn btn-primary" id="saveTransactionBtn">Lưu</button>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- End:Main Body -->
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteConfirmModalLabel">Xác nhận xóa giao dịch</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Bạn có chắc chắn muốn xóa giao dịch này không? Hành động này sẽ cập nhật lại số dư các tài khoản liên quan.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inline Page Script -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                $(function () {
+                    // Global Caches
+                    let accountList = [];
+                    let categoryList = [];
+                    let mode = 'CREATE'; // CREATE or EDIT
+                    let txIdToDelete = null;
+
+                    // Init Modals
+                    const transactionModal = new bootstrap.Modal(document.getElementById('transactionModal'));
+                    const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+
+                    // Form element references
+                    const $txType = $('#txType');
+                    const $txAccountId = $('#txAccountId');
+                    const $txToAccountId = $('#txToAccountId');
+                    const $txCategoryId = $('#txCategoryId');
+                    const $toAccountGroup = $('#toAccountGroup');
+                    const $categoryGroup = $('#categoryGroup');
+                    const $sourceAccountLabel = $('#sourceAccountLabel');
+
+                    // Helper: Format currency
+                    function formatMoney(amount, currency) {
+                        const symbol = currency || 'VND';
+                        const formatted = new Intl.NumberFormat('en-US', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 2
+                        }).format(amount);
+                        return formatted + ' ' + symbol;
+                    }
+
+                    // Helper: Format ISO date string to readable
+                    function formatDateTime(isoString) {
+                        if (!isoString) return '';
+                        const date = new Date(isoString);
+                        const day = String(date.getDate()).padStart(2, '0');
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                        const year = date.getFullYear();
+                        const hours = String(date.getHours()).padStart(2, '0');
+                        const minutes = String(date.getMinutes()).padStart(2, '0');
+                        return `${day}/${month}/${year} ${hours}:${minutes}`;
+                    }
+
+                    // Load Accounts and Categories first
+                    function loadMetadata() {
+                        // 1. Get Accounts
+                        const accountPromise = $.ajax({
+                            url: '/api/accounts',
+                            type: 'GET',
+                            success: function (data) {
+                                accountList = [];
+                                // Flatten grouped map
+                                for (const key in data) {
+                                    if (data.hasOwnProperty(key) && Array.isArray(data[key])) {
+                                        accountList = accountList.concat(data[key]);
+                                    }
+                                }
+                                populateAccountDropdowns();
+                            }
+                        });
+
+                        // 2. Get Categories
+                        const categoryPromise = $.ajax({
+                            url: '/api/categories',
+                            type: 'GET',
+                            success: function (data) {
+                                categoryList = data;
+                                populateCategoryDropdowns();
+                            }
+                        });
+
+                        // Load initial transactions after metadata is fetched
+                        $.when(accountPromise, categoryPromise).done(function() {
+                            loadTransactions();
+                        });
+                    }
+
+                    // Populate Accounts
+                    function populateAccountDropdowns() {
+                        const $filterAccount = $('#filterAccount');
+                        $filterAccount.empty().append('<option value="">Tất cả tài khoản</option>');
+                        $txAccountId.empty().append('<option value="">-- Chọn tài khoản --</option>');
+                        $txToAccountId.empty().append('<option value="">-- Chọn tài khoản nhận --</option>');
+
+                        accountList.forEach(function (acc) {
+                            const optionText = `${acc.accountName} (${acc.currency})`;
+                            $filterAccount.append($('<option>', { value: acc.accountId, text: optionText }));
+                            $txAccountId.append($('<option>', { value: acc.accountId, text: optionText }));
+                            $txToAccountId.append($('<option>', { value: acc.accountId, text: optionText }));
+                        });
+                    }
+
+                    // Populate Categories
+                    function populateCategoryDropdowns() {
+                        const $filterCategory = $('#filterCategory');
+                        $filterCategory.empty().append('<option value="">Tất cả danh mục</option>');
+                        
+                        categoryList.forEach(function (cat) {
+                            $filterCategory.append($('<option>', { value: cat.categoryId, text: cat.categoryName }));
+                        });
+                        filterModalCategories();
+                    }
+
+                    // Filter Modal Categories list based on Type (INCOME / EXPENSE)
+                    function filterModalCategories() {
+                        const type = $txType.val();
+                        $txCategoryId.empty().append('<option value="">-- Chọn danh mục --</option>');
+                        
+                        categoryList.forEach(function (cat) {
+                            // Match category type with transaction type
+                            if (cat.categoryType === type) {
+                                $txCategoryId.append($('<option>', { value: cat.categoryId, text: cat.categoryName }));
+                            }
+                        });
+                    }
+
+                    // Dynamic form inputs display helper
+                    function updateModalFormUI() {
+                        const type = $txType.val();
+                        if (type === 'TRANSFER') {
+                            $toAccountGroup.removeClass('d-none');
+                            $txToAccountId.prop('required', true);
+                            
+                            $categoryGroup.addClass('d-none');
+                            $txCategoryId.prop('required', false);
+                            
+                            $sourceAccountLabel.text('Tài khoản chuyển *');
+                        } else {
+                            $toAccountGroup.addClass('d-none');
+                            $txToAccountId.prop('required', false);
+                            
+                            $categoryGroup.removeClass('d-none');
+                            $txCategoryId.prop('required', true);
+                            
+                            $sourceAccountLabel.text(type === 'INCOME' ? 'Tài khoản nhận *' : 'Tài khoản chi *');
+                            filterModalCategories();
+                        }
+                    }
+
+                    // Listen on Type change
+                    $txType.on('change', function () {
+                        updateModalFormUI();
+                    });
+
+                    // Load Transactions list (filtered or all)
+                    function loadTransactions(filters) {
+                        const url = filters ? '/api/transactions/search' : '/api/transactions';
+                        const $tbody = $('#transactionTableBody');
+
+                        $tbody.html(`
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    <i class="fas fa-spinner fa-spin fa-2x mb-2 d-block"></i>
+                                    Đang tải dữ liệu giao dịch...
+                                </td>
+                            </tr>
+                        `);
+
+                        $.ajax({
+                            url: url,
+                            type: 'GET',
+                            data: filters || {},
+                            success: function (list) {
+                                $tbody.empty();
+                                if (!list || list.length === 0) {
+                                    $tbody.append(`
+                                        <tr>
+                                            <td colspan="7" class="text-center py-4 text-muted">
+                                                <i class="fas fa-info-circle fa-2x mb-2 d-block"></i>
+                                                Không tìm thấy giao dịch nào.
+                                            </td>
+                                        </tr>
+                                    `);
+                                    return;
+                                }
+
+                                list.forEach(function (tx) {
+                                    // Row fields
+                                    const dateStr = formatDateTime(tx.transactionDate);
+                                    
+                                    // Type Badge
+                                    let typeBadge = '';
+                                    if (tx.type === 'INCOME') {
+                                        typeBadge = '<span class="badge bg-success-subtle text-success border border-success-subtle py-1.5 px-2.5">Thu nhập</span>';
+                                    } else if (tx.type === 'EXPENSE') {
+                                        typeBadge = '<span class="badge bg-danger-subtle text-danger border border-danger-subtle py-1.5 px-2.5">Chi tiêu</span>';
+                                    } else if (tx.type === 'TRANSFER') {
+                                        typeBadge = '<span class="badge bg-info-subtle text-info border border-info-subtle py-1.5 px-2.5">Chuyển khoản</span>';
+                                    }
+
+                                    // Account Names description
+                                    let accountDesc = '';
+                                    if (tx.type === 'TRANSFER') {
+                                        const fromAcc = tx.account ? tx.account.accountName : 'N/A';
+                                        const toAcc = tx.toAccount ? tx.toAccount.accountName : 'N/A';
+                                        accountDesc = `${fromAcc} <i class="fas fa-long-arrow-alt-right mx-1 text-muted"></i> ${toAcc}`;
+                                    } else {
+                                        accountDesc = tx.account ? tx.account.accountName : 'N/A';
+                                    }
+
+                                    // Category Name
+                                    const categoryName = tx.category ? tx.category.categoryName : '-';
+
+                                    // Amount Formatted with positive/negative color sign
+                                    let amountHtml = '';
+                                    const currency = tx.account ? tx.account.currency : 'VND';
+                                    if (tx.type === 'INCOME') {
+                                        amountHtml = `<span class="text-success fw-bold">+${formatMoney(tx.amount, currency)}</span>`;
+                                    } else if (tx.type === 'EXPENSE') {
+                                        amountHtml = `<span class="text-danger fw-bold">-${formatMoney(tx.amount, currency)}</span>`;
+                                    } else {
+                                        amountHtml = `<span class="text-info fw-bold">${formatMoney(tx.amount, currency)}</span>`;
+                                    }
+
+                                    const note = tx.note || '';
+
+                                    // Append Row
+                                    const row = `
+                                        <tr>
+                                            <td>${dateStr}</td>
+                                            <td>${typeBadge}</td>
+                                            <td>${accountDesc}</td>
+                                            <td>${categoryName}</td>
+                                            <td>${amountHtml}</td>
+                                            <td class="text-wrap" style="max-width: 200px;">${note}</td>
+                                            <td class="text-center">
+                                                <div class="d-flex justify-content-center gap-1">
+                                                    <button class="btn btn-sm btn-outline-primary edit-tx-btn" 
+                                                            data-id="${tx.transactionId}"
+                                                            data-type="${tx.type}"
+                                                            data-account="${tx.account ? tx.account.accountId : ''}"
+                                                            data-to-account="${tx.toAccount ? tx.toAccount.accountId : ''}"
+                                                            data-category="${tx.category ? tx.category.categoryId : ''}"
+                                                            data-amount="${tx.amount}"
+                                                            data-note="${note.replace(/"/g, '&quot;')}">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger delete-tx-btn" data-id="${tx.transactionId}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `;
+                                    $tbody.append(row);
+                                });
+                            },
+                            error: function () {
+                                $tbody.html(`
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4 text-danger">
+                                            <i class="fas fa-exclamation-triangle fa-2x mb-2 d-block"></i>
+                                            Tải dữ liệu thất bại. Vui lòng thử lại.
+                                        </td>
+                                    </tr>
+                                `);
+                            }
+                        });
+                    }
+
+                    // Open Create Modal
+                    $('#addTransactionBtn').on('click', function () {
+                        mode = 'CREATE';
+                        $('#transactionModalLabel').text('Thêm giao dịch mới');
+                        $('#modalErrorAlert').addClass('d-none').text('');
+                        
+                        // Reset Form
+                        document.getElementById('transactionForm').reset();
+                        $('#transactionId').val('');
+                        
+                        $txType.prop('disabled', false); // Allow changing type
+                        updateModalFormUI();
+                        
+                        transactionModal.show();
+                    });
+
+                    // Open Edit Modal
+                    $(document).on('click', '.edit-tx-btn', function () {
+                        mode = 'EDIT';
+                        $('#transactionModalLabel').text('Cập nhật giao dịch');
+                        $('#modalErrorAlert').addClass('d-none').text('');
+
+                        const id = $(this).data('id');
+                        const type = $(this).data('type');
+                        const accountId = $(this).data('account');
+                        const toAccountId = $(this).data('to-account');
+                        const categoryId = $(this).data('category');
+                        const amount = $(this).data('amount');
+                        const note = $(this).data('note');
+
+                        // Fill values
+                        $('#transactionId').val(id);
+                        $txType.val(type).prop('disabled', true); // Do not allow changing type on edit due to API limits
+                        updateModalFormUI();
+
+                        $txAccountId.val(accountId);
+                        if (type === 'TRANSFER') {
+                            $txToAccountId.val(toAccountId);
+                        } else {
+                            $txCategoryId.val(categoryId);
+                        }
+                        $('#txAmount').val(amount);
+                        $('#txNote').val(note);
+
+                        transactionModal.show();
+                    });
+
+                    // Save transaction (Create or Update)
+                    $('#saveTransactionBtn').on('click', function () {
+                        const form = document.getElementById('transactionForm');
+                        if (!form.checkValidity()) {
+                            form.reportValidity();
+                            return;
+                        }
+
+                        const type = $txType.val();
+                        const txData = {
+                            type: type,
+                            amount: parseFloat($('#txAmount').val()),
+                            note: $('#txNote').val()
+                        };
+
+                        if (type === 'TRANSFER') {
+                            txData.accountId = parseInt($txAccountId.val());
+                            txData.toAccountId = parseInt($txToAccountId.val());
+                            
+                            if (txData.accountId === txData.toAccountId) {
+                                $('#modalErrorAlert').removeClass('d-none').text('Tài khoản nguồn và tài khoản nhận không được trùng nhau.');
+                                return;
+                            }
+                        } else {
+                            txData.accountId = parseInt($txAccountId.val());
+                            txData.categoryId = parseInt($txCategoryId.val());
+                        }
+
+                        const id = $('#transactionId').val();
+                        const url = mode === 'CREATE' ? '/api/transactions' : '/api/transactions/' + id;
+                        const ajaxMethod = mode === 'CREATE' ? 'POST' : 'PUT';
+
+                        const $saveBtn = $(this);
+                        $saveBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang lưu...');
+                        $('#modalErrorAlert').addClass('d-none').text('');
+
+                        $.ajax({
+                            url: url,
+                            type: ajaxMethod,
+                            contentType: 'application/json',
+                            data: JSON.stringify(txData),
+                            success: function (response) {
+                                $saveBtn.prop('disabled', false).text('Lưu');
+                                transactionModal.hide();
+                                // Reload lists dynamically
+                                loadTransactions();
+                            },
+                            error: function (xhr) {
+                                $saveBtn.prop('disabled', false).text('Lưu');
+                                let errorMsg = 'Có lỗi xảy ra, vui lòng thử lại.';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMsg = xhr.responseJSON.message;
+                                } else if (xhr.responseText) {
+                                    errorMsg = xhr.responseText;
+                                }
+                                $('#modalErrorAlert').removeClass('d-none').text(errorMsg);
+                            }
+                        });
+                    });
+
+                    // Open Delete Modal
+                    $(document).on('click', '.delete-tx-btn', function () {
+                        txIdToDelete = $(this).data('id');
+                        deleteConfirmModal.show();
+                    });
+
+                    // Confirm Delete Action
+                    $('#confirmDeleteBtn').on('click', function () {
+                        if (!txIdToDelete) return;
+
+                        const $delBtn = $(this);
+                        $delBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang xóa...');
+
+                        $.ajax({
+                            url: '/api/transactions/' + txIdToDelete,
+                            type: 'DELETE',
+                            success: function (response) {
+                                $delBtn.prop('disabled', false).text('Xóa');
+                                deleteConfirmModal.hide();
+                                loadTransactions();
+                            },
+                            error: function (xhr) {
+                                $delBtn.prop('disabled', false).text('Xóa');
+                                let errorMsg = 'Có lỗi xảy ra khi xóa giao dịch.';
+                                if (xhr.responseText) {
+                                    errorMsg = xhr.responseText;
+                                }
+                                alert(errorMsg);
+                            }
+                        });
+                    });
+
+                    // Filter Actions
+                    $('#applyFilterBtn').on('click', function () {
+                        const filters = {};
+                        
+                        const type = $('#filterType').val();
+                        if (type) filters.type = type;
+                        
+                        const accountId = $('#filterAccount').val();
+                        if (accountId) filters.accountId = accountId;
+                        
+                        const categoryId = $('#filterCategory').val();
+                        if (categoryId) filters.categoryId = categoryId;
+                        
+                        const startDate = $('#filterStartDate').val();
+                        if (startDate) {
+                            // Convert local date picker string to ISO LocalDateTime string format expected by Spring (e.g. YYYY-MM-DDTHH:MM:SS)
+                            filters.startDate = new Date(startDate).toISOString().split('.')[0];
+                        }
+                        
+                        const endDate = $('#filterEndDate').val();
+                        if (endDate) {
+                            filters.endDate = new Date(endDate).toISOString().split('.')[0];
+                        }
+
+                        loadTransactions(filters);
+                    });
+
+                    // Reset Filters
+                    $('#resetFilterBtn').on('click', function () {
+                        document.getElementById('filterForm').reset();
+                        loadTransactions();
+                    });
+
+                    // Initialize metadata on load
+                    loadMetadata();
+                });
+            });
+        </script>
+
     </div>
-
-    <!-- Offcanvas Toggler -->
-    <button class="d2c_offcanvas_toggle position-fixed top-50 start-0 translate-middle-y d-block d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#d2c_sidebar">
-        <i class="far fa-hand-point-right"></i>
-    </button>
-    <!-- End:Offcanvas Toggler -->
-
-    <!-- Initial  Javascript -->
-    <script src="../lib/jQuery/jquery-3.5.1.min.js"></script>
-    <script src="../lib/bootstrap_5/bootstrap.bundle.min.js"></script>
-
-    <!-- custom js -->
-    <script src="../assets/js/main.js"></script>
+    <!-- ================= END CONTENT ================= -->
 
 </body>
-</html>
 
-<!-- 
-    Template Name: FinDeshY - Free Financial Bootstrap Dashboard Template
-    Template URI:  https://www.designtocodes.com/product/findeshy-free-financial-bootstrap-dashboard-template
-    Description:   FinDeshY is a free financial Bootstrap dashboard template to manage your financial data easily. This free financial dashboard uses Bootstrap to provide a responsive and user-friendly interface. Whether you're a small business owner seeking insights into your company's financial health or an individual looking to simplify your personal finances, this free Bootstrap dashboard template has you covered.
-    Author:        DesignToCodes
-    Author URI:    https://www.designtocodes.com/
-    Text Domain:   FinDeshY 
-    -->
+</html>

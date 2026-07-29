@@ -24,13 +24,9 @@ public class AccountAPIController {
 	@Autowired
     private IAccountService accountService;
 
-    private String getCurrentUserEmail() {
-        return SecurityContextHolder.getContext().getAuthentication().getName();
-    }
-
 	@GetMapping
 	public ResponseEntity<?> getAccounts(){
-		String email = getCurrentUserEmail();
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok(accountService.getAccountListByAccountType(email));
 	}
 	
