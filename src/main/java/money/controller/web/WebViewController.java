@@ -87,6 +87,26 @@ public class WebViewController {
         return "pages/documentation";
     }
 
+    @GetMapping("/categories")
+    public String categories() {
+        return "pages/category";
+    }
+
+    @GetMapping("/budgets")
+    public String budgets() {
+        return "pages/budget";
+    }
+
+    @GetMapping("/savings")
+    public String savings() {
+        return "pages/saving";
+    }
+
+    @GetMapping("/debts")
+    public String debts() {
+        return "pages/debt";
+    }
+
     @GetMapping("/logout")
     public String logout(HttpServletResponse response) {
         Cookie cookie = new Cookie("auth_token", null);

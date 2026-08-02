@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/sidebar}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Mục tiêu tiết kiệm - Money Tracker</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <!-- Title -->
+        <h4 class="mb-4 text-capitalize">Mục tiêu tiết kiệm</h4>
+
+        <!-- Action Button -->
+        <button type="button" class="btn btn-primary mb-4" id="addSavingBtn">
+            <i class="fas fa-plus"></i> Tạo mục tiêu mới
+        </button>
+
+        <!-- Empty State -->
+        <div id="savingEmptyState" class="text-center text-muted py-5 d-none">
+            <i class="fas fa-piggy-bank fa-4x mb-3 text-secondary"></i>
+            <h5>Bạn chưa có mục tiêu tiết kiệm nào!</h5>
+            <p>Hãy bắt đầu tiết kiệm cho những ước mơ của bạn ngay hôm nay.</p>
+        </div>
+
+        <!-- Savings Cards Grid -->
+        <div class="row g-4" id="savingsGrid">
+            <!-- Dynamic cards will be loaded here -->
+            <div class="col-12 text-center py-4 text-muted">
+                <i class="fas fa-spinner fa-spin fa-2x mb-2 d-block"></i>
+                Đang tải danh sách mục tiêu tiết kiệm...
+            </div>
+        </div>
+
+        <!-- Add/Edit Saving Goal Modal -->
+        <div class="modal fade" id="savingModal" tabindex="-1" aria-labelledby="savingModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="savingModalLabel">Tạo mục tiêu tiết kiệm mới</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger d-none" id="modalErrorAlert"></div>
+                        <form id="savingForm">
+                            <input type="hidden" id="savingId">
+
+                            <div class="mb-3">
+                                <label for="savingName" class="form-label">Tên mục tiêu tiết kiệm <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="savingName" placeholder="Ví dụ: Mua laptop mới, Mua điện thoại, Quỹ khẩn cấp..." required>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md mb-3">
+                                    <label for="savingTarget" class="form-label">Số tiền mục tiêu <span class="text-danger">*</span></label>
+                                    <input type="number" step="any" min="1" class="form-control" id="savingTarget" placeholder="Số tiền cần đạt..." required>
+                                </div>
+                                <div class="col-md mb-3" id="currentAmountGroup">
+                                    <label for="savingCurrent" class="form-label">Số tiền hiện có</label>
+                                    <input type="number" step="any" min="0" class="form-control" id="savingCurrent" value="0">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="savingDeadline" class="form-label">Hạn chót đạt được <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="savingDeadline" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn btn-primary" id="saveSavingBtn">Lưu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deposit / Withdraw Modal -->
+        <div class="modal fade" id="transactionGoalModal" tabindex="-1" aria-labelledby="transactionGoalModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="transactionGoalModalLabel">Gửi tiền vào mục tiêu</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger d-none" id="transGoalErrorAlert"></div>
+                        <form id="transactionGoalForm">
+                            <input type="hidden" id="transGoalId">
+                            <input type="hidden" id="transGoalType"> <!-- DEPOSIT or WITHDRAW -->
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Mục tiêu:</label>
+                                <input type="text" class="form-control bg-light" id="transGoalNameDisplay" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="transGoalAccount" class="form-label fw-bold" id="transAccountLabel">Tài khoản trích tiền *</label>
+                                <select class="form-select form-control" id="transGoalAccount" required>
+                                    <option value="" disabled selected>-- Chọn tài khoản --</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="transGoalAmount" class="form-label fw-bold">Số tiền giao dịch <span class="text-danger">*</span></label>
+                                <input type="number" step="any" min="0.01" class="form-control" id="transGoalAmount" placeholder="Nhập số tiền..." required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="transGoalNote" class="form-label fw-bold">Ghi chú</label>
+                                <textarea class="form-control" id="transGoalNote" rows="2" placeholder="Ghi chú (không bắt buộc)..."></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn btn-primary" id="saveTransGoalBtn">Xác nhận</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteConfirmModalLabel">Xác nhận xóa mục tiêu</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Bạn có chắc chắn muốn xóa mục tiêu tiết kiệm này không? Thao tác này không thể hoàn tác.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                $(function () {
+                    let mode = 'CREATE'; // CREATE or EDIT
+                    const savingModal = new bootstrap.Modal(document.getElementById('savingModal'));
+                    const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+                    const transactionGoalModal = new bootstrap.Modal(document.getElementById('transactionGoalModal'));
+
+                    let savingIdToDelete = null;
+                    let accountsList = [];
+
+                    // Format helpers
+                    function formatMoney(amount) {
+                        return new Intl.NumberFormat('en-US', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        }).format(amount) + ' VND';
+                    }
+
+                    function formatDate(dateStr) {
+                        if (!dateStr) return '';
+                        const parts = dateStr.split('-');
+                        if (parts.length === 3) {
+                            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+                        }
+                        return dateStr;
+                    }
+
+                    // Load accounts to dropdown list
+                    function loadAccounts() {
+                        $.ajax({
+                            url: '/api/accounts',
+                            type: 'GET',
+                            success: function (data) {
+                                accountsList = [];
+                                for (const key in data) {
+                                    if (data.hasOwnProperty(key)) {
+                                        accountsList = accountsList.concat(data[key]);
+                                    }
+                                }
+
+                                const $select = $('#transGoalAccount');
+                                $select.empty().append('<option value="" disabled selected>-- Chọn tài khoản --</option>');
+                                accountsList.forEach(function (acc) {
+                                    $select.append($('<option>', { value: acc.accountId, text: `${acc.accountName} (${formatMoney(acc.currentBalance)})` }));
+                                });
+                            }
+                        });
+                    }
+
+                    // Load saving goals
+                    function loadSavings() {
+                        const $grid = $('#savingsGrid');
+                        $grid.html('<div class="col-12 text-center py-4 text-muted"><i class="fas fa-spinner fa-spin fa-2x mb-2 d-block"></i>Đang tải danh sách mục tiêu...</div>');
+
+                        $.ajax({
+                            url: '/api/savings',
+                            type: 'GET',
+                            success: function (list) {
+                                $grid.empty();
+                                if (!list || list.length === 0) {
+                                    $('#savingEmptyState').removeClass('d-none');
+                                    return;
+                                }
+
+                                $('#savingEmptyState').addClass('d-none');
+
+                                list.forEach(function (goal) {
+                                    const target = goal.targetAmount || 1;
+                                    const current = goal.currentAmount || 0;
+                                    const percent = Math.min(Math.round((current / target) * 100), 100);
+
+                                    let statusBadge = '';
+                                    if (goal.status === 'ACHIEVED') {
+                                        statusBadge = '<span class="badge bg-success-subtle text-success border border-success-subtle py-1 px-2.5">Hoàn thành</span>';
+                                    } else {
+                                        statusBadge = '<span class="badge bg-primary-subtle text-primary border border-primary-subtle py-1 px-2.5">Đang tích lũy</span>';
+                                    }
+
+                                    const card = `
+                                        <div class="col-md-6 col-lg-4">
+                                            <div class="card h-100 border-0 shadow-sm">
+                                                <div class="card-body d-flex flex-column justify-content-between">
+                                                    <div>
+                                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                                            <h5 class="card-title fw-bold text-dark mb-0 text-truncate" style="max-width: 70%;">${goal.name}</h5>
+                                                            ${statusBadge}
+                                                        </div>
+
+                                                        <div class="d-flex justify-content-between align-items-center mb-1 small text-muted">
+                                                            <span>Tiến độ đạt:</span>
+                                                            <span class="fw-semibold text-dark">${percent}%</span>
+                                                        </div>
+                                                        <div class="progress mb-3" style="height: 10px;">
+                                                            <div class="progress-bar bg-success rounded" role="progressbar" style="width: ${percent}%;" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+
+                                                        <div class="d-flex justify-content-between small mb-2">
+                                                            <span class="text-muted">Đã tiết kiệm:</span>
+                                                            <span class="fw-bold text-success">${formatMoney(current)}</span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between small mb-2">
+                                                            <span class="text-muted">Mục tiêu:</span>
+                                                            <span class="fw-bold text-dark">${formatMoney(target)}</span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between small mb-4">
+                                                            <span class="text-muted">Hạn chót:</span>
+                                                            <span class="text-dark"><i class="far fa-calendar-alt me-1"></i>${formatDate(goal.deadline)}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <!-- Actions -->
+                                                        <div class="d-flex gap-2 mb-3">
+                                                            <button class="btn btn-sm btn-success flex-grow-1 deposit-btn" 
+                                                                    data-id="${goal.goalId}" 
+                                                                    data-name="${goal.name.replace(/"/g, '&quot;')}">
+                                                                <i class="fas fa-arrow-down me-1"></i> Gửi tiền
+                                                            </button>
+                                                            <button class="btn btn-sm btn-outline-danger flex-grow-1 withdraw-btn" 
+                                                                    data-id="${goal.goalId}" 
+                                                                    data-name="${goal.name.replace(/"/g, '&quot;')}">
+                                                                <i class="fas fa-arrow-up me-1"></i> Rút tiền
+                                                            </button>
+                                                        </div>
+                                                        <hr class="my-2">
+                                                        <div class="d-flex justify-content-end gap-1">
+                                                            <button class="btn btn-sm btn-light edit-saving-btn" 
+                                                                    data-id="${goal.goalId}"
+                                                                    data-name="${goal.name.replace(/"/g, '&quot;')}"
+                                                                    data-target="${goal.targetAmount}"
+                                                                    data-current="${goal.currentAmount}"
+                                                                    data-deadline="${goal.deadline}">
+                                                                <i class="fas fa-edit text-primary"></i> Sửa
+                                                            </button>
+                                                            <button class="btn btn-sm btn-light delete-saving-btn" data-id="${goal.goalId}">
+                                                                <i class="fas fa-trash-alt text-danger"></i> Xóa
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                    $grid.append(card);
+                                });
+                            },
+                            error: function () {
+                                $grid.html('<div class="col-12 text-center py-4 text-danger">Tải dữ liệu mục tiêu tiết kiệm thất bại.</div>');
+                            }
+                        });
+                    }
+
+                    // Open create modal
+                    $('#addSavingBtn').on('click', function () {
+                        mode = 'CREATE';
+                        $('#savingModalLabel').text('Tạo mục tiêu tiết kiệm mới');
+                        $('#modalErrorAlert').addClass('d-none').text('');
+
+                        $('#savingId').val('');
+                        $('#savingName').val('');
+                        $('#savingTarget').val('');
+                        
+                        $('#currentAmountGroup').removeClass('d-none');
+                        $('#savingCurrent').val('0').prop('disabled', false);
+
+                        // Prepopulate default deadline (6 months from now)
+                        const now = new Date();
+                        now.setMonth(now.getMonth() + 6);
+                        const deadlineStr = now.toISOString().split('T')[0];
+                        $('#savingDeadline').val(deadlineStr);
+
+                        savingModal.show();
+                    });
+
+                    // Open edit modal
+                    $(document).on('click', '.edit-saving-btn', function () {
+                        mode = 'EDIT';
+                        $('#savingModalLabel').text('Sửa mục tiêu tiết kiệm');
+                        $('#modalErrorAlert').addClass('d-none').text('');
+
+                        const id = $(this).data('id');
+                        const name = $(this).data('name');
+                        const target = $(this).data('target');
+                        const current = $(this).data('current');
+                        const deadline = $(this).data('deadline');
+
+                        $('#savingId').val(id);
+                        $('#savingName').val(name);
+                        $('#savingTarget').val(target);
+
+                        // Disable direct balance update during edit (they should use Deposit/Withdraw endpoints)
+                        $('#currentAmountGroup').addClass('d-none');
+                        $('#savingCurrent').val(current).prop('disabled', true);
+
+                        $('#savingDeadline').val(deadline);
+
+                        savingModal.show();
+                    });
+
+                    // Save goal
+                    $('#saveSavingBtn').on('click', function () {
+                        const form = document.getElementById('savingForm');
+                        if (!form.checkValidity()) {
+                            form.reportValidity();
+                            return;
+                        }
+
+                        const savingData = {
+                            name: $('#savingName').val(),
+                            targetAmount: parseFloat($('#savingTarget').val()),
+                            deadline: $('#savingDeadline').val()
+                        };
+
+                        if (mode === 'CREATE') {
+                            savingData.currentAmount = parseFloat($('#savingCurrent').val()) || 0.0;
+                        }
+
+                        const id = $('#savingId').val();
+                        const url = mode === 'CREATE' ? '/api/savings' : '/api/savings/' + id;
+                        const type = mode === 'CREATE' ? 'POST' : 'PUT';
+
+                        const $btn = $(this);
+                        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang lưu...');
+                        $('#modalErrorAlert').addClass('d-none').text('');
+
+                        $.ajax({
+                            url: url,
+                            type: type,
+                            contentType: 'application/json',
+                            data: JSON.stringify(savingData),
+                            success: function () {
+                                $btn.prop('disabled', false).text('Lưu');
+                                savingModal.hide();
+                                loadSavings();
+                            },
+                            error: function (xhr) {
+                                $btn.prop('disabled', false).text('Lưu');
+                                let errorMsg = 'Có lỗi xảy ra, vui lòng thử lại.';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMsg = xhr.responseJSON.message;
+                                } else if (xhr.responseText) {
+                                    errorMsg = xhr.responseText;
+                                }
+                                $('#modalErrorAlert').removeClass('d-none').text(errorMsg);
+                            }
+                        });
+                    });
+
+                    // Open Deposit Modal
+                    $(document).on('click', '.deposit-btn', function () {
+                        const id = $(this).data('id');
+                        const name = $(this).data('name');
+
+                        $('#transGoalId').val(id);
+                        $('#transGoalType').val('DEPOSIT');
+                        $('#transactionGoalModalLabel').text('Nạp tiền tiết kiệm');
+                        $('#transGoalNameDisplay').val(name);
+                        $('#transAccountLabel').text('Tài khoản trích tiền *');
+                        $('#transGoalAmount').val('');
+                        $('#transGoalNote').val('');
+                        $('#transGoalErrorAlert').addClass('d-none').text('');
+
+                        loadAccounts();
+                        transactionGoalModal.show();
+                    });
+
+                    // Open Withdraw Modal
+                    $(document).on('click', '.withdraw-btn', function () {
+                        const id = $(this).data('id');
+                        const name = $(this).data('name');
+
+                        $('#transGoalId').val(id);
+                        $('#transGoalType').val('WITHDRAW');
+                        $('#transactionGoalModalLabel').text('Rút tiền từ heo đất');
+                        $('#transGoalNameDisplay').val(name);
+                        $('#transAccountLabel').text('Tài khoản nhận tiền *');
+                        $('#transGoalAmount').val('');
+                        $('#transGoalNote').val('');
+                        $('#transGoalErrorAlert').addClass('d-none').text('');
+
+                        loadAccounts();
+                        transactionGoalModal.show();
+                    });
+
+                    // Confirm Deposit / Withdraw Operation
+                    $('#saveTransGoalBtn').on('click', function () {
+                        const form = document.getElementById('transactionGoalForm');
+                        if (!form.checkValidity()) {
+                            form.reportValidity();
+                            return;
+                        }
+
+                        const id = $('#transGoalId').val();
+                        const type = $('#transGoalType').val();
+
+                        const requestData = {
+                            amount: parseFloat($('#transGoalAmount').val()),
+                            accountId: parseInt($('#transGoalAccount').val()),
+                            note: $('#transGoalNote').val()
+                        };
+
+                        const actionUrl = type === 'DEPOSIT' 
+                            ? `/api/savings/${id}/deposit` 
+                            : `/api/savings/${id}/withdraw`;
+
+                        const $btn = $(this);
+                        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Xác nhận...');
+                        $('#transGoalErrorAlert').addClass('d-none').text('');
+
+                        $.ajax({
+                            url: actionUrl,
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify(requestData),
+                            success: function () {
+                                $btn.prop('disabled', false).text('Xác nhận');
+                                transactionGoalModal.hide();
+                                loadSavings();
+                            },
+                            error: function (xhr) {
+                                $btn.prop('disabled', false).text('Xác nhận');
+                                let errorMsg = 'Giao dịch thất bại. Vui lòng kiểm tra lại số dư.';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMsg = xhr.responseJSON.message;
+                                } else if (xhr.responseText) {
+                                    errorMsg = xhr.responseText;
+                                }
+                                $('#transGoalErrorAlert').removeClass('d-none').text(errorMsg);
+                            }
+                        });
+                    });
+
+                    // Open Delete confirm modal
+                    $(document).on('click', '.delete-saving-btn', function () {
+                        savingIdToDelete = $(this).data('id');
+                        deleteConfirmModal.show();
+                    });
+
+                    // Confirm delete goal
+                    $('#confirmDeleteBtn').on('click', function () {
+                        if (!savingIdToDelete) return;
+
+                        const $btn = $(this);
+                        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang xóa...');
+
+                        $.ajax({
+                            url: '/api/savings/' + savingIdToDelete,
+                            type: 'DELETE',
+                            success: function () {
+                                $btn.prop('disabled', false).text('Xóa');
+                                deleteConfirmModal.hide();
+                                loadSavings();
+                            },
+                            error: function (xhr) {
+                                $btn.prop('disabled', false).text('Xóa');
+                                let errorMsg = 'Lỗi không thể xóa mục tiêu.';
+                                if (xhr.responseText) {
+                                    errorMsg = xhr.responseText;
+                                }
+                                alert(errorMsg);
+                            }
+                        });
+                    });
+
+                    // Initial Load
+                    loadSavings();
+                });
+            });
+        </script>
+    </div>
+</body>
+
+</html>

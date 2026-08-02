@@ -208,7 +208,7 @@
                                                 <i class="fas fa-home"></i>
                                             </span>
                                             <span>
-                                                Overview
+                                                Tổng quan
                                             </span>
                                         </a>
                                     </li>
@@ -221,7 +221,7 @@
                                                 <i class="fas fa-money-check-alt"></i>
                                             </span>
                                             <span>
-                                                Account
+                                                Tài khoản
                                             </span>
                                         </a>
                                     </li>
@@ -234,7 +234,7 @@
                                                 <i class="fas fa-list-alt"></i>
                                             </span>
                                             <span>
-                                                Transaction
+                                                Giao dịch
                                             </span>
                                         </a>
                                     </li>
@@ -242,12 +242,12 @@
 
                                     <!-- Sub Menu Item -->
                                     <li class="nav-item">
-                                        <a class="sub-menu-link" th:href="@{/wallet}">
+                                        <a class="sub-menu-link" th:href="@{/categories}">
                                             <span class="d2c_icon">
-                                                <i class="fas fa-wallet"></i>
+                                                <i class="fas fa-tags"></i>
                                             </span>
                                             <span>
-                                                Wallet
+                                                Danh mục
                                             </span>
                                         </a>
                                     </li>
@@ -255,27 +255,38 @@
 
                                     <!-- Sub Menu Item -->
                                     <li class="nav-item">
-                                        <a class="sub-menu-link" th:href="@{/investment}">
+                                        <a class="sub-menu-link" th:href="@{/budgets}">
                                             <span class="d2c_icon">
-                                                <i class="fas fa-network-wired"></i>
+                                                <i class="fas fa-chart-pie"></i>
                                             </span>
                                             <span>
-                                                Investment
+                                                Ngân sách
                                             </span>
                                         </a>
                                     </li>
                                     <!-- End:Sub Menu Item -->
 
-
+                                    <!-- Sub Menu Item -->
+                                    <li class="nav-item">
+                                        <a class="sub-menu-link" th:href="@{/savings}">
+                                            <span class="d2c_icon">
+                                                <i class="fas fa-piggy-bank"></i>
+                                            </span>
+                                            <span>
+                                                Tiết kiệm
+                                            </span>
+                                        </a>
+                                    </li>
+                                    <!-- End:Sub Menu Item -->
 
                                     <!-- Sub Menu Item -->
                                     <li class="nav-item">
-                                        <a class="sub-menu-link" th:href="@{/stocks-fund}">
+                                        <a class="sub-menu-link" th:href="@{/debts}">
                                             <span class="d2c_icon">
-                                                <i class="fas fa-chart-line"></i>
+                                                <i class="fas fa-hand-holding-usd"></i>
                                             </span>
                                             <span>
-                                                Stock & Fund
+                                                Khoản nợ
                                             </span>
                                         </a>
                                     </li>
@@ -284,254 +295,6 @@
                                 <!-- End:Sub Menu -->
                             </li>
                             <!-- End:Menu Item -->
-
-                            <!-- Menu Item -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <span>Extra</span>
-                                </a>
-
-                                <!-- Sub Menu-->
-                                <ul class="sub-menu collapse show" id="extra">
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" th:href="@{/pages/faq.html}">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-question-circle"></i>
-                                            </span>
-                                            <span>
-                                                FAQ
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#authentication" aria-expanded="false" href="#">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-sticky-note"></i>
-                                            </span>
-                                            <span>
-                                                Authentication
-                                            </span>
-                                            <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                        </a>
-                                        <!-- Child Sub Menu -->
-                                        <ul class="sub-menu collapse" id="authentication">
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" th:href="@{/register}">
-                                                    <span>
-                                                        Sign up
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" th:href="@{/login}">
-                                                    <span>
-                                                        Login
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" th:href="@{/forgetPassword}">
-                                                    <span>
-                                                        Forget Password
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" th:href="@{/pages/authentication/404.html}">
-                                                    <span>
-                                                        404
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-                                        </ul>
-                                        <!-- End:Child Sub Menu -->
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#elements" aria-expanded="false" href="#">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-th"></i>
-                                            </span>
-                                            <span>
-                                                Elements
-                                            </span>
-                                            <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                        </a>
-                                        <!-- Child Sub Menu -->
-                                        <ul class="sub-menu collapse" id="elements">
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" th:href="@{/pages/elements/notification.html}">
-                                                    <span>
-                                                        Notification
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" th:href="@{/pages/elements/profile.html}">
-                                                    <span>
-                                                        User Profile
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" th:href="@{/pages/elements/invoice.html}">
-                                                    <span>
-                                                        Invoice
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#charts-elements" aria-expanded="false" href="#">
-                                                    <span>
-                                                        Charts
-                                                    </span>
-                                                    <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                                </a>
-                                                <!-- Start:Submenu List-->
-                                                <ul class="sub-menu collapse" id="charts-elements">
-                                                    <!-- Child Sub Menu Item -->
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" th:href="@{/pages/elements/chartsjs.html}">
-                                                            <span>
-                                                                ChartJs
-                                                            </span>
-                                                        </a>
-                                                    </li>
-                                                    <!-- End:Child Sub Menu Item -->
-                                                    <!-- Child Sub Menu Item -->
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" th:href="@{/pages/elements/apexchart.html}">
-                                                            <span>
-                                                                ApexChart
-                                                            </span>
-                                                        </a>
-                                                    </li>
-                                                    <!-- End:Child Sub Menu Item -->
-                                                </ul>
-                                                <!-- End:Submenu List-->
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#table-elements" aria-expanded="false" href="#">
-                                                    <span>
-                                                        Table
-                                                    </span>
-                                                    <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                                </a>
-                                                <!-- Start:Submenu List-->
-                                                <ul class="sub-menu collapse" id="table-elements">
-                                                    <!-- Child Sub Menu Item -->
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" th:href="@{/pages/elements/basictables.html}">
-                                                            <span>
-                                                                Basic Table
-                                                            </span>
-                                                        </a>
-                                                    </li>
-                                                    <!-- End:Child Sub Menu Item -->
-                                                </ul>
-                                                <!-- End:Submenu List-->
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#form-elements" aria-expanded="false" href="#">
-                                                    <span>
-                                                        Form
-                                                    </span>
-                                                    <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                                </a>
-                                                <!-- Start:Submenu List-->
-                                                <ul class="sub-menu collapse" id="form-elements">
-                                                    <!-- Child Sub Menu Item -->
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" th:href="@{/pages/elements/basicformselement.html}">
-                                                            <span> Basic Element </span>
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                                <!-- End:Submenu List-->
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" th:href="@{/pages/elements/tab.html}">
-                                                    <span>
-                                                        Tab
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#modal-elements" aria-expanded="false" href="#">
-                                                    <span>
-                                                        Modal
-                                                    </span>
-                                                    <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                                </a>
-                                                <!-- Start:Submenu List-->
-                                                <ul class="sub-menu collapse" id="modal-elements">
-                                                    <!-- Child Sub Menu Item -->
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" th:href="@{/pages/elements/basicmodal.html}">
-                                                            <span> Basic Modal </span>
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                                <!-- End:Submenu List-->
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" th:href="@{/pages/elements/breadcrumbs.html}">
-                                                    <span>
-                                                        Breadcrumbs
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-                                        </ul>
-                                        <!-- End:Child Sub Menu -->
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-                                </ul>
-                                <!-- End:Sub Menu -->
-                            </li>
 
                             <!-- Menu Item -->
                             <li class="nav-item">

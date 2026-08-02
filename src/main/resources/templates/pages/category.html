@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/sidebar}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Danh mục thu chi - Money Tracker</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <!-- Title -->
+        <h4 class="mb-4 text-capitalize">Danh mục Thu/Chi</h4>
+
+        <!-- Action Button -->
+        <button type="button" class="btn btn-primary mb-4" id="addCategoryBtn">
+            <i class="fas fa-plus"></i> Thêm danh mục mới
+        </button>
+
+        <!-- Main Card with Tabbed Navigation -->
+        <div class="card d2c_projects_datatable mb-4">
+            <div class="card-header p-0 border-bottom">
+                <ul class="nav nav-tabs card-header-tabs m-0 px-3 pt-2 border-0" id="categoryTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-bold py-3 px-4 border-0" id="expense-tab" data-bs-toggle="tab"
+                            data-bs-target="#expense-pane" type="button" role="tab" aria-controls="expense-pane"
+                            aria-selected="true">
+                            <i class="fas fa-arrow-up text-danger me-2"></i>Danh mục Chi tiêu
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold py-3 px-4 border-0" id="income-tab" data-bs-toggle="tab"
+                            data-bs-target="#income-pane" type="button" role="tab" aria-controls="income-pane"
+                            aria-selected="false">
+                            <i class="fas fa-arrow-down text-success me-2"></i>Danh mục Thu nhập
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="card-body p-0">
+                <div class="tab-content" id="categoryTabContent">
+                    <!-- EXPENSE PANEL -->
+                    <div class="tab-pane fade show active" id="expense-pane" role="tabpanel" aria-labelledby="expense-tab" tabindex="0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">Tên danh mục</th>
+                                        <th>Loại</th>
+                                        <th class="text-center" style="width: 150px;">Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expenseCategoryList">
+                                    <tr>
+                                        <td colspan="3" class="text-center py-4 text-muted">Đang tải danh mục chi tiêu...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- INCOME PANEL -->
+                    <div class="tab-pane fade" id="income-pane" role="tabpanel" aria-labelledby="income-tab" tabindex="0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">Tên danh mục</th>
+                                        <th>Loại</th>
+                                        <th class="text-center" style="width: 150px;">Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="incomeCategoryList">
+                                    <tr>
+                                        <td colspan="3" class="text-center py-4 text-muted">Đang tải danh mục thu nhập...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Category Modal -->
+        <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="categoryModalLabel">Thêm danh mục mới</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger d-none" id="modalErrorAlert"></div>
+                        <form id="categoryForm">
+                            <input type="hidden" id="categoryId">
+
+                            <div class="mb-3">
+                                <label for="categoryName" class="form-label">Tên danh mục <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="categoryName" placeholder="Ví dụ: Ăn uống, Lương, Mua sắm..." required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="categoryType" class="form-label">Loại danh mục <span class="text-danger">*</span></label>
+                                <select class="form-select form-control" id="categoryType" required>
+                                    <option value="EXPENSE">Chi tiêu (EXPENSE)</option>
+                                    <option value="INCOME">Thu nhập (INCOME)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="categoryIcon" class="form-label">Biểu tượng (Icon FontAwesome)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light" id="iconPreview"><i class="fas fa-tag"></i></span>
+                                    <select class="form-select form-control" id="categoryIcon">
+                                        <option value="fa-tag" selected>Mặc định (Tag)</option>
+                                        <option value="fa-utensils">Ăn uống (Utensils)</option>
+                                        <option value="fa-shopping-cart">Mua sắm (Cart)</option>
+                                        <option value="fa-home">Nhà cửa (Home)</option>
+                                        <option value="fa-car">Di chuyển (Car)</option>
+                                        <option value="fa-heartbeat">Y tế (Heartbeat)</option>
+                                        <option value="fa-graduation-cap">Giáo dục (Education)</option>
+                                        <option value="fa-gamepad">Giải trí (Gamepad)</option>
+                                        <option value="fa-plane">Du lịch (Plane)</option>
+                                        <option value="fa-money-bill-wave">Lương/Thu nhập (Salary)</option>
+                                        <option value="fa-chart-line">Đầu tư (Investment)</option>
+                                        <option value="fa-gift">Được tặng (Gift)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn btn-primary" id="saveCategoryBtn">Lưu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                $(function () {
+                    let mode = 'CREATE'; // CREATE or EDIT
+                    const categoryModal = new bootstrap.Modal(document.getElementById('categoryModal'));
+                    let categoriesList = [];
+
+                    // Load categories
+                    function loadCategories() {
+                        const $expenseList = $('#expenseCategoryList');
+                        const $incomeList = $('#incomeCategoryList');
+
+                        $expenseList.html('<tr><td colspan="3" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Đang tải...</td></tr>');
+                        $incomeList.html('<tr><td colspan="3" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Đang tải...</td></tr>');
+
+                        $.ajax({
+                            url: '/api/categories',
+                            type: 'GET',
+                            success: function (data) {
+                                categoriesList = data;
+                                $expenseList.empty();
+                                $incomeList.empty();
+
+                                let expenseCount = 0;
+                                let incomeCount = 0;
+
+                                data.forEach(function (cat) {
+                                    const iconClass = cat.icon || 'fa-tag';
+                                    const row = `
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm me-3 bg-light text-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                                        <i class="fas ${iconClass}"></i>
+                                                    </div>
+                                                    <div>
+                                                        <span class="fw-semibold text-dark">${cat.categoryName}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge ${cat.categoryType === 'INCOME' ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle'} px-2 py-1">
+                                                    ${cat.categoryType === 'INCOME' ? 'Thu nhập' : 'Chi tiêu'}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <button class="btn btn-sm btn-outline-primary edit-cat-btn" 
+                                                        data-id="${cat.categoryId}" 
+                                                        data-name="${cat.categoryName}" 
+                                                        data-type="${cat.categoryType}"
+                                                        data-icon="${iconClass}">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `;
+
+                                    if (cat.categoryType === 'INCOME') {
+                                        $incomeList.append(row);
+                                        incomeCount++;
+                                    } else {
+                                        $expenseList.append(row);
+                                        expenseCount++;
+                                    }
+                                });
+
+                                if (expenseCount === 0) {
+                                    $expenseList.append('<tr><td colspan="3" class="text-center py-4 text-muted">Chưa có danh mục chi tiêu nào.</td></tr>');
+                                }
+                                if (incomeCount === 0) {
+                                    $incomeList.append('<tr><td colspan="3" class="text-center py-4 text-muted">Chưa có danh mục thu nhập nào.</td></tr>');
+                                }
+                            },
+                            error: function () {
+                                $expenseList.html('<tr><td colspan="3" class="text-center py-4 text-danger">Tải dữ liệu thất bại.</td></tr>');
+                                $incomeList.html('<tr><td colspan="3" class="text-center py-4 text-danger">Tải dữ liệu thất bại.</td></tr>');
+                            }
+                        });
+                    }
+
+                    // Open create modal
+                    $('#addCategoryBtn').on('click', function () {
+                        mode = 'CREATE';
+                        $('#categoryModalLabel').text('Thêm danh mục mới');
+                        $('#modalErrorAlert').addClass('d-none').text('');
+                        
+                        $('#categoryId').val('');
+                        $('#categoryName').val('');
+                        $('#categoryType').val('EXPENSE');
+                        $('#categoryIcon').val('fa-tag');
+                        $('#iconPreview').html('<i class="fas fa-tag"></i>');
+
+                        categoryModal.show();
+                    });
+
+                    // Update icon preview on change
+                    $('#categoryIcon').on('change', function () {
+                        const val = $(this).val();
+                        $('#iconPreview').html(`<i class="fas ${val}"></i>`);
+                    });
+
+                    // Open edit modal
+                    $(document).on('click', '.edit-cat-btn', function () {
+                        mode = 'EDIT';
+                        $('#categoryModalLabel').text('Sửa thông tin danh mục');
+                        $('#modalErrorAlert').addClass('d-none').text('');
+
+                        const id = $(this).data('id');
+                        const name = $(this).data('name');
+                        const type = $(this).data('type');
+                        const icon = $(this).data('icon');
+
+                        $('#categoryId').val(id);
+                        $('#categoryName').val(name);
+                        $('#categoryType').val(type);
+                        $('#categoryIcon').val(icon);
+                        $('#iconPreview').html(`<i class="fas ${icon}"></i>`);
+
+                        categoryModal.show();
+                    });
+
+                    // Save category
+                    $('#saveCategoryBtn').on('click', function () {
+                        const form = document.getElementById('categoryForm');
+                        if (!form.checkValidity()) {
+                            form.reportValidity();
+                            return;
+                        }
+
+                        const catData = {
+                            categoryName: $('#categoryName').val(),
+                            categoryType: $('#categoryType').val(),
+                            icon: $('#categoryIcon').val()
+                        };
+
+                        const id = $('#categoryId').val();
+                        const url = mode === 'CREATE' ? '/api/categories' : '/api/categories/' + id;
+                        const type = mode === 'CREATE' ? 'POST' : 'PUT';
+
+                        const $btn = $(this);
+                        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang lưu...');
+                        $('#modalErrorAlert').addClass('d-none').text('');
+
+                        $.ajax({
+                            url: url,
+                            type: type,
+                            contentType: 'application/json',
+                            data: JSON.stringify(catData),
+                            success: function () {
+                                $btn.prop('disabled', false).text('Lưu');
+                                categoryModal.hide();
+                                loadCategories();
+                            },
+                            error: function (xhr) {
+                                $btn.prop('disabled', false).text('Lưu');
+                                let errorMsg = 'Có lỗi xảy ra, vui lòng thử lại.';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMsg = xhr.responseJSON.message;
+                                } else if (xhr.responseText) {
+                                    errorMsg = xhr.responseText;
+                                }
+                                $('#modalErrorAlert').removeClass('d-none').text(errorMsg);
+                            }
+                        });
+                    });
+
+                    // Initialize list
+                    loadCategories();
+                });
+            });
+        </script>
+    </div>
+</body>
+
+</html>

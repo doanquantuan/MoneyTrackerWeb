@@ -1,434 +1,593 @@
 <!DOCTYPE html>
-<html lang="en"
-	  xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/sidebar.html}">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/sidebar}">
+
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="./assets/images/logo/logo-sm.png" type="image/gif" sizes="16x16">
-    <title>Dashboard</title>
-    <meta name="og:description" content="FinDeshY is a free financial Bootstrap dashboard template to manage your financial data easily. This free financial dashboard uses Bootstrap to provide a responsive and user-friendly interface. Whether you're a small business owner seeking insights into your company's financial health or an individual looking to simplify your personal finances, this free Bootstrap dashboard template has you covered.">
-    <meta name="robots" content="index, follow">
-    <meta name="og:title" property="og:title" content="FinDeshY - Free Financial Bootstrap Dashboard Template">
-    <meta property="og:image" content="https://www.designtocodes.com/wp-content/uploads/2023/10/FinDeshY-Professional-Financial-Bootstrap-Dashboard-Template.jpg">
-    <!-- bootstrap css link -->
-    <link rel="stylesheet" href="./lib/bootstrap_5/bootstrap.min.css">
-    <!-- Font Awesome CDN -->
-    <link rel="stylesheet" href="./lib/fontawesome/css/all.min.css">
-    <!-- main css -->
-    <link rel="stylesheet" href="./assets/css/global.css">
-    <link rel="stylesheet" href="./assets/css/style.css">
-
-    <!-- responsive css -->
-    <link rel="stylesheet" href="./assets/css/responsive.css">
+    <title>Tổng quan - Money Tracker</title>
 </head>
 
-<body class="d2c_theme_light">
-    <!-- Preloader Start -->
-    <div class="preloader">
-        <img src="./assets/images/logo/logo.png" alt="DesignToCodes">
-    </div>
-    <!-- Preloader End -->
-
-    <div class="d2c_wrapper">
-
-        <!-- Main sidebar -->
-        <div class="d2c_sidebar offcanvas-lg offcanvas-start p-4 pe-lg-2" tabindex="-1" id="d2c_sidebar">
-            <div class="d-flex flex-column">
-                <!-- Logo -->
-                <a href="./index.html" class="mb-5 brand-icon">
-                    <img class="navbar-brand" src="./assets/images/logo/logo.png" alt="logo">
-                </a>
-                <!-- End:Logo -->
-
-                <!-- Profile -->
-                <div class="card d2c_profile_card text-center mb-4">
-                    <!-- Profile Image -->
-                    <a href="./pages/elements/profile.html">
-                        <img class="rounded-circle d2c_profile_image position-absolute top-0 start-50 translate-middle mb-2" src="./assets/images/profile/profile-1.jpg" alt="d2c Profile Image">
+<body>
+    <div layout:fragment="content">
+        <!-- Dashboard Header -->
+        <div class="row align-items-center mb-4">
+            <div class="col">
+                <h4 class="mb-1 text-capitalize text-dark fw-bold">Tổng quan tài chính</h4>
+                <p class="text-muted mb-0">Chào mừng bạn quay trở lại! Dưới đây là thống kê tài chính của bạn.</p>
+            </div>
+            <div class="col-auto">
+                <div class="d-flex gap-2">
+                    <a th:href="@{/transaction}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i> Thêm giao dịch
                     </a>
-                    <!-- End:Profile Image-->
-
-                    <div class="card-body mt-4">
-                        <h6 class="fw-bold mb-3">Wade Warren</h6>
-                        <ul class="list-inline">
-                            <!-- Notification -->
-                            <li class="list-inline-item position-relative me-3">
-                                <a class="nav-link p-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-bell fa-fw"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-secondary border rounded-circle"></span>
-                                </a>
-                                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow border-0 py-0 mt-3">
-                                    <h6 class="dropdown-header text-white bg-primary rounded-top py-3">Notifications</h6>
-                                    <a class="dropdown-item d-flex align-items-center" href="./pages/elements/notification.html">
-                                        <div class="text-truncate d-block">
-                                            <p class="mb-0"><small>19 sec ago</small></p>
-                                            <h6 class="mb-0">Hi there! I am wondering if you can help me with a problem I've been having.</h6>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="./pages/elements/notification.html">
-                                        <div class="text-truncate d-block">
-                                            <p class="mb-0"><small>2 min ago</small></p>
-                                            <h6 class="mb-0">
-                                                I have the photos that you ordered last month, how would
-                                                you like them sent to you?
-                                            </h6>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="./pages/elements/notification.html">
-                                        <div class="text-truncate d-block">
-                                            <p class="mb-0"><small>3 min ago</small></p>
-                                            <h6 class="mb-0">Last month's report looks great, I am very happy with
-                                                the progress so far, keep up the good work!</h6>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="./pages/elements/notification.html">
-                                        <div class="text-truncate d-block">
-                                            <p class="mb-0"><small>4 min ago</small></p>
-                                            <h6 class="mb-0">Am I a good boy? The reason I ask is because someone
-                                                told me that people say this to all dogs, even if they
-                                                aren't good...</h6>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item text-center small text-gray-500 py-2" href="./pages/elements/notification.html">See All
-                                        Notifications</a>
-
-                                    <div class="dropdown-arrow bg-info"></div>
-                                </div>
-                            </li>
-                            <!-- End:Notification -->
-
-                            <!-- MailBox -->
-                            <li class="list-inline-item position-relative me-3">
-                                <a class="nav-link p-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-envelope-open-text"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-                                </a>
-                                <div class="dropdown-list dropdown-menu shadow border-0 end-0 py-0 mt-3">
-                                    <h6 class="dropdown-header text-white bg-primary rounded-top py-3">Mail</h6>
-                                    <a class="dropdown-item d-flex align-items-center" href="./pages/mailDetails.html">
-                                        <div class="text-truncate d-flex align-items-center">
-                                            <div>
-                                                <img src="./assets/images/avatar/man-1.png" class="d2c_mail_avatar" alt="profile avatar">
-                                            </div>
-                                            <div>
-                                                <p class="mb-0"><small>3 min ago</small></p>
-                                                <h6 class="mb-0">Hi there! I am wondering if you can help me with a
-                                                    problem I've been having.</h6>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="./pages/mailDetails.html">
-                                        <div class="text-truncate d-flex align-items-center">
-                                            <div>
-                                                <img src="./assets/images/avatar/man-2.png" class="d2c_mail_avatar" alt="profile avatar">
-                                            </div>
-                                            <div>
-                                                <p class="mb-0"><small>4 min ago</small></p>
-                                                <h6 class="mb-0">I have the photos that you ordered last month, how would you like them sent to you?</h6>
-                                            </div>
-
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="./pages/mailDetails.html">
-                                        <div class="text-truncate d-flex align-items-center">
-                                            <div>
-                                                <img src="./assets/images/avatar/man-3.png" class="d2c_mail_avatar" alt="profile avatar">
-                                            </div>
-                                            <div>
-                                                <p class="mb-0"><small>6 min ago</small></p>
-                                                <h6 class="mb-0">Last month's report looks great, I am very happy with
-                                                    the progress so far, keep up the good work!</h6>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="./pages/mailDetails.html">
-                                        <div class="text-truncate d-flex align-items-center">
-                                            <div>
-                                                <img src="./assets/images/avatar/man-4.png" class="d2c_mail_avatar" alt="profile avatar">
-                                            </div>
-                                            <div>
-                                                <p class="mb-0"><small>10 min ago</small></p>
-                                                <h6 class="mb-0">Am I a good boy? The reason I ask is because someone
-                                                    told me that people say this to all dogs, even if they
-                                                    aren't good..</h6>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item text-center small text-gray-500 py-2" href="./pages/mailDetails.html">See All Mail</a>
-
-                                    <div class="dropdown-arrow bg-info"></div>
-                                </div>
-                            </li>
-                            <!-- End:MailBox -->
-
-                            <!-- Setting-->
-                            <li class="list-inline-item position-relative">
-                                <a class="nav-link p-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-cog"></i>
-                                </a>
-                                <div class="dropdown-list dropdown-menu shadow border-0 end-0 py-0 mt-3">
-                                    <h6 class="dropdown-header text-white bg-primary rounded-top py-3">Settings</h6>
-                                    <div class="d2c_profile_settings">
-                                        <a class="dropdown-item d-flex align-items-center py-2" href="./pages/support.html">
-                                            <i class="fas fa-sms"></i>
-                                            <p class="mb-0 ms-2 fw-normal">Messages</p>
-                                        </a>
-                                        <a class="dropdown-item d-flex align-items-center py-2" href="./pages/elements/profile.html">
-                                            <i class="fas fa-user-cog"></i>
-                                            <p class="mb-0 ms-2 fw-normal">Profile Settings</p>
-                                        </a>
-                                        <a class="dropdown-item d-flex align-items-center py-2" href="#">
-                                            <i class="fas fa-sign-out-alt"></i>
-                                            <p class="mb-0 ms-2 fw-normal">Log Out</p>
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-                            <!-- End:Setting -->
-                        </ul>
-
-                        <!-- Search -->
-                        <form>
-                            <div class="input-group">
-                                <input class="form-control" type="search" placeholder="Search">
-                            </div>
-                        </form>
-                        <!-- End:Search -->
-                    </div>
                 </div>
-                <!-- End:Profile -->
-
-                <!-- Menu -->
-                <div class="card d2c_menu_card mb-4">
-                    <div class="card-body">
-                        <ul class="navbar-nav flex-grow-1">
-                            <!-- Menu Item -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <span>Menu</span>
-                                </a>
-                                <!-- Sub Menu -->
-                                <ul class="sub-menu collapse show">
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item active">
-                                        <a class="sub-menu-link" href="./index.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-home"></i>
-                                            </span>
-                                            <span>
-                                                Overview
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="./pages/payment.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-money-check-alt"></i>
-                                            </span>
-                                            <span>
-                                                Payment
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="./pages/transaction.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-list-alt"></i>
-                                            </span>
-                                            <span>
-                                                Transaction
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="./pages/wallet.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-wallet"></i>
-                                            </span>
-                                            <span>
-                                                Wallet
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="./pages/investment.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-network-wired"></i>
-                                            </span>
-                                            <span>
-                                                Investment
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="./pages/stocksFund.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-chart-line"></i>
-                                            </span>
-                                            <span>
-                                                Stock & Fund
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-                                </ul>
-                                <!-- End:Sub Menu -->
-                            </li>
-                            <!-- End:Menu Item -->
-
-
-
-                          
-
-                            <!-- Menu Item -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <span>Support</span>
-                                </a>
-                                <!-- Sub Menu -->
-                                <ul class="sub-menu collapse show" id="support">
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="./pages/community.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-users"></i>
-                                            </span>
-                                            <span>
-                                                Community
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="./pages/support.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-hands-helping"></i>
-                                            </span>
-                                            <span>
-                                                Help & Support
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="./pages/documentation.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-book-open"></i>
-                                            </span>
-                                            <span>
-                                                Documentation
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-                                </ul>
-                                <!-- End:Sub Menu -->
-                            </li>
-                            <!-- End:Menu Item -->
-                        </ul>
-                    </div>
-                </div>
-                <!-- End:Menu -->
-
-                <!-- Logout -->
-                <div class="card d2c_single_menu mb-4">
-                    <div class="card-body p-0">
-                        <ul class="navbar-nav">
-                            <!-- Item -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <span class="d2c_icon text-danger">
-                                        <i class="fas fa-sign-out-alt"></i>
-                                    </span>
-                                    <span>
-                                        Logout
-                                    </span>
-                                </a>
-                            </li>
-                            <!-- End:Item -->
-                        </ul>
-                    </div>
-                </div>
-                <!-- End:Logout -->
-
-                <!-- Theme Mode -->
-                <div class="card d2c_switch_card">
-                    <div class="card-body p-0">
-                        <ul class="navbar-nav">
-                            <!-- Item -->
-                            <li class="nav-item d-flex align-items-center">
-                                <span class="d2c_icon">
-                                    <i class="fas fa-moon"></i>
-                                </span>
-                                <span>Dark Mood</span>
-                                <span class="form-switch d-flex ms-auto">
-                                    <input class="form-check-input" id="d2c_theme_changer" type="checkbox" role="switch">
-                                </span>
-                            </li>
-                            <!-- End:Item -->
-                        </ul>
-                    </div>
-                </div>
-                <!-- End:Theme Mode -->
             </div>
         </div>
-        <!-- End:Sidebar -->
 
-        <!-- Main Body-->
-        <div class="d2c_main p-4 ps-lg-3">
+        <!-- Summary Cards Grid -->
+        <div class="row g-3 mb-4">
+            <!-- Total Balance -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm p-3 bg-primary text-white" style="background: linear-gradient(135deg, #00aa5d 0%, #00874a 100%) !important;">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="small fw-semibold text-uppercase text-white-50">Tổng số dư</span>
+                        <div class="avatar bg-white-20 rounded p-2 text-white">
+                            <i class="fas fa-wallet fa-lg"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold mb-1" id="totalBalance">0 VND</h3>
+                    <p class="small text-white-50 mb-0" id="totalAccountsCount">0 tài khoản</p>
+                </div>
+            </div>
+
+            <!-- Monthly Income -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="small text-muted fw-semibold text-uppercase">Thu nhập tháng này</span>
+                        <div class="avatar bg-success-subtle rounded p-2 text-success">
+                            <i class="fas fa-arrow-down fa-lg"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold mb-1 text-success" id="monthlyIncome">0 VND</h3>
+                    <p class="small text-muted mb-0" id="incomeCount">0 giao dịch</p>
+                </div>
+            </div>
+
+            <!-- Monthly Expenses -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="small text-muted fw-semibold text-uppercase">Chi tiêu tháng này</span>
+                        <div class="avatar bg-danger-subtle rounded p-2 text-danger">
+                            <i class="fas fa-arrow-up fa-lg"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold mb-1 text-danger" id="monthlyExpenses">0 VND</h3>
+                    <p class="small text-muted mb-0" id="expenseCount">0 giao dịch</p>
+                </div>
+            </div>
+
+            <!-- Budgets / Savings Short summary -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="small text-muted fw-semibold text-uppercase">Tích lũy & Nợ</span>
+                        <div class="avatar bg-info-subtle rounded p-2 text-info">
+                            <i class="fas fa-balance-scale fa-lg"></i>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column gap-1">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">Tiết kiệm:</span>
+                            <span class="small fw-semibold text-dark" id="savingTotal">0 VND</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">Tổng nợ:</span>
+                            <span class="small fw-semibold text-danger" id="debtTotal">0 VND</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <!-- End:Main Body -->
+
+        <!-- Charts Row -->
+        <div class="row g-4 mb-4">
+            <!-- Cashflow Chart -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-transparent border-0 pt-3 pb-0 d-flex align-items-center justify-content-between">
+                        <h6 class="card-title fw-bold text-dark mb-0">Xu hướng Thu chi (6 tháng gần đây)</h6>
+                        <span class="badge bg-light text-muted py-1.5 px-2.5">Tải động</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="cashflowChart" style="min-height: 320px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expense Category Breakdown -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-transparent border-0 pt-3 pb-0">
+                        <h6 class="card-title fw-bold text-dark mb-0">Phân bổ Chi tiêu</h6>
+                    </div>
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <div id="categoryChart" style="width: 100%; min-height: 250px;"></div>
+                        <div id="categoryEmptyPlaceholder" class="text-muted text-center py-4 d-none">
+                            <i class="fas fa-chart-pie fa-2x mb-2"></i>
+                            <p class="small mb-0">Không có dữ liệu chi tiêu tháng này</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lower Section: Recent Transactions & Financial Statuses -->
+        <div class="row g-4">
+            <!-- Recent Transactions Table -->
+            <div class="col-xl-8">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-transparent border-0 pt-3 pb-0 d-flex align-items-center justify-content-between">
+                        <h6 class="card-title fw-bold text-dark mb-0">Giao dịch gần đây</h6>
+                        <a th:href="@{/transaction}" class="small text-primary text-decoration-none">Xem tất cả <i class="fas fa-arrow-right small ms-1"></i></a>
+                    </div>
+                    <div class="card-body px-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="recentTransactionsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3 border-0">Thời gian</th>
+                                        <th class="border-0">Tài khoản</th>
+                                        <th class="border-0">Danh mục</th>
+                                        <th class="border-0 text-end">Số tiền</th>
+                                        <th class="border-0 text-center">Loại</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentTransactionsBody">
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted">Đang tải danh sách giao dịch...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Saving Goals & Active Budgets -->
+            <div class="col-xl-4">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-transparent border-0 pt-3 pb-0 d-flex align-items-center justify-content-between">
+                        <h6 class="card-title fw-bold text-dark mb-0">Mục tiêu tiết kiệm</h6>
+                        <a th:href="@{/savings}" class="small text-primary text-decoration-none">Xem mục tiêu</a>
+                    </div>
+                    <div class="card-body" id="savingsOverviewContainer">
+                        <div class="text-center py-3 text-muted small">Đang tải mục tiêu tiết kiệm...</div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-0 pt-3 pb-0 d-flex align-items-center justify-content-between">
+                        <h6 class="card-title fw-bold text-dark mb-0">Ngân sách danh mục</h6>
+                        <a th:href="@{/budgets}" class="small text-primary text-decoration-none">Quản lý ngân sách</a>
+                    </div>
+                    <div class="card-body" id="budgetsOverviewContainer">
+                        <div class="text-center py-3 text-muted small">Đang tải ngân sách...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Script for Overview Dashboard -->
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                $(function () {
+                    // Cache containers
+                    const $totalBalance = $('#totalBalance');
+                    const $totalAccountsCount = $('#totalAccountsCount');
+                    const $monthlyIncome = $('#monthlyIncome');
+                    const $monthlyExpenses = $('#monthlyExpenses');
+                    const $incomeCount = $('#incomeCount');
+                    const $expenseCount = $('#expenseCount');
+                    const $savingTotal = $('#savingTotal');
+                    const $debtTotal = $('#debtTotal');
+                    const $recentTransactionsBody = $('#recentTransactionsBody');
+                    const $savingsOverviewContainer = $('#savingsOverviewContainer');
+                    const $budgetsOverviewContainer = $('#budgetsOverviewContainer');
+
+                    // Global variables for dashboard aggregation
+                    let allAccounts = [];
+                    let allTransactions = [];
+                    let allBudgets = [];
+                    let allSavings = [];
+                    let allDebts = [];
+                    let categories = [];
+
+                    // Format helpers
+                    function formatMoney(amount, currency) {
+                        const symbol = currency || 'VND';
+                        return new Intl.NumberFormat('en-US', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        }).format(amount) + ' ' + symbol;
+                    }
+
+                    function formatDate(dateStr) {
+                        if (!dateStr) return '';
+                        const date = new Date(dateStr);
+                        return date.toLocaleDateString('vi-VN', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                        });
+                    }
+
+                    // Main Initialization function
+                    function initDashboard() {
+                        const pAccounts = $.ajax({ url: '/api/accounts', type: 'GET' });
+                        const pTransactions = $.ajax({ url: '/api/transactions', type: 'GET' });
+                        const pBudgets = $.ajax({ url: '/api/budgets', type: 'GET' });
+                        const pSavings = $.ajax({ url: '/api/savings', type: 'GET' });
+                        const pDebts = $.ajax({ url: '/api/debts', type: 'GET' });
+                        const pCategories = $.ajax({ url: '/api/categories', type: 'GET' });
+
+                        $.when(pAccounts, pTransactions, pBudgets, pSavings, pDebts, pCategories)
+                            .done(function (resAcc, resTx, resBud, resSav, resDebt, resCat) {
+                                // 1. Accounts
+                                const accountsGroup = resAcc[0];
+                                allAccounts = [];
+                                for (const key in accountsGroup) {
+                                    if (accountsGroup.hasOwnProperty(key)) {
+                                        allAccounts = allAccounts.concat(accountsGroup[key]);
+                                    }
+                                }
+
+                                // 2. Transactions
+                                allTransactions = resTx[0] || [];
+
+                                // 3. Budgets
+                                allBudgets = resBud[0] || [];
+
+                                // 4. Savings
+                                allSavings = resSav[0] || [];
+
+                                // 5. Debts
+                                allDebts = resDebt[0] || [];
+
+                                // 6. Categories
+                                categories = resCat[0] || [];
+
+                                // Compute stats
+                                renderStats();
+                                renderCharts();
+                                renderRecentTransactions();
+                                renderSavingsSummary();
+                                renderBudgetsSummary();
+                            })
+                            .fail(function () {
+                                console.error("Không thể tải một số dữ liệu cho Dashboard.");
+                            });
+                    }
+
+                    function renderStats() {
+                        // 1. Total Balance
+                        let balSum = 0;
+                        allAccounts.forEach(acc => balSum += acc.currentBalance);
+                        $totalBalance.text(formatMoney(balSum, 'VND'));
+                        $totalAccountsCount.text(allAccounts.length + ' tài khoản');
+
+                        // 2. Monthly income & expense
+                        const now = new Date();
+                        const currentYear = now.getFullYear();
+                        const currentMonth = now.getMonth(); // 0-indexed
+
+                        let incomeSum = 0;
+                        let expenseSum = 0;
+                        let inCount = 0;
+                        let exCount = 0;
+
+                        allTransactions.forEach(tx => {
+                            const txDate = new Date(tx.transactionDate);
+                            if (txDate.getFullYear() === currentYear && txDate.getMonth() === currentMonth) {
+                                if (tx.type === 'INCOME') {
+                                    incomeSum += tx.amount;
+                                    inCount++;
+                                } else if (tx.type === 'EXPENSE') {
+                                    expenseSum += tx.amount;
+                                    exCount++;
+                                }
+                            }
+                        });
+
+                        $monthlyIncome.text(formatMoney(incomeSum, 'VND'));
+                        $incomeCount.text(inCount + ' giao dịch');
+
+                        $monthlyExpenses.text(formatMoney(expenseSum, 'VND'));
+                        $expenseCount.text(exCount + ' giao dịch');
+
+                        // 3. Savings piggybank total
+                        let savingsSum = 0;
+                        allSavings.forEach(sav => {
+                            if (sav.status === 'IN_PROGRESS' || sav.status === 'ACTIVE') {
+                                savingsSum += (sav.currentAmount || 0);
+                            }
+                        });
+                        $savingTotal.text(formatMoney(savingsSum, 'VND'));
+
+                        // 4. Debts sum (type BORROW: nợ phải trả, LEND: khoản cho vay phải thu)
+                        let netDebt = 0;
+                        allDebts.forEach(d => {
+                            if (d.status === 'ACTIVE') {
+                                if (d.type === 'BORROW') {
+                                    netDebt += d.principalAmount; // Nợ mình nợ
+                                } else if (d.type === 'LEND') {
+                                    netDebt -= d.principalAmount; // Nợ người ta nợ mình
+                                }
+                            }
+                        });
+                        if (netDebt >= 0) {
+                            $debtTotal.text(formatMoney(netDebt, 'VND')).addClass('text-danger').removeClass('text-success');
+                        } else {
+                            $debtTotal.text('Được trả ' + formatMoney(Math.abs(netDebt), 'VND')).addClass('text-success').removeClass('text-danger');
+                        }
+                    }
+
+                    function renderRecentTransactions() {
+                        $recentTransactionsBody.empty();
+                        const slicedTx = allTransactions.slice(0, 5); // Limit 5
+
+                        if (slicedTx.length === 0) {
+                            $recentTransactionsBody.append(`
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">Chưa có giao dịch nào được ghi lại.</td>
+                                </tr>
+                            `);
+                            return;
+                        }
+
+                        slicedTx.forEach(tx => {
+                            const dateStr = formatDate(tx.transactionDate);
+                            const accName = tx.account ? tx.account.accountName : 'N/A';
+                            const catName = tx.category ? tx.category.categoryName : '-';
+                            const symbol = tx.account ? tx.account.currency : 'VND';
+
+                            let amtText = '';
+                            let typeBadge = '';
+
+                            if (tx.type === 'INCOME') {
+                                amtText = `<span class="text-success fw-bold">+${formatMoney(tx.amount, symbol)}</span>`;
+                                typeBadge = `<span class="badge bg-success-subtle text-success py-1 px-2.5">Thu</span>`;
+                            } else if (tx.type === 'EXPENSE') {
+                                amtText = `<span class="text-danger fw-bold">-${formatMoney(tx.amount, symbol)}</span>`;
+                                typeBadge = `<span class="badge bg-danger-subtle text-danger py-1 px-2.5">Chi</span>`;
+                            } else {
+                                const toAcc = tx.toAccount ? tx.toAccount.accountName : 'N/A';
+                                amtText = `<span class="text-info fw-bold">${formatMoney(tx.amount, symbol)}</span>`;
+                                typeBadge = `<span class="badge bg-info-subtle text-info py-1 px-2.5">Chuyển</span>`;
+                            }
+
+                            $recentTransactionsBody.append(`
+                                <tr>
+                                    <td class="ps-3">${dateStr}</td>
+                                    <td>${tx.type === 'TRANSFER' ? accName + ' ➔ ' + (tx.toAccount ? tx.toAccount.accountName : 'N/A') : accName}</td>
+                                    <td>${catName}</td>
+                                    <td class="text-end fw-semibold">${amtText}</td>
+                                    <td class="text-center">${typeBadge}</td>
+                                </tr>
+                            `);
+                        });
+                    }
+
+                    function renderSavingsSummary() {
+                        $savingsOverviewContainer.empty();
+                        const slicedSavings = allSavings.filter(s => s.status === 'IN_PROGRESS').slice(0, 3);
+
+                        if (slicedSavings.length === 0) {
+                            $savingsOverviewContainer.append(`
+                                <div class="text-center py-4 text-muted small">
+                                    <i class="fas fa-piggy-bank fa-2x mb-2 d-block"></i>
+                                    Không có mục tiêu tiết kiệm hoạt động.
+                                </div>
+                            `);
+                            return;
+                        }
+
+                        slicedSavings.forEach(goal => {
+                            const percent = goal.targetAmount > 0 ? Math.min(Math.round((goal.currentAmount / goal.targetAmount) * 100), 100) : 0;
+                            $savingsOverviewContainer.append(`
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="small fw-bold text-dark">${goal.name}</span>
+                                        <span class="small text-muted">${formatMoney(goal.currentAmount, 'VND')} / ${formatMoney(goal.targetAmount, 'VND')}</span>
+                                    </div>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-success rounded" role="progressbar" style="width: ${percent}%;" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <div class="text-end mt-1">
+                                        <span class="badge bg-light text-success small">${percent}% đạt được</span>
+                                    </div>
+                                </div>
+                            `);
+                        });
+                    }
+
+                    function renderBudgetsSummary() {
+                        $budgetsOverviewContainer.empty();
+                        const activeBudgets = allBudgets.slice(0, 3);
+
+                        if (activeBudgets.length === 0) {
+                            $budgetsOverviewContainer.append(`
+                                <div class="text-center py-4 text-muted small">
+                                    <i class="fas fa-chart-pie fa-2x mb-2 d-block"></i>
+                                    Không có ngân sách nào được thiết lập.
+                                </div>
+                            `);
+                            return;
+                        }
+
+                        activeBudgets.forEach(b => {
+                            const limit = b.amountLimit || 1;
+                            const spent = b.currentSpending || 0;
+                            const percent = Math.min(Math.round((spent / limit) * 100), 100);
+                            let barColor = 'bg-primary';
+
+                            if (percent >= 100) {
+                                barColor = 'bg-danger';
+                            } else if (percent >= 80) {
+                                barColor = 'bg-warning';
+                            }
+
+                            const catName = b.category ? b.category.categoryName : 'Danh mục chung';
+
+                            $budgetsOverviewContainer.append(`
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="small fw-bold text-dark">${b.budgetName || catName}</span>
+                                        <span class="small text-muted">${formatMoney(spent, 'VND')} / ${formatMoney(limit, 'VND')}</span>
+                                    </div>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar ${barColor} rounded" role="progressbar" style="width: ${percent}%;" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-1">
+                                        <span class="small text-muted">${b.period}</span>
+                                        <span class="small fw-semibold ${percent >= 100 ? 'text-danger' : 'text-primary'}">${percent}%</span>
+                                    </div>
+                                </div>
+                            `);
+                        });
+                    }
+
+                    function renderCharts() {
+                        // 1. Expense by Category (Pie Chart)
+                        const expenseByCat = {};
+                        const now = new Date();
+                        const currentYear = now.getFullYear();
+                        const currentMonth = now.getMonth();
+
+                        allTransactions.forEach(tx => {
+                            const txDate = new Date(tx.transactionDate);
+                            if (tx.type === 'EXPENSE' && txDate.getFullYear() === currentYear && txDate.getMonth() === currentMonth) {
+                                const catName = tx.category ? tx.category.categoryName : 'Khác';
+                                expenseByCat[catName] = (expenseByCat[catName] || 0) + tx.amount;
+                            }
+                        });
+
+                        const categoriesData = Object.keys(expenseByCat);
+                        const categorySums = Object.values(expenseByCat);
+
+                        if (categorySums.length === 0) {
+                            $('#categoryChart').addClass('d-none');
+                            $('#categoryEmptyPlaceholder').removeClass('d-none');
+                        } else {
+                            $('#categoryChart').removeClass('d-none');
+                            $('#categoryEmptyPlaceholder').addClass('d-none');
+
+                            const categoryChartOptions = {
+                                chart: {
+                                    type: 'donut',
+                                    height: 250
+                                },
+                                series: categorySums,
+                                labels: categoriesData,
+                                legend: {
+                                    position: 'bottom',
+                                    horizontalAlign: 'center',
+                                    fontSize: '11px'
+                                },
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                colors: ['#00aa5d', '#ff3366', '#00bfff', '#ffcc00', '#9b59b6', '#34495e', '#e67e22'],
+                                responsive: [{
+                                    breakpoint: 480,
+                                    options: {
+                                        chart: {
+                                            width: 200
+                                        },
+                                        legend: {
+                                            position: 'bottom'
+                                        }
+                                    }
+                                }]
+                            };
+                            new ApexCharts(document.querySelector("#categoryChart"), categoryChartOptions).render();
+                        }
+
+                        // 2. Income vs Expense Trend (Last 6 Months)
+                        // Prepopulate the last 6 months
+                        const monthLabels = [];
+                        const incomeTrend = Array(6).fill(0);
+                        const expenseTrend = Array(6).fill(0);
+
+                        for (let i = 5; i >= 0; i--) {
+                            const d = new Date();
+                            d.setMonth(now.getMonth() - i);
+                            const mName = d.toLocaleDateString('vi-VN', { month: 'short', year: '2-digit' });
+                            monthLabels.push(mName);
+                        }
+
+                        // Populate totals
+                        allTransactions.forEach(tx => {
+                            const txDate = new Date(tx.transactionDate);
+                            // Find matching month in labels
+                            for (let i = 5; i >= 0; i--) {
+                                const checkDate = new Date();
+                                checkDate.setMonth(now.getMonth() - i);
+                                if (txDate.getFullYear() === checkDate.getFullYear() && txDate.getMonth() === checkDate.getMonth()) {
+                                    const index = 5 - i;
+                                    if (tx.type === 'INCOME') {
+                                        incomeTrend[index] += tx.amount;
+                                    } else if (tx.type === 'EXPENSE') {
+                                        expenseTrend[index] += tx.amount;
+                                    }
+                                }
+                            }
+                        });
+
+                        const cashflowChartOptions = {
+                            chart: {
+                                height: 320,
+                                type: 'area',
+                                toolbar: { show: false }
+                            },
+                            dataLabels: { enabled: false },
+                            stroke: { curve: 'smooth', width: 2 },
+                            series: [
+                                { name: 'Thu nhập', data: incomeTrend },
+                                { name: 'Chi tiêu', data: expenseTrend }
+                            ],
+                            xaxis: {
+                                categories: monthLabels
+                            },
+                            tooltip: {
+                                y: {
+                                    formatter: function (val) {
+                                        return formatMoney(val, 'VND');
+                                    }
+                                }
+                            },
+                            colors: ['#00aa5d', '#ff3366'],
+                            fill: {
+                                type: 'gradient',
+                                gradient: {
+                                    shadeIntensity: 1,
+                                    opacityFrom: 0.35,
+                                    opacityTo: 0.05,
+                                    stops: [0, 90, 100]
+                                }
+                            }
+                        };
+                        new ApexCharts(document.querySelector("#cashflowChart"), cashflowChartOptions).render();
+                    }
+
+                    // Run init
+                    initDashboard();
+                });
+            });
+        </script>
     </div>
-
-    <!-- Offcanvas Toggler -->
-    <button class="d2c_offcanvas_toggle position-fixed top-50 start-0 translate-middle-y d-block d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#d2c_sidebar" aria-controls="d2c_sidebar">
-        <i class="far fa-hand-point-right"></i>
-    </button>
-    <!-- End:Offcanvas Toggler -->
-
-    <!-- Initial  Javascript -->
-    <script src="./lib/jQuery/jquery-3.5.1.min.js"></script>
-    <script src="./lib/bootstrap_5/bootstrap.bundle.min.js"></script>
-
-    <!-- Chart Config -->
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script src="./assets/js/apexchart/script.js"></script>
-
-    <!-- custom js -->
-    <script src="./assets/js/main.js"></script>
-
 </body>
-</html>
 
-<!-- 
-    Template Name: FinDeshY - Free Financial Bootstrap Dashboard Template
-    Template URI:  https://www.designtocodes.com/product/findeshy-free-financial-bootstrap-dashboard-template
-    Description:   FinDeshY is a free financial Bootstrap dashboard template to manage your financial data easily. This free financial dashboard uses Bootstrap to provide a responsive and user-friendly interface. Whether you're a small business owner seeking insights into your company's financial health or an individual looking to simplify your personal finances, this free Bootstrap dashboard template has you covered.
-    Author:        DesignToCodes
-    Author URI:    https://www.designtocodes.com/
-    Text Domain:   FinDeshY 
-    -->
+</html>

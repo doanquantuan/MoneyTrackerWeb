@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -77,7 +79,7 @@ public class Debt {
 	private DebtStatus status;
 	
 	@OneToMany(mappedBy = "debt", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JsonIgnore
+	@JsonIgnoreProperties("debt")
 	private List<DebtRepayment> repayments;
 
 }
