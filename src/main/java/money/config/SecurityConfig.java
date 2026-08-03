@@ -45,6 +45,7 @@ public class SecurityConfig {
                         "/register",
                         "/forgetPassword",
                         "/verifyOTP",
+                        "/verify-otp-signup",
                         "/resetPassword",
                         "/assets/**",
                         "/lib/**",

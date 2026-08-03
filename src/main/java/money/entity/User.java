@@ -45,6 +45,9 @@ public class User {
 	@Column(name = "OTPExpiredAt")
 	private LocalDateTime otpExpiredAt;
 	
+	@Column(name = "IsVerified")
+	private boolean isVerified = false;
+	
 	@Column(name = "FirstName", columnDefinition = "NVARCHAR(250)")
 	private String firstName;
 	

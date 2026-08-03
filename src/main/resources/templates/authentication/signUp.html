@@ -174,12 +174,14 @@
                     contentType: 'application/json',
                     data: JSON.stringify(signupData),
                     success: function(response) {
+                        sessionStorage.setItem('signUpEmail', email);
+                        
                         $alert.addClass('alert-success')
-                              .text("Đăng ký thành công! Đang chuyển hướng sang trang đăng nhập...")
+                              .text("Đăng ký thành công! Đang chuyển hướng sang trang xác thực...")
                               .fadeIn();
                               
                         setTimeout(function() {
-                            window.location.href = '/login';
+                            window.location.href = '/verify-otp-signup';
                         }, 1500);
                     },
                     error: function(xhr) {

@@ -49,17 +49,32 @@ public class AuthServiceImpl implements IAuthService{
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setCreatedAt(LocalDateTime.now());
+        user.setVerified(false);
 
         String encodedPassword = passwordEncoder.encode(request.getPassword());
         user.setPassword(encodedPassword); 
+        
+        User savedUser = userRepo.save(user);
+        
+        try {
+            sendOTP(savedUser.getEmail());
+        } catch (Exception e) {
+            // Log or wrap the exception
+            throw new RuntimeException("Đăng ký thành công nhưng không gửi được mã OTP. Vui lòng yêu cầu gửi lại OTP.", e);
+        }
 
-        return userRepo.save(user);
+        return savedUser;
 	}
 
 	@Override
 	public boolean verifyLogin(LoginRequest request) {
         User user = userRepo.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+        
+        if (!user.isVerified()) {
+            throw new RuntimeException("Tài khoản chưa được kích hoạt/xác thực OTP. Vui lòng xác thực trước khi đăng nhập.");
+        }
+        
         return passwordEncoder.matches(request.getPassword(), user.getPassword());
 	}
 //	
@@ -116,9 +131,10 @@ public class AuthServiceImpl implements IAuthService{
             throw new RuntimeException("OTP không chính xác");
         }
 
-        // OTP hợp lệ → xoá
+        // OTP hợp lệ → xoá và kích hoạt tài khoản
         user.setOtp(null);
         user.setOtpExpiredAt(null);
+        user.setVerified(true);
         userRepo.save(user);
 		
 	}

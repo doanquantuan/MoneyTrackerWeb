@@ -32,7 +32,12 @@ public class WebViewController {
 
     @GetMapping("/verifyOTP")
     public String verifyOTP() {
-        return "authentication/verifyOTP";
+        return "authentication/verifyOTPforgetpassword";
+    }
+
+    @GetMapping("/verify-otp-signup")
+    public String verifyOtpSignup() {
+        return "authentication/verifyOTPSignUp";
     }
 
     @GetMapping("/resetPassword")

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP - Register</title>
+    <!-- bootstrap css link -->
+    <link rel="stylesheet" th:href="@{/lib/bootstrap_5/bootstrap.min.css}">
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" th:href="@{/lib/fontawesome/css/all.min.css}">
+    <!-- main css -->
+    <link rel="stylesheet" th:href="@{/assets/css/global.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+    <!-- responsive css -->
+    <link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
+</head>
+
+<body class="d2c_theme_light">
+    <section class="d2c_login_system d-flex align-items-center">
+	    <div class="container">
+	        <div class="row">
+	            <div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3 col-xxl-4 offset-xxl-4">
+	                <div class="d2c_login_wrapper">
+	                    
+	                    <div class="text-center mb-4">
+	                        <h4 class="text-capitalize">Verify OTP</h4>
+	                        <p class="text-muted">
+	                            The OTP is a 6-digit code sent to your registered email address
+	                        </p>
+	                    </div>
+	
+	                    <!-- VERIFY OTP FORM -->
+	                    <form id="verifyOtpForm" novalidate>
+	
+	                        <div class="mb-3">
+	                            <label class="form-label">Your OTP</label>
+	                            <input type="text"
+	                                   name="otp"
+	                                   class="form-control"
+	                                   placeholder="Enter OTP"
+	                                   maxlength="6"
+	                                   required>
+	                        </div>
+	                        
+	                        <!-- Alert placeholder for AJAX feedback -->
+                            <div id="alertMessage" class="alert" style="display:none; padding: 12px; margin-bottom: 15px; border-radius: 8px; font-weight: 500;"></div>
+	
+	                        <div class="mb-3">
+	                            <button type="submit"
+	                                    class="btn btn-primary w-100 text-capitalize">
+	                                Submit
+	                            </button>
+	                        </div>
+	                    </form>
+	
+	                    <!-- RESEND OTP BUTTON -->
+	                    <div class="mb-2">
+	                        <button type="button"
+	                                id="resendOtpBtn"
+	                                class="d2c_link_btn btn w-100 d-flex align-items-center justify-content-center text-capitalize">
+	                            Resend OTP
+	                        </button>
+	                    </div>
+	
+	                    <!-- BACK TO LOGIN -->
+	                    <a th:href="@{/login}"
+	                       class="d2c_link_btn btn w-100 d-flex align-items-center justify-content-center text-capitalize">
+	                        Back to Sign In
+	                    </a>
+	
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	</section>
+
+    <!-- Initial  Javascript -->
+    <script th:src="@{/lib/jQuery/jquery-3.5.1.min.js}"></script>
+    <script th:src="@{/lib/bootstrap_5/bootstrap.bundle.min.js}"></script>
+
+    <!-- custom js -->
+    <script th:src="@{/assets/js/main.js}"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Retrieve email from sessionStorage
+            const email = sessionStorage.getItem('signUpEmail');
+            if (!email) {
+                // If no email context, redirect back to register
+                window.location.href = '/register';
+                return;
+            }
+            
+            const $alert = $('#alertMessage');
+            
+            // Handle Verify OTP Submit
+            $('#verifyOtpForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const $form = $(this);
+                const $btn = $form.find('button[type="submit"]');
+                const otp = $('input[name="otp"]').val();
+                
+                if ($form[0].checkValidity() === false) {
+                    e.stopPropagation();
+                    $form.addClass('was-validated');
+                    return;
+                }
+                
+                $alert.hide().removeClass('alert-danger alert-success');
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Verifying...');
+                
+                $.ajax({
+                    url: '/api/auth/verify-otp',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ email: email, otp: otp }),
+                    success: function(response) {
+                        $alert.addClass('alert-success')
+                              .text("Xác thực OTP thành công! Tài khoản của bạn đã được kích hoạt. Đang chuyển hướng đăng nhập...")
+                              .fadeIn();
+                        
+                        setTimeout(function() {
+                            window.location.href = '/login';
+                        }, 1500);
+                    },
+                    error: function(xhr) {
+                        $btn.prop('disabled', false).text('Submit');
+                        let errMsg = "Mã OTP không hợp lệ hoặc đã hết hạn.";
+                        if (xhr.status === 400 || xhr.status === 500) {
+                            if (xhr.responseText) {
+                                errMsg = xhr.responseText;
+                            }
+                        }
+                        $alert.addClass('alert-danger')
+                              .text(errMsg)
+                              .fadeIn();
+                    }
+                });
+            });
+            
+            // Handle Resend OTP
+            $('#resendOtpBtn').on('click', function(e) {
+                e.preventDefault();
+                
+                const $btn = $(this);
+                $alert.hide().removeClass('alert-danger alert-success');
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Sending...');
+                
+                $.ajax({
+                    url: '/api/auth/resend-otp',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ email: email }),
+                    success: function(response) {
+                        $btn.prop('disabled', false).text('Resend OTP');
+                        $alert.addClass('alert-success')
+                              .text("Mã OTP mới đã được gửi thành công đến email của bạn!")
+                              .fadeIn();
+                    },
+                    error: function(xhr) {
+                        $btn.prop('disabled', false).text('Resend OTP');
+                        let errMsg = "Không thể gửi lại mã OTP. Vui lòng thử lại sau!";
+                        if (xhr.responseText) {
+                            errMsg = xhr.responseText;
+                        }
+                        $alert.addClass('alert-danger')
+                              .text(errMsg)
+                              .fadeIn();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

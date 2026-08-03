@@ -75,6 +75,19 @@ public class AuthAPIController {
         );
     }
     
+    @PostMapping("/resend-otp")
+    public ResponseEntity<?> resendOtp(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        try {
+            authService.sendOTP(email);
+            return ResponseEntity.ok(
+                Map.of("message", "Mã OTP mới đã được gửi thành công")
+            );
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
 
