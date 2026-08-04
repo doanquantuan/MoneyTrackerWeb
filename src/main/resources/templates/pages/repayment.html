@@ -17,6 +17,9 @@
                 </a>
                 <h4 class="mb-0 text-capitalize">Chi tiết lịch sử thanh toán</h4>
             </div>
+            <button type="button" class="btn btn-success d-none" id="repayActionBtn">
+                <i class="fas fa-hand-holding-usd me-1"></i> <span id="repayActionText">Thanh toán</span>
+            </button>
         </div>
 
         <!-- Summary Info Card -->
@@ -58,7 +61,8 @@
                         <span id="debtDueDate" class="text-dark small">-</span>
                     </div>
                     <div class="col-sm-6 col-md-3">
-                        <span class="text-muted small d-block text-uppercase fw-semibold mb-1">Trạng thái khoản nợ</span>
+                        <span class="text-muted small d-block text-uppercase fw-semibold mb-1">Trạng thái khoản
+                            nợ</span>
                         <span id="debtStatusBadge" class="badge px-2 py-1">-</span>
                     </div>
                 </div>
@@ -68,7 +72,8 @@
         <!-- Repayment History Table -->
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
-                <h5 class="card-title mb-0 text-dark fw-bold"><i class="fas fa-list me-2 text-info"></i>Danh sách các đợt thanh toán</h5>
+                <h5 class="card-title mb-0 text-dark fw-bold"><i class="fas fa-list me-2 text-info"></i>Danh sách các
+                    đợt thanh toán</h5>
                 <span class="badge bg-secondary-subtle text-secondary" id="repaymentCountBadge">0 giao dịch</span>
             </div>
             <div class="card-body p-0">
@@ -97,6 +102,40 @@
             </div>
         </div>
 
+        <!-- Expected Repayment Schedule (Amortization Plan) -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                <h5 class="card-title mb-0 text-dark fw-bold"><i class="fas fa-calendar-alt me-2 text-primary"></i>Lịch trình thanh toán định kỳ dự kiến</h5>
+                <span class="badge bg-primary-subtle text-primary" id="scheduleCountBadge">0 kỳ</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px;" class="ps-4">Kỳ số</th>
+                                <th>Ngày đến hạn</th>
+                                <th class="text-end">Tiền gốc phải trả</th>
+                                <th class="text-end">Tiền lãi dự tính</th>
+                                <th class="text-end">Tổng cần thanh toán</th>
+                                <th class="text-end pe-4">Dư nợ gốc còn lại</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scheduleTableBody">
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Đang tải kế hoạch...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <div th:replace="~{pages/debt/modals :: modals}"></div>
+
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 $(function () {
@@ -109,6 +148,10 @@
                         window.location.href = '/debts';
                         return;
                     }
+
+                    let currentDebt = null;
+                    const repayModal = new bootstrap.Modal(document.getElementById('repayModal'));
+                    let accountsList = [];
 
                     // Format helpers
                     function formatMoney(amount) {
@@ -144,15 +187,38 @@
                         return dateStr;
                     }
 
+                    // Load accounts list
+                    function loadAccounts() {
+                        $.ajax({
+                            url: '/api/accounts',
+                            type: 'GET',
+                            success: function (data) {
+                                accountsList = [];
+                                for (const key in data) {
+                                    if (data.hasOwnProperty(key)) {
+                                        accountsList = accountsList.concat(data[key]);
+                                    }
+                                }
+                                const $repayAcc = $('#repayAccount');
+                                $repayAcc.empty().append('<option value="" disabled selected>-- Chọn tài khoản --</option>');
+                                accountsList.forEach(function (acc) {
+                                    $repayAcc.append($('<option>', { value: acc.accountId, text: `${acc.accountName} (${formatMoney(acc.currentBalance)})` }));
+                                });
+                            }
+                        });
+                    }
+
                     // Load Debt Repayments
                     function loadRepayments() {
                         $.ajax({
                             url: '/api/debts/' + debtId,
                             type: 'GET',
                             success: function (d) {
+                                currentDebt = d;
+
                                 // 1. Render Summary Information
                                 $('#debtPartner').text(d.partnerName);
-                                
+
                                 if (d.type === 'BORROW') {
                                     $('#debtTypeBadge')
                                         .text('Nợ phải trả (Đi vay)')
@@ -164,7 +230,8 @@
                                 }
 
                                 $('#debtPrincipal').text(formatMoney(d.principalAmount));
-                                $('#debtInterestRate').text(`${d.interestRate}% / tháng (${d.interestType === 'SIMPLE' ? 'Lãi đơn' : 'Lãi kép'})`);
+                                const ratePeriodLabel = d.interestRateType === 'YEAR' ? 'năm' : 'tháng';
+                                $('#debtInterestRate').text(`${d.interestRate}% / ${ratePeriodLabel} (${d.interestType === 'SIMPLE' ? 'Lãi đơn' : 'Lãi kép'})`);
                                 $('#debtStartDate').text(formatDate(d.startDate));
                                 $('#debtDueDate').text(formatDate(d.dueDate));
 
@@ -188,6 +255,18 @@
                                     statusBadge = `<span class="badge bg-light text-muted px-2 py-1">${d.status}</span>`;
                                 }
                                 $('#debtStatusBadge').replaceWith($(statusBadge).attr('id', 'debtStatusBadge'));
+
+                                // Show/Hide Repay Button based on status
+                                if (d.status === 'ACTIVE' || d.status === 'OVERDUE') {
+                                    $('#repayActionBtn').removeClass('d-none');
+                                    if (d.type === 'BORROW') {
+                                        $('#repayActionText').text('Trả nợ');
+                                    } else {
+                                        $('#repayActionText').text('Thu hồi nợ');
+                                    }
+                                } else {
+                                    $('#repayActionBtn').addClass('d-none');
+                                }
 
                                 // 2. Render Table Repayments
                                 const $tableBody = $('#repaymentsTableBody');
@@ -234,8 +313,200 @@
                         });
                     }
 
-                    // Load data
+                    // Load Expected Schedule
+                    function loadExpectedSchedule() {
+                        const $scheduleTableBody = $('#scheduleTableBody');
+                        $.ajax({
+                            url: `/api/debts/${debtId}/schedule`,
+                            type: 'GET',
+                            success: function (periods) {
+                                $scheduleTableBody.empty();
+                                if (!periods || periods.length === 0) {
+                                    $('#scheduleCountBadge').text('0 kỳ');
+                                    $scheduleTableBody.append(`
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4 text-muted">
+                                                Không có kế hoạch thanh toán định kỳ nào được tính toán.
+                                            </td>
+                                        </tr>
+                                    `);
+                                } else {
+                                    $('#scheduleCountBadge').text(`${periods.length} kỳ`);
+                                    periods.forEach(p => {
+                                        const row = `
+                                            <tr>
+                                                <td class="ps-4 text-muted">Kỳ ${p.period}</td>
+                                                <td><strong>${formatDate(p.dueDate)}</strong></td>
+                                                <td class="text-end fw-semibold text-dark">${formatMoney(p.principalDue)}</td>
+                                                <td class="text-end text-danger">${formatMoney(p.interestDue)}</td>
+                                                <td class="text-end fw-bold text-primary">${formatMoney(p.totalDue)}</td>
+                                                <td class="text-end pe-4 text-muted">${formatMoney(p.remainingPrincipal)}</td>
+                                            </tr>
+                                        `;
+                                        $scheduleTableBody.append(row);
+                                    });
+                                }
+                            },
+                            error: function () {
+                                $scheduleTableBody.html(`
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4 text-danger">
+                                            Không thể tải lịch trình thanh toán dự kiến.
+                                        </td>
+                                    </tr>
+                                `);
+                            }
+                        });
+                    }
+
+                    // Repay Action Button click
+                    $('#repayActionBtn').on('click', function () {
+                        if (!currentDebt) return;
+
+                        const id = currentDebt.debtId;
+                        const type = currentDebt.type;
+                        const partner = currentDebt.partnerName;
+
+                        let paidSum = 0;
+                        if (currentDebt.repayments && Array.isArray(currentDebt.repayments)) {
+                            currentDebt.repayments.forEach(r => paidSum += (r.principalComponent || 0));
+                        }
+                        const remaining = Math.max(currentDebt.principalAmount - paidSum, 0);
+
+                        $('#repayDebtId').val(id);
+                        $('#repayDebtType').val(type);
+
+                        if (type === 'BORROW') {
+                            $('#repayModalLabel').text('Thanh toán khoản nợ (BORROW)');
+                            $('#repayAccountLabel').text('Tài khoản trích tiền chi trả *');
+                            $('#saveRepayBtn').text('Xác nhận trả nợ');
+                        } else {
+                            $('#repayModalLabel').text('Thu hồi khoản nợ (LEND)');
+                            $('#repayAccountLabel').text('Tài khoản nhận tiền thanh toán *');
+                            $('#saveRepayBtn').text('Xác nhận thu hồi');
+                        }
+
+                        $('#repayPartnerDisplay').val(`${partner} (Còn nợ: ${formatMoney(remaining)})`);
+                        $('#amountPaid').val('');
+                        $('#principalComponent').val('');
+                        $('#interestComponent').val('0');
+                        $('#repayNote').val('');
+                        $('#repayErrorAlert').addClass('d-none').text('');
+
+                        // Find accrued interest
+                        const p = currentDebt.principalAmount || 0;
+                        const r = currentDebt.interestRate || 0;
+                        const start = new Date(currentDebt.startDate);
+                        const today = new Date();
+                        const diffTime = Math.max(today - start, 0);
+                        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+                        const diffMonths = diffDays / 30.4375;
+
+                        let ratePerMonth = r;
+                        if (currentDebt.interestRateType === 'YEAR') {
+                            ratePerMonth = r / 12;
+                        }
+
+                        let totalInterestAccrued = 0;
+                        if (currentDebt.interestType === 'SIMPLE') {
+                            totalInterestAccrued = p * (ratePerMonth / 100) * diffMonths;
+                        } else { // COMPOUND
+                            totalInterestAccrued = p * (Math.pow(1 + (ratePerMonth / 100), diffMonths) - 1);
+                        }
+
+                        let interestPaid = 0;
+                        if (currentDebt.repayments && Array.isArray(currentDebt.repayments)) {
+                            currentDebt.repayments.forEach(rep => interestPaid += (rep.interestComponent || 0));
+                        }
+
+                        const accruedInterestRemaining = Math.max(totalInterestAccrued - interestPaid, 0);
+
+                        const displayAccrued = Math.round(accruedInterestRemaining);
+                        const displayRemaining = Math.round(remaining);
+
+                        $('#infoRemainingPrincipal').text(formatMoney(displayRemaining));
+                        const ratePeriodLabel = currentDebt.interestRateType === 'YEAR' ? 'năm' : 'tháng';
+                        $('#infoInterestRate').text(`${r}% / ${ratePeriodLabel} (${currentDebt.interestType === 'SIMPLE' ? 'Lãi đơn' : 'Lãi kép'})`);
+                        $('#infoAccruedInterest').text(formatMoney(displayAccrued));
+
+                        // Default inputs
+                        $('#principalComponent').val(displayRemaining);
+                        $('#interestComponent').val(displayAccrued);
+                        $('#amountPaid').val(displayRemaining + displayAccrued);
+
+                        // Principal input listener
+                        $('#principalComponent').off('input').on('input', function () {
+                            let principal = parseFloat($(this).val());
+                            if (isNaN(principal)) {
+                                $('#interestComponent').val(displayAccrued);
+                                $('#amountPaid').val(displayAccrued);
+                                return;
+                            }
+                            if (principal > remaining) {
+                                principal = remaining;
+                                $(this).val(Math.round(principal));
+                            }
+                            if (principal < 0) {
+                                principal = 0;
+                                $(this).val(0);
+                            }
+                            const total = principal + displayAccrued;
+                            $('#interestComponent').val(displayAccrued);
+                            $('#amountPaid').val(Math.round(total));
+                        });
+
+                        loadAccounts();
+                        repayModal.show();
+                    });
+
+                    // Save repayment transaction logic
+                    $('#saveRepayBtn').on('click', function () {
+                        const form = document.getElementById('repayForm');
+                        if (!form.checkValidity()) {
+                            form.reportValidity();
+                            return;
+                        }
+
+                        const id = $('#repayDebtId').val();
+                        const repayData = {
+                            amountPaid: parseFloat($('#amountPaid').val()),
+                            principalComponent: parseFloat($('#principalComponent').val()),
+                            interestComponent: parseFloat($('#interestComponent').val()) || 0.0,
+                            accountId: parseInt($('#repayAccount').val()),
+                            note: $('#repayNote').val()
+                        };
+
+                        const $btn = $(this);
+                        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang xác nhận...');
+                        $('#repayErrorAlert').addClass('d-none').text('');
+
+                        $.ajax({
+                            url: `/api/debts/${id}/repayments`,
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify(repayData),
+                            success: function () {
+                                $btn.prop('disabled', false).text('Xác nhận');
+                                repayModal.hide();
+                                loadRepayments();
+                                loadExpectedSchedule();
+                            },
+                            error: function (xhr) {
+                                $btn.prop('disabled', false).text('Xác nhận');
+                                let errorMsg = 'Thực hiện thanh toán thất bại.';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMsg = xhr.responseJSON.message;
+                                } else if (xhr.responseText) {
+                                    errorMsg = xhr.responseText;
+                                }
+                                $('#repayErrorAlert').removeClass('d-none').text(errorMsg);
+                            }
+                        });
+                    });
+
+                    // Load initial data
                     loadRepayments();
+                    loadExpectedSchedule();
                 });
             });
         </script>

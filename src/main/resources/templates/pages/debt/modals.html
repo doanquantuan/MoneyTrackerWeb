@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <div th:fragment="modals">
+        <!-- Add Debt Modal -->
+        <div class="modal fade" id="debtModal" tabindex="-1" aria-labelledby="debtModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="debtModalLabel">Thêm khoản nợ/cho vay mới</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger d-none" id="modalErrorAlert"></div>
+                        <form id="debtForm">
+                            <div class="mb-3">
+                                <label for="debtType" class="form-label fw-bold">Phân loại <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select form-control" id="debtType" required>
+                                    <option value="BORROW" selected>Mình đi vay (BORROW - Nợ phải trả)</option>
+                                    <option value="LEND">Cho người khác vay (LEND - Nợ cần thu)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="partnerName" class="form-label fw-bold">Tên đối tác (Chủ nợ/Người vay) <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="partnerName"
+                                    placeholder="Nhập tên người vay hoặc chủ nợ..." required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="debtAccount" class="form-label fw-bold" id="accountLabel">Tài khoản nhận
+                                    tiền *</label>
+                                <select class="form-select form-control" id="debtAccount" required>
+                                    <option value="" disabled selected>-- Chọn tài khoản --</option>
+                                </select>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md mb-3">
+                                    <label for="principalAmount" class="form-label fw-bold">Số tiền gốc <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" step="any" min="1" class="form-control" id="principalAmount"
+                                        placeholder="Nhập số tiền..." required>
+                                </div>
+                                <div class="col-md mb-3">
+                                    <label for="interestRate" class="form-label fw-bold">Lãi suất (%)</label>
+                                    <input type="number" step="any" min="0" class="form-control" id="interestRate"
+                                        value="0">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md mb-3">
+                                    <label for="interestRateType" class="form-label fw-bold">Kỳ hạn tính lãi</label>
+                                    <select class="form-select form-control" id="interestRateType">
+                                        <option value="MONTH" selected>Theo tháng (MONTH)</option>
+                                        <option value="YEAR">Theo năm (YEAR)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md mb-3">
+                                    <label for="interestType" class="form-label fw-bold">Cách tính lãi</label>
+                                    <select class="form-select form-control" id="interestType">
+                                        <option value="SIMPLE" selected>Lãi đơn (SIMPLE)</option>
+                                        <option value="COMPOUND">Lãi kép (COMPOUND)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md mb-3">
+                                    <label for="startDate" class="form-label fw-bold">Ngày vay <span
+                                            class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="startDate" required>
+                                </div>
+                                <div class="col-md mb-3">
+                                    <label for="repaymentPeriod" class="form-label fw-bold">Thời hạn (tháng) <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" min="1" class="form-control" id="repaymentPeriod" value="1" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="dueDate" class="form-label fw-bold">Ngày đáo hạn <span
+                                        class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="dueDate" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn btn-primary" id="saveDebtBtn">Lưu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Repay Debt / Receive Repayment Modal -->
+        <div class="modal fade" id="repayModal" tabindex="-1" aria-labelledby="repayModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="repayModalLabel">Thanh toán khoản nợ</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger d-none" id="repayErrorAlert"></div>
+                        <form id="repayForm">
+                            <input type="hidden" id="repayDebtId">
+                            <input type="hidden" id="repayDebtType">
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Khoản nợ của đối tác:</label>
+                                <input type="text" class="form-control bg-light" id="repayPartnerDisplay" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <span class="small fw-semibold text-muted text-uppercase">Thông tin dư nợ & lãi
+                                    suất:</span>
+                                <div class="bg-light p-3 rounded border small mt-1">
+                                    <div class="row">
+                                        <div class="col-6 mb-1">Dư nợ gốc còn lại:</div>
+                                        <div class="col-6 mb-1 text-end"><strong id="infoRemainingPrincipal"
+                                                class="text-dark">0 VND</strong></div>
+                                        <div class="col-6 mb-1">Lãi suất:</div>
+                                        <div class="col-6 mb-1 text-end"><strong id="infoInterestRate"
+                                                class="text-dark">0% / tháng</strong></div>
+                                        <div class="col-6">Lãi tích lũy chưa trả:</div>
+                                        <div class="col-6 text-end"><strong id="infoAccruedInterest"
+                                                class="text-danger">0 VND</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="repayAccount" class="form-label fw-bold" id="repayAccountLabel">Tài khoản
+                                    trích tiền *</label>
+                                <select class="form-select form-control" id="repayAccount" required>
+                                    <option value="" disabled selected>-- Chọn tài khoản --</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="amountPaid" class="form-label fw-bold">Tổng số tiền trả <span
+                                        class="text-danger">*</span></label>
+                                <input type="number" step="any" min="1" class="form-control bg-light" id="amountPaid"
+                                    placeholder="Tự động tính..." required>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md mb-3">
+                                    <label for="principalComponent" class="form-label fw-bold">Tiền gốc trừ nợ <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" step="any" min="0" class="form-control" id="principalComponent"
+                                        placeholder="Trừ vào nợ gốc..." required>
+                                </div>
+                                <div class="col-md mb-3">
+                                    <label for="interestComponent" class="form-label fw-bold">Tiền lãi chi trả</label>
+                                    <input type="number" step="any" min="0" class="form-control bg-light"
+                                        id="interestComponent" placeholder="Tự động tính..." required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="repayNote" class="form-label fw-bold">Ghi chú</label>
+                                <textarea class="form-control" id="repayNote" rows="2"
+                                    placeholder="Ghi chú thanh toán..."></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn btn-primary" id="saveRepayBtn">Xác nhận thanh toán</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteConfirmModalLabel">Xác nhận xóa khoản nợ</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Bạn có chắc chắn muốn xóa khoản nợ/cho vay này không? Hành động này sẽ không thể hoàn tác.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

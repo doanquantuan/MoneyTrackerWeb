@@ -86,6 +86,7 @@ public class DebtServiceImpl implements IDebtService {
 		debt.setType(dType);
 		debt.setPrincipalAmount(request.getPrincipalAmount());
 		debt.setInterestRate(request.getInterestRate());
+		debt.setInterestRateType(InterestRateType.valueOf(request.getInterestRateType().toUpperCase()));
 		debt.setInterestType(InterestType.valueOf(request.getInterestType().toUpperCase()));
 		debt.setStartDate(request.getStartDate() == null ? LocalDateTime.now() : request.getStartDate());
 		debt.setRepaymentPeriod(request.getRepaymentPeriod());

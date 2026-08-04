@@ -13,6 +13,7 @@ public class DebtRequest {
 	private String type;
 	private Double principalAmount;
 	private Double interestRate;
+	private String interestRateType;
 	private String interestType;
 	private LocalDateTime startDate;
 	private LocalDateTime dueDate;
