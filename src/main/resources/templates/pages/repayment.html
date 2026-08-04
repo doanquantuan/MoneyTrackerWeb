@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/sidebar}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch sử thanh toán nợ - Money Tracker</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <!-- Back Button & Title -->
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <a href="/debts" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i> Quay lại
+                </a>
+                <h4 class="mb-0 text-capitalize">Chi tiết lịch sử thanh toán</h4>
+            </div>
+        </div>
+
+        <!-- Summary Info Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="card-title mb-0 text-dark fw-bold">Thông tin khoản nợ</h5>
+            </div>
+            <div class="card-body bg-light-subtle">
+                <div class="row g-3">
+                    <div class="col-sm-6 col-md-3">
+                        <span class="text-muted small d-block text-uppercase fw-semibold mb-1">Đối tác</span>
+                        <strong id="debtPartner" class="text-dark fs-6">-</strong>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <span class="text-muted small d-block text-uppercase fw-semibold mb-1">Phân loại</span>
+                        <span id="debtTypeBadge" class="badge px-2 py-1">-</span>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <span class="text-muted small d-block text-uppercase fw-semibold mb-1">Nợ gốc ban đầu</span>
+                        <strong id="debtPrincipal" class="text-dark fs-6">-</strong>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <span class="text-muted small d-block text-uppercase fw-semibold mb-1">Dư nợ gốc hiện tại</span>
+                        <strong id="debtRemaining" class="text-primary fs-6">-</strong>
+                    </div>
+                </div>
+                <hr class="my-3">
+                <div class="row g-3">
+                    <div class="col-sm-6 col-md-3">
+                        <span class="text-muted small d-block text-uppercase fw-semibold mb-1">Lãi suất</span>
+                        <strong id="debtInterestRate" class="text-dark small">-</strong>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <span class="text-muted small d-block text-uppercase fw-semibold mb-1">Ngày bắt đầu</span>
+                        <span id="debtStartDate" class="text-dark small">-</span>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <span class="text-muted small d-block text-uppercase fw-semibold mb-1">Hạn thanh toán</span>
+                        <span id="debtDueDate" class="text-dark small">-</span>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <span class="text-muted small d-block text-uppercase fw-semibold mb-1">Trạng thái khoản nợ</span>
+                        <span id="debtStatusBadge" class="badge px-2 py-1">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Repayment History Table -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                <h5 class="card-title mb-0 text-dark fw-bold"><i class="fas fa-list me-2 text-info"></i>Danh sách các đợt thanh toán</h5>
+                <span class="badge bg-secondary-subtle text-secondary" id="repaymentCountBadge">0 giao dịch</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 60px;" class="ps-4">#</th>
+                                <th>Ngày thanh toán</th>
+                                <th>Tổng tiền trả</th>
+                                <th>Trừ nợ gốc</th>
+                                <th>Tiền lãi chi trả</th>
+                                <th>Còn lại</th>
+                                <th class="pe-4">Ghi chú</th>
+                            </tr>
+                        </thead>
+                        <tbody id="repaymentsTableBody">
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Đang tải dữ liệu...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                $(function () {
+                    // Extract debt ID from query string
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const debtId = urlParams.get('id');
+
+                    if (!debtId) {
+                        alert('Không tìm thấy mã khoản nợ hợp lệ!');
+                        window.location.href = '/debts';
+                        return;
+                    }
+
+                    // Format helpers
+                    function formatMoney(amount) {
+                        return new Intl.NumberFormat('en-US', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        }).format(amount) + ' VND';
+                    }
+
+                    function formatDate(dateStr) {
+                        if (!dateStr) return '';
+                        const parts = dateStr.split('T')[0].split('-');
+                        if (parts.length === 3) {
+                            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+                        }
+                        return dateStr;
+                    }
+
+                    function formatDateTime(dateStr) {
+                        if (!dateStr) return '';
+                        const parts = dateStr.split('T');
+                        const datePart = parts[0].split('-');
+                        if (datePart.length === 3) {
+                            const formattedDate = `${datePart[2]}/${datePart[1]}/${datePart[0]}`;
+                            if (parts[1]) {
+                                const timePart = parts[1].split(':');
+                                if (timePart.length >= 2) {
+                                    return `${timePart[0]}:${timePart[1]} ${formattedDate}`;
+                                }
+                            }
+                            return formattedDate;
+                        }
+                        return dateStr;
+                    }
+
+                    // Load Debt Repayments
+                    function loadRepayments() {
+                        $.ajax({
+                            url: '/api/debts/' + debtId,
+                            type: 'GET',
+                            success: function (d) {
+                                // 1. Render Summary Information
+                                $('#debtPartner').text(d.partnerName);
+                                
+                                if (d.type === 'BORROW') {
+                                    $('#debtTypeBadge')
+                                        .text('Nợ phải trả (Đi vay)')
+                                        .removeClass().addClass('badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1');
+                                } else {
+                                    $('#debtTypeBadge')
+                                        .text('Nợ cần thu (Cho vay)')
+                                        .removeClass().addClass('badge bg-success-subtle text-success border border-success-subtle px-2 py-1');
+                                }
+
+                                $('#debtPrincipal').text(formatMoney(d.principalAmount));
+                                $('#debtInterestRate').text(`${d.interestRate}% / tháng (${d.interestType === 'SIMPLE' ? 'Lãi đơn' : 'Lãi kép'})`);
+                                $('#debtStartDate').text(formatDate(d.startDate));
+                                $('#debtDueDate').text(formatDate(d.dueDate));
+
+                                // Calculate remaining balance
+                                let paidSum = 0;
+                                if (d.repayments && Array.isArray(d.repayments)) {
+                                    d.repayments.forEach(r => paidSum += (r.principalComponent || 0));
+                                }
+                                const remaining = Math.max(d.principalAmount - paidSum, 0);
+                                $('#debtRemaining').text(formatMoney(remaining));
+
+                                // Render Status Badge
+                                let statusBadge = '';
+                                if (d.status === 'COMPLETED') {
+                                    statusBadge = '<span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Đã tất toán</span>';
+                                } else if (d.status === 'ACTIVE') {
+                                    statusBadge = '<span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">Đang hoạt động</span>';
+                                } else if (d.status === 'OVERDUE') {
+                                    statusBadge = '<span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Quá hạn</span>';
+                                } else {
+                                    statusBadge = `<span class="badge bg-light text-muted px-2 py-1">${d.status}</span>`;
+                                }
+                                $('#debtStatusBadge').replaceWith($(statusBadge).attr('id', 'debtStatusBadge'));
+
+                                // 2. Render Table Repayments
+                                const $tableBody = $('#repaymentsTableBody');
+                                $tableBody.empty();
+
+                                if (!d.repayments || d.repayments.length === 0) {
+                                    $('#repaymentCountBadge').text('0 giao dịch');
+                                    $tableBody.append(`
+                                        <tr>
+                                            <td colspan="7" class="text-center py-4 text-muted">
+                                                Chưa có lịch sử giao dịch thanh toán nào cho khoản nợ này.
+                                            </td>
+                                        </tr>
+                                    `);
+                                } else {
+                                    $('#repaymentCountBadge').text(`${d.repayments.length} giao dịch`);
+
+                                    // Sort by date descending (latest first)
+                                    const sortedRepayments = [...d.repayments].sort((a, b) => {
+                                        return new Date(b.repaymentDate) - new Date(a.repaymentDate);
+                                    });
+
+                                    sortedRepayments.forEach((r, index) => {
+                                        const note = r.transaction && r.transaction.note ? r.transaction.note : 'Không có';
+                                        const row = `
+                                            <tr>
+                                                <td class="ps-4 text-muted">${sortedRepayments.length - index}</td>
+                                                <td><strong>${formatDateTime(r.repaymentDate)}</strong></td>
+                                                <td class="fw-bold text-success">${formatMoney(r.amountPaid)}</td>
+                                                <td class="text-dark">${formatMoney(r.principalComponent || 0)}</td>
+                                                <td class="text-danger">${formatMoney(r.interestComponent || 0)}</td>
+                                                <td class="fw-bold text-dark">${formatMoney(r.remainingBalance || 0)}</td>
+                                                <td class="pe-4 text-muted small">${note}</td>
+                                            </tr>
+                                        `;
+                                        $tableBody.append(row);
+                                    });
+                                }
+                            },
+                            error: function (xhr) {
+                                alert('Không thể tải thông tin thanh toán nợ.');
+                                window.location.href = '/debts';
+                            }
+                        });
+                    }
+
+                    // Load data
+                    loadRepayments();
+                });
+            });
+        </script>
+    </div>
+</body>
+
+</html>

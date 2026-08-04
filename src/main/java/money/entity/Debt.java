@@ -27,6 +27,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import money.enums.DebtStatus;
 import money.enums.DebtType;
+import money.enums.InterestRateType;
 import money.enums.InterestType;
 
 
@@ -52,27 +53,34 @@ public class Debt {
 	private Account account;
 	
 	@Column(name = "PartnerName", columnDefinition = "NVARCHAR(250)")
-	private String partnerName;
+	private String partnerName; 
 	
 	@Enumerated(EnumType.STRING)
 	@Column(name = "DebtType", length = 20)
-	private DebtType type;
+	private DebtType type; // cho vay hay đi vay
 	
 	@Column(name = "PrincipalAmount")
-	private Double principalAmount;
+	private Double principalAmount; // tiền gốc
 	
 	@Column(name = "InterestRate")
-	private Double interestRate;
+	private Double interestRate; // 1%, 2%
+	
+	@Enumerated(EnumType.STRING)
+	@Column(name = "InterestRateType", length = 20)
+	private InterestRateType interestRateType; // tháng, năm
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "InterestType", length = 20)
-	private InterestType interestType;
+	private InterestType interestType; // đơn, kép
 	
 	@Column(name = "StartDate")
 	private LocalDateTime startDate;
 	
 	@Column(name = "DueDate")
 	private LocalDateTime dueDate;
+	
+	@Column(name = "RepaymentPeriod")
+	private Integer repaymentPeriod; // kỳ hạn
 	
 	@Enumerated(EnumType.STRING)
 	@Column(name = "DebtStatus", length = 20)

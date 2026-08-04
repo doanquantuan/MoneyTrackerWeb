@@ -112,6 +112,11 @@ public class WebViewController {
         return "pages/debt";
     }
 
+    @GetMapping("/debts/repayments")
+    public String debtRepayments() {
+        return "pages/repayment";
+    }
+
     @GetMapping("/logout")
     public String logout(HttpServletResponse response) {
         Cookie cookie = new Cookie("auth_token", null);

@@ -1,12 +1,14 @@
 package money.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import money.dto.debt.DebtPeriod;
 import money.dto.debt.DebtRepaymentRequest;
 import money.dto.debt.DebtRequest;
 import money.entity.Account;
@@ -16,6 +18,7 @@ import money.entity.Transaction;
 import money.entity.User;
 import money.enums.DebtStatus;
 import money.enums.DebtType;
+import money.enums.InterestRateType;
 import money.enums.InterestType;
 import money.enums.TransactionType;
 import money.repository.AccountRepository;
@@ -49,6 +52,12 @@ public class DebtServiceImpl implements IDebtService {
 	}
 
 	@Override
+	public List<DebtRepayment> getListDebtRepayment(String email, Long debtId) {
+		Debt debt = getDebtById(email, debtId);
+		return debt.getRepayments();
+	}
+
+	@Override
 	public Debt getDebtById(String email, Long id) {
 		Debt debt = debtRepo.findById(id)
 				.orElseThrow(() -> new RuntimeException("Không tìm thấy khoản nợ"));
@@ -79,6 +88,7 @@ public class DebtServiceImpl implements IDebtService {
 		debt.setInterestRate(request.getInterestRate());
 		debt.setInterestType(InterestType.valueOf(request.getInterestType().toUpperCase()));
 		debt.setStartDate(request.getStartDate() == null ? LocalDateTime.now() : request.getStartDate());
+		debt.setRepaymentPeriod(request.getRepaymentPeriod());
 		debt.setDueDate(request.getDueDate());
 		debt.setStatus(DebtStatus.ACTIVE);
 		
@@ -129,6 +139,10 @@ public class DebtServiceImpl implements IDebtService {
 		double amountPaid = request.getAmountPaid();
 		double principalComp = request.getPrincipalComponent() != null ? request.getPrincipalComponent() : amountPaid;
 		double interestComp = request.getInterestComponent() != null ? request.getInterestComponent() : 0.0;
+		
+		if (Math.abs(amountPaid - (principalComp + interestComp)) > 0.01) {
+			throw new RuntimeException("Tổng số tiền trả nợ phải bằng tổng của Tiền gốc và Tiền lãi (amountPaid = principalComponent + interestComponent)");
+		}
 		
 		// Calculate current remaining balance of the debt
 		double totalPrincipalRepaid = 0.0;
@@ -202,5 +216,66 @@ public class DebtServiceImpl implements IDebtService {
 		}
 		
 		debtRepo.delete(debt);
+	}
+
+	@Override
+	public List<DebtPeriod> calculateDebt(String email, Long debtId) {
+
+	    User user = userRepo.findByEmail(email)
+	            .orElseThrow(() -> new RuntimeException("User không tìm thấy"));
+
+	    Debt debt = debtRepo.findById(debtId)
+	            .orElseThrow(() -> new RuntimeException("Không tìm thấy khoản nợ"));
+
+	    if (!debt.getUser().getEmail().equals(email)) {
+	        throw new RuntimeException("Bạn không có quyền xem khoản nợ này");
+	    }
+
+	    List<DebtPeriod> periods = new ArrayList<>();
+
+	    Double principalDue = debt.getPrincipalAmount() / debt.getRepaymentPeriod();
+
+	    Double remainingPrincipal = debt.getPrincipalAmount();
+
+	    Double r = debt.getInterestRate() / 100.0;
+
+	    if (debt.getInterestRateType() == InterestRateType.YEAR) {
+	        r /= 12;
+	    }
+	    
+	    LocalDateTime startDate = debt.getStartDate();
+
+	    for (int month = 1; month <= debt.getRepaymentPeriod(); month++) {
+
+	        Double interestDue = remainingPrincipal * r;
+
+	        DebtPeriod period = new DebtPeriod();
+
+	        period.setPeriod(month);
+	        period.setInterestDue(interestDue);
+	        period.setPrincipalDue(principalDue);
+	        period.setTotalDue(principalDue + interestDue);
+	        
+	        // Ngày bắt đầu kỳ
+	        LocalDateTime periodStartDate = startDate.plusMonths(month - 1);
+
+	        // Ngày đến hạn thanh toán
+	        LocalDateTime dueDate = startDate.plusMonths(month);
+
+	        period.setStartDate(periodStartDate);
+	        period.setDueDate(dueDate);
+
+	        remainingPrincipal -= principalDue;
+
+	        if (remainingPrincipal < 0) {
+	            remainingPrincipal = 0.0;
+	        }
+
+	        period.setRemainingPrincipal(remainingPrincipal);
+
+	        periods.add(period);
+	    }
+
+	    return periods;
 	}
 }

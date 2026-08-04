@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify OTP - Register</title>
+    <title>Verify OTP</title>
     <!-- bootstrap css link -->
     <link rel="stylesheet" th:href="@{/lib/bootstrap_5/bootstrap.min.css}">
     <!-- Font Awesome CDN -->
@@ -16,6 +16,8 @@
     <!-- responsive css -->
     <link rel="stylesheet" th:href="@{/assets/css/responsive.css}">
 </head>
+
+<body>
 
 <body class="d2c_theme_light">
     <section class="d2c_login_system d-flex align-items-center">
@@ -86,13 +88,8 @@
     <script>
         $(document).ready(function() {
             // Retrieve email from sessionStorage
-            const email = sessionStorage.getItem('signUpEmail');
-            if (!email) {
-                // If no email context, redirect back to register
-                window.location.href = '/register';
-                return;
-            }
-            
+            const email = sessionStorage.getItem('email');
+           
             const $alert = $('#alertMessage');
             
             // Handle Verify OTP Submit
@@ -119,7 +116,7 @@
                     data: JSON.stringify({ email: email, otp: otp }),
                     success: function(response) {
                         $alert.addClass('alert-success')
-                              .text("Xác thực OTP thành công! Tài khoản của bạn đã được kích hoạt. Đang chuyển hướng đăng nhập...")
+                              .text("Xác thực OTP thành công! Đang chuyển hướng trang đăng nhập...")
                               .fadeIn();
                         
                         setTimeout(function() {
@@ -130,8 +127,15 @@
                         $btn.prop('disabled', false).text('Submit');
                         let errMsg = "Mã OTP không hợp lệ hoặc đã hết hạn.";
                         if (xhr.status === 400 || xhr.status === 500) {
-                            if (xhr.responseText) {
-                                errMsg = xhr.responseText;
+                            try {
+                                const errObj = JSON.parse(xhr.responseText);
+                                if (errObj && errObj.message) {
+                                    errMsg = errObj.message;
+                                }
+                            } catch(e) {
+                                if (xhr.responseText) {
+                                    errMsg = xhr.responseText;
+                                }
                             }
                         }
                         $alert.addClass('alert-danger')
@@ -150,7 +154,7 @@
                 $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Sending...');
                 
                 $.ajax({
-                    url: '/api/auth/resend-otp',
+                    url: '/api/auth/forget-password',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({ email: email }),
@@ -176,3 +180,4 @@
     </script>
 </body>
 </html>
+

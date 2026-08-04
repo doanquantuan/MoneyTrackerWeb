@@ -160,7 +160,7 @@
                                     <input type="number" step="any" min="1" class="form-control" id="principalAmount" placeholder="Nhập số tiền..." required>
                                 </div>
                                 <div class="col-md mb-3">
-                                    <label for="interestRate" class="form-label fw-bold">Lãi suất (% / năm)</label>
+                                    <label for="interestRate" class="form-label fw-bold">Lãi suất (% / tháng)</label>
                                     <input type="number" step="any" min="0" class="form-control" id="interestRate" value="0">
                                 </div>
                             </div>
@@ -207,10 +207,24 @@
                             <input type="hidden" id="repayDebtId">
                             <input type="hidden" id="repayDebtType">
 
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Khoản nợ của đối tác:</label>
-                                <input type="text" class="form-control bg-light" id="repayPartnerDisplay" readonly>
-                            </div>
+                             <div class="mb-3">
+                                 <label class="form-label fw-bold">Khoản nợ của đối tác:</label>
+                                 <input type="text" class="form-control bg-light" id="repayPartnerDisplay" readonly>
+                             </div>
+
+                             <div class="mb-3">
+                                 <span class="small fw-semibold text-muted text-uppercase">Thông tin dư nợ & lãi suất:</span>
+                                 <div class="bg-light p-3 rounded border small mt-1">
+                                     <div class="row">
+                                         <div class="col-6 mb-1">Dư nợ gốc còn lại:</div>
+                                         <div class="col-6 mb-1 text-end"><strong id="infoRemainingPrincipal" class="text-dark">0 VND</strong></div>
+                                         <div class="col-6 mb-1">Lãi suất:</div>
+                                         <div class="col-6 mb-1 text-end"><strong id="infoInterestRate" class="text-dark">0% / tháng</strong></div>
+                                         <div class="col-6">Lãi tích lũy chưa trả:</div>
+                                         <div class="col-6 text-end"><strong id="infoAccruedInterest" class="text-danger">0 VND</strong></div>
+                                     </div>
+                                 </div>
+                             </div>
 
                             <div class="mb-3">
                                 <label for="repayAccount" class="form-label fw-bold" id="repayAccountLabel">Tài khoản trích tiền *</label>
@@ -221,7 +235,7 @@
 
                             <div class="mb-3">
                                 <label for="amountPaid" class="form-label fw-bold">Tổng số tiền trả <span class="text-danger">*</span></label>
-                                <input type="number" step="any" min="1" class="form-control" id="amountPaid" placeholder="Nhập tổng số tiền trả..." required>
+                                <input type="number" step="any" min="1" class="form-control bg-light" id="amountPaid" placeholder="Tự động tính..." required>
                             </div>
 
                             <div class="row">
@@ -231,7 +245,7 @@
                                 </div>
                                 <div class="col-md mb-3">
                                     <label for="interestComponent" class="form-label fw-bold">Tiền lãi chi trả</label>
-                                    <input type="number" step="any" min="0" class="form-control" id="interestComponent" value="0" placeholder="Chi trả lãi suất...">
+                                    <input type="number" step="any" min="0" class="form-control bg-light" id="interestComponent" placeholder="Tự động tính..." required>
                                 </div>
                             </div>
 
@@ -277,6 +291,7 @@
 
                     let debtIdToDelete = null;
                     let accountsList = [];
+                    let debtsList = [];
 
                     // Format helpers
                     function formatMoney(amount) {
@@ -292,6 +307,23 @@
                         const parts = dateStr.split('T')[0].split('-');
                         if (parts.length === 3) {
                             return `${parts[2]}/${parts[1]}/${parts[0]}`;
+                        }
+                        return dateStr;
+                    }
+
+                    function formatDateTime(dateStr) {
+                        if (!dateStr) return '';
+                        const parts = dateStr.split('T');
+                        const datePart = parts[0].split('-');
+                        if (datePart.length === 3) {
+                            const formattedDate = `${datePart[2]}/${datePart[1]}/${datePart[0]}`;
+                            if (parts[1]) {
+                                const timePart = parts[1].split(':');
+                                if (timePart.length >= 2) {
+                                    return `${timePart[0]}:${timePart[1]} ${formattedDate}`;
+                                }
+                            }
+                            return formattedDate;
                         }
                         return dateStr;
                     }
@@ -324,6 +356,8 @@
                             }
                         });
                     }
+                    
+                    
 
                     // Load debts list
                     function loadDebts() {
@@ -337,6 +371,7 @@
                             url: '/api/debts',
                             type: 'GET',
                             success: function (list) {
+                                debtsList = list;
                                 $borrowList.empty();
                                 $lendList.empty();
 
@@ -376,10 +411,18 @@
                                                     data-type="${d.type}"
                                                     data-partner="${d.partnerName.replace(/"/g, '&quot;')}"
                                                     data-remaining="${remaining}">
-                                                <i class="fas fa-hand-holding-usd me-1"></i> Trả nợ
+                                                <i class="fas fa-hand-holding-usd me-1"></i> ${d.type === 'BORROW' ? 'Trả nợ' : 'Thu hồi'}
                                             </button>
                                         `;
                                     }
+
+                                    const historyBtn = `
+                                        <button class="btn btn-sm btn-outline-info view-history-btn" 
+                                                data-id="${d.debtId}"
+                                                title="Xem lịch sử trả nợ">
+                                            <i class="fas fa-history me-1"></i> Lịch sử
+                                        </button>
+                                    `;
 
                                     const deleteBtn = `
                                         <button class="btn btn-sm btn-outline-danger delete-debt-btn" data-id="${d.debtId}">
@@ -392,13 +435,14 @@
                                             <td class="ps-4"><strong>${d.partnerName}</strong></td>
                                             <td>${accName}</td>
                                             <td>${formatMoney(d.principalAmount)}</td>
-                                            <td>${d.interestRate}% (${d.interestType === 'SIMPLE' ? 'Lãi đơn' : 'Lãi kép'})</td>
+                                            <td>${d.interestRate}% / tháng (${d.interestType === 'SIMPLE' ? 'Lãi đơn' : 'Lãi kép'})</td>
                                             <td class="fw-bold text-dark">${formatMoney(remaining)}</td>
                                             <td>${formatDate(d.dueDate)}</td>
                                             <td>${statusBadge}</td>
                                             <td class="text-center">
                                                 <div class="d-flex justify-content-center gap-2">
                                                     ${actionButtons}
+                                                    ${historyBtn}
                                                     ${deleteBtn}
                                                 </div>
                                             </td>
@@ -539,17 +583,84 @@
                         $('#repayPartnerDisplay').val(`${partner} (Còn nợ: ${formatMoney(remaining)})`);
                         $('#amountPaid').val('');
                         $('#principalComponent').val('');
-                        
-                        // Autofill principal component when total amount paid changes
-                        $('#amountPaid').off('input').on('input', function() {
-                            const val = parseFloat($(this).val()) || 0.0;
-                            // Set principal component equal to total payment by default
-                            $('#principalComponent').val(val);
-                        });
-
                         $('#interestComponent').val('0');
                         $('#repayNote').val('');
                         $('#repayErrorAlert').addClass('d-none').text('');
+
+                        // Find the corresponding debt object from debtsList
+                        const d = debtsList.find(item => item.debtId == id);
+                        let accruedInterestRemaining = 0;
+                        if (d) {
+                            const p = d.principalAmount || 0;
+                            const r = d.interestRate || 0;
+                            const start = new Date(d.startDate);
+                            const today = new Date();
+                            const diffTime = Math.max(today - start, 0);
+                            const diffDays = diffTime / (1000 * 60 * 60 * 24);
+                            const diffMonths = diffDays / 30.4375;
+                            
+                            let totalInterestAccrued = 0;
+                            if (d.interestType === 'SIMPLE') {
+                                totalInterestAccrued = p * (r / 100) * diffMonths;
+                            } else { // COMPOUND
+                                totalInterestAccrued = p * (Math.pow(1 + (r / 100), diffMonths) - 1);
+                            }
+                            
+                            let interestPaid = 0;
+                            if (d.repayments && Array.isArray(d.repayments)) {
+                                d.repayments.forEach(rep => interestPaid += (rep.interestComponent || 0));
+                            }
+                            
+                            accruedInterestRemaining = Math.max(totalInterestAccrued - interestPaid, 0);
+                            
+                            // Round values for display
+                            const displayAccrued = Math.round(accruedInterestRemaining);
+                            const displayRemaining = Math.round(remaining);
+                            
+                            // Display information on the UI
+                            $('#infoRemainingPrincipal').text(formatMoney(displayRemaining));
+                            $('#infoInterestRate').text(`${r}% / tháng (${d.interestType === 'SIMPLE' ? 'Lãi đơn' : 'Lãi kép'})`);
+                            $('#infoAccruedInterest').text(formatMoney(displayAccrued));
+                        } else {
+                            $('#infoRemainingPrincipal').text(formatMoney(remaining));
+                            $('#infoInterestRate').text('0% / tháng');
+                            $('#infoAccruedInterest').text('0 VND');
+                        }
+
+                        // Set default values in modal opening
+                        // Default principalComponent to remaining principal (full repayment)
+                        const defaultPrincipal = Math.round(remaining);
+                        $('#principalComponent').val(defaultPrincipal);
+                        $('#interestComponent').val(Math.round(accruedInterestRemaining));
+                        $('#amountPaid').val(Math.round(defaultPrincipal + accruedInterestRemaining));
+
+                        // Remove any old event listeners
+                        $('#principalComponent').off('input');
+
+                        // Autofill interestComponent and amountPaid when principalComponent changes
+                        $('#principalComponent').on('input', function() {
+                            let principal = parseFloat($(this).val());
+                            if (isNaN(principal)) {
+                                $('#interestComponent').val(Math.round(accruedInterestRemaining));
+                                $('#amountPaid').val(Math.round(accruedInterestRemaining));
+                                return;
+                            }
+                            
+                            if (principal > remaining) {
+                                principal = remaining;
+                                $(this).val(Math.round(principal));
+                            }
+                            if (principal < 0) {
+                                principal = 0;
+                                $(this).val(0);
+                            }
+                            
+                            const interest = accruedInterestRemaining;
+                            const total = principal + interest;
+                            
+                            $('#interestComponent').val(Math.round(interest));
+                            $('#amountPaid').val(Math.round(total));
+                        });
 
                         loadAccounts();
                         repayModal.show();
@@ -597,6 +708,12 @@
                                 $('#repayErrorAlert').removeClass('d-none').text(errorMsg);
                             }
                         });
+                    });
+
+                    // Open Repayment History Page
+                    $(document).on('click', '.view-history-btn', function () {
+                        const id = $(this).data('id');
+                        window.location.href = `/debts/repayments?id=${id}`;
                     });
 
                     // Open delete confirm

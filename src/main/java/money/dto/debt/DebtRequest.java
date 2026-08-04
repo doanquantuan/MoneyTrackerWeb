@@ -16,5 +16,6 @@ public class DebtRequest {
 	private String interestType;
 	private LocalDateTime startDate;
 	private LocalDateTime dueDate;
+	private Integer repaymentPeriod;
 	
 }

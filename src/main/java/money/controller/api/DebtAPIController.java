@@ -61,6 +61,26 @@ public class DebtAPIController {
 		}
     }
 	
+	@GetMapping("/{id}/schedule")
+	public ResponseEntity<?> calculateDebt(@PathVariable Long id) {
+		try {
+			String email = getCurrentUserEmail();
+			return ResponseEntity.ok(debtService.calculateDebt(email, id));
+		} catch (RuntimeException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+    }
+	
+	@GetMapping("/{id}/repayments")
+	public ResponseEntity<?> getRepayments(@PathVariable Long id) {
+		try {
+			String email = getCurrentUserEmail();
+			return ResponseEntity.ok(debtService.getListDebtRepayment(email, id));
+		} catch (RuntimeException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
+
 	@PostMapping("/{id}/repayments")
 	public ResponseEntity<?> repayDebt(@PathVariable Long id, @Valid @RequestBody DebtRepaymentRequest request) {
 		try {
