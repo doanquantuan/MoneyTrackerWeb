@@ -10,6 +10,10 @@ public class TransactionInExRequest {
 
 	private Long categoryId;
 
+	private Long budgetJarId;
+
+	private Boolean autoAllocateToJars;
+
 	private String type;
 
 	private Double amount;

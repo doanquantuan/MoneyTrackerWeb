@@ -200,7 +200,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const start = new Date(startVal);
             
             // If due date changed, calculate months term
-            $('#dueDate').off('change').on('change', function () {
+            /*$('#dueDate').off('change').on('change', function () {
                 const dueVal = $(this).val();
                 if (!dueVal) return;
                 const due = new Date(dueVal);
@@ -208,7 +208,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 const diffDays = diffTime / (1000 * 60 * 60 * 24);
                 const months = Math.max(Math.round(diffDays / 30.4375), 1);
                 $('#repaymentPeriod').val(months);
-            });
+            });*/
+			
+			$('#dueDate').prop('readonly', true);
 
             // If repaymentPeriod changed, calculate due date
             $('#repaymentPeriod').off('input').on('input', function () {
@@ -358,11 +360,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Display information on the UI
                 $('#infoRemainingPrincipal').text(formatMoney(displayRemaining));
                 $('#infoInterestRate').text(`${r}% / tháng (${d.interestType === 'SIMPLE' ? 'Lãi đơn' : 'Lãi kép'})`);
-                $('#infoAccruedInterest').text(formatMoney(displayAccrued));
+                //$('#infoAccruedInterest').text(formatMoney(displayAccrued));
             } else {
                 $('#infoRemainingPrincipal').text(formatMoney(remaining));
                 $('#infoInterestRate').text('0% / tháng');
-                $('#infoAccruedInterest').text('0 VND');
+                //$('#infoAccruedInterest').text('0 VND');
             }
 
             // Set default values in modal opening

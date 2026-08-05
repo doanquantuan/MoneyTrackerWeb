@@ -102,6 +102,11 @@ public class WebViewController {
         return "pages/budget";
     }
 
+    @GetMapping("/jars")
+    public String jars() {
+        return "pages/jars";
+    }
+
     @GetMapping("/savings")
     public String savings() {
         return "pages/saving";

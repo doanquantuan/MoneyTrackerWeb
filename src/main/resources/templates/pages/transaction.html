@@ -103,6 +103,7 @@
                                 <th style="min-width: 110px;">Loại</th>
                                 <th style="min-width: 180px;">Tài khoản</th>
                                 <th style="min-width: 150px;">Danh mục</th>
+                                <th style="min-width: 130px;">Chiếc lọ</th>
                                 <th style="min-width: 130px;">Số tiền</th>
                                 <th style="min-width: 160px;">Ghi chú</th>
                                 <th class="text-center" style="min-width: 90px;">Hành động</th>
@@ -111,7 +112,7 @@
                         <tbody id="transactionTableBody">
                             <!-- JS will inject rows here -->
                             <tr id="emptyRowPlaceholder">
-                                <td colspan="7" class="text-center py-4 text-muted">
+                                <td colspan="8" class="text-center py-4 text-muted">
                                     <i class="fas fa-info-circle fa-2x mb-2 d-block"></i>
                                     Đang tải dữ liệu giao dịch...
                                 </td>
@@ -162,6 +163,20 @@
                                 <label class="form-label fw-bold">Danh mục <span class="text-danger">*</span></label>
                                 <select class="form-select" id="txCategoryId" required>
                                     <option value="">-- Chọn danh mục --</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3 d-none" id="autoAllocateGroup">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="txAutoAllocate">
+                                    <label class="form-check-label fw-bold text-primary" for="txAutoAllocate">Tự động phân bổ vào 6 chiếc lọ</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3 d-none" id="jarGroup">
+                                <label class="form-label fw-bold" id="jarLabel">Chiếc lọ liên kết</label>
+                                <select class="form-select" id="txJarId">
+                                    <option value="">-- Chọn chiếc lọ --</option>
                                 </select>
                             </div>
                             
@@ -276,9 +291,27 @@
                             }
                         });
 
+                        // 3. Get Jars
+                        const jarPromise = $.ajax({
+                            url: '/api/jars',
+                            type: 'GET',
+                            success: function (data) {
+                                populateJarDropdown(data);
+                            }
+                        });
+
                         // Load initial transactions after metadata is fetched
-                        $.when(accountPromise, categoryPromise).done(function() {
+                        $.when(accountPromise, categoryPromise, jarPromise).done(function() {
                             loadTransactions();
+                        });
+                    }
+
+                    // Populate Jars
+                    function populateJarDropdown(jars) {
+                        const $txJarId = $('#txJarId');
+                        $txJarId.empty().append('<option value="">-- Chọn chiếc lọ --</option>');
+                        jars.forEach(function (jar) {
+                            $txJarId.append($('<option>', { value: jar.id, text: `${jar.name} (${jar.percentage}%)` }));
                         });
                     }
 
@@ -330,6 +363,10 @@
                             
                             $categoryGroup.addClass('d-none');
                             $txCategoryId.prop('required', false);
+
+                            $('#autoAllocateGroup').addClass('d-none');
+                            $('#jarGroup').addClass('d-none');
+                            $('#txJarId').prop('required', false);
                             
                             $sourceAccountLabel.text('Tài khoản chuyển *');
                         } else {
@@ -338,6 +375,25 @@
                             
                             $categoryGroup.removeClass('d-none');
                             $txCategoryId.prop('required', true);
+
+                            if (type === 'INCOME') {
+                                $('#autoAllocateGroup').removeClass('d-none');
+                                if ($('#txAutoAllocate').is(':checked')) {
+                                    $('#jarGroup').addClass('d-none');
+                                    $('#txJarId').prop('required', false);
+                                } else {
+                                    $('#jarGroup').removeClass('d-none');
+                                    $('#txJarId').prop('required', false);
+                                }
+                            } else if (type === 'EXPENSE') {
+                                $('#autoAllocateGroup').addClass('d-none');
+                                $('#jarGroup').removeClass('d-none');
+                                $('#txJarId').prop('required', true); // Required for expenses
+                            } else {
+                                $('#autoAllocateGroup').addClass('d-none');
+                                $('#jarGroup').addClass('d-none');
+                                $('#txJarId').prop('required', false);
+                            }
                             
                             $sourceAccountLabel.text(type === 'INCOME' ? 'Tài khoản nhận *' : 'Tài khoản chi *');
                             filterModalCategories();
@@ -349,6 +405,11 @@
                         updateModalFormUI();
                     });
 
+                    // Listen on Auto Allocate checkbox change
+                    $('#txAutoAllocate').on('change', function () {
+                        updateModalFormUI();
+                    });
+
                     // Load Transactions list (filtered or all)
                     function loadTransactions(filters) {
                         const url = filters ? '/api/transactions/search' : '/api/transactions';
@@ -356,7 +417,7 @@
 
                         $tbody.html(`
                             <tr>
-                                <td colspan="7" class="text-center py-4 text-muted">
+                                <td colspan="8" class="text-center py-4 text-muted">
                                     <i class="fas fa-spinner fa-spin fa-2x mb-2 d-block"></i>
                                     Đang tải dữ liệu giao dịch...
                                 </td>
@@ -372,7 +433,7 @@
                                 if (!list || list.length === 0) {
                                     $tbody.append(`
                                         <tr>
-                                            <td colspan="7" class="text-center py-4 text-muted">
+                                            <td colspan="8" class="text-center py-4 text-muted">
                                                 <i class="fas fa-info-circle fa-2x mb-2 d-block"></i>
                                                 Không tìm thấy giao dịch nào.
                                             </td>
@@ -408,6 +469,14 @@
                                     // Category Name
                                     const categoryName = tx.category ? tx.category.categoryName : '-';
 
+                                    // Jar Name
+                                    let jarName = '-';
+                                    if (tx.autoAllocateToJars) {
+                                        jarName = '<span class="badge bg-primary-subtle text-primary border border-primary-subtle py-1 px-2">Phân bổ tự động</span>';
+                                    } else if (tx.budgetJar) {
+                                        jarName = tx.budgetJar.name;
+                                    }
+
                                     // Amount Formatted with positive/negative color sign
                                     let amountHtml = '';
                                     const currency = tx.account ? tx.account.currency : 'VND';
@@ -428,6 +497,7 @@
                                             <td>${typeBadge}</td>
                                             <td>${accountDesc}</td>
                                             <td>${categoryName}</td>
+                                            <td>${jarName}</td>
                                             <td>${amountHtml}</td>
                                             <td class="text-wrap" style="max-width: 200px;">${note}</td>
                                             <td class="text-center">
@@ -438,6 +508,8 @@
                                                             data-account="${tx.account ? tx.account.accountId : ''}"
                                                             data-to-account="${tx.toAccount ? tx.toAccount.accountId : ''}"
                                                             data-category="${tx.category ? tx.category.categoryId : ''}"
+                                                            data-jar="${tx.budgetJar ? tx.budgetJar.id : ''}"
+                                                            data-auto-allocate="${tx.autoAllocateToJars || false}"
                                                             data-amount="${tx.amount}"
                                                             data-note="${note.replace(/"/g, '&quot;')}">
                                                         <i class="fas fa-edit"></i>
@@ -455,7 +527,7 @@
                             error: function () {
                                 $tbody.html(`
                                     <tr>
-                                        <td colspan="7" class="text-center py-4 text-danger">
+                                        <td colspan="8" class="text-center py-4 text-danger">
                                             <i class="fas fa-exclamation-triangle fa-2x mb-2 d-block"></i>
                                             Tải dữ liệu thất bại. Vui lòng thử lại.
                                         </td>
@@ -474,6 +546,8 @@
                         // Reset Form
                         document.getElementById('transactionForm').reset();
                         $('#transactionId').val('');
+                        $('#txJarId').val('');
+                        $('#txAutoAllocate').prop('checked', false);
                         
                         $txType.prop('disabled', false); // Allow changing type
                         updateModalFormUI();
@@ -492,12 +566,16 @@
                         const accountId = $(this).data('account');
                         const toAccountId = $(this).data('to-account');
                         const categoryId = $(this).data('category');
+                        const jarId = $(this).data('jar');
+                        const autoAllocate = $(this).data('auto-allocate');
                         const amount = $(this).data('amount');
                         const note = $(this).data('note');
 
                         // Fill values
                         $('#transactionId').val(id);
                         $txType.val(type).prop('disabled', true); // Do not allow changing type on edit due to API limits
+                        $('#txJarId').val(jarId || '');
+                        $('#txAutoAllocate').prop('checked', autoAllocate === true || autoAllocate === "true");
                         updateModalFormUI();
 
                         $txAccountId.val(accountId);
@@ -538,6 +616,14 @@
                         } else {
                             txData.accountId = parseInt($txAccountId.val());
                             txData.categoryId = parseInt($txCategoryId.val());
+                            
+                            const jarIdVal = $('#txJarId').val();
+                            if (jarIdVal) {
+                                txData.budgetJarId = parseInt(jarIdVal);
+                            }
+                            if (type === 'INCOME') {
+                                txData.autoAllocateToJars = $('#txAutoAllocate').is(':checked');
+                            }
                         }
 
                         const id = $('#transactionId').val();

@@ -65,6 +65,8 @@ public class TransactionAPIController {
 				req.setCategoryId(request.getCategoryId());
 				req.setNote(request.getNote());
 				req.setType(request.getType());
+				req.setBudgetJarId(request.getBudgetJarId());
+				req.setAutoAllocateToJars(request.getAutoAllocateToJars());
 				transaction = transactionService.createStandardTransaction(email, req);
 				return ResponseEntity.ok(transaction);
 			} else if ("TRANSFER".equals(request.getType())) {
@@ -98,6 +100,8 @@ public class TransactionAPIController {
 				req.setCategoryId(request.getCategoryId());
 				req.setNote(request.getNote());
 				req.setType(request.getType());
+				req.setBudgetJarId(request.getBudgetJarId());
+				req.setAutoAllocateToJars(request.getAutoAllocateToJars());
 				transaction = transactionService.updateTransaction(email, id, req);
 				return ResponseEntity.ok(transaction);
 			} else if ("TRANSFER".equals(request.getType())) {

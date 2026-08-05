@@ -25,7 +25,10 @@ import money.repository.CategoryRepository;
 import money.repository.NotificationRepository;
 import money.repository.TransactionRepository;
 import money.repository.UserRepository;
+import money.repository.BudgetJarRepository;
+import money.service.IBudgetJarService;
 import money.service.ITransactionService;
+import money.entity.BudgetJar;
 
 @Service
 @Transactional
@@ -48,6 +51,12 @@ public class TransactionServiceImpl implements ITransactionService{
 	
 	@Autowired
 	private NotificationRepository notificationRepo;
+
+	@Autowired
+	private BudgetJarRepository budgetJarRepo;
+
+	@Autowired
+	private IBudgetJarService budgetJarService;
 
 	@Override
 	public Transaction createStandardTransaction(String email, TransactionInExRequest request) {
@@ -81,6 +90,7 @@ public class TransactionServiceImpl implements ITransactionService{
 		}
 		
 		accountRepo.save(account);
+		applyJarBalance(trans, request.getBudgetJarId(), request.getAutoAllocateToJars());
 		
 		Transaction savedTx = transactionRepo.save(trans);
 		applyBudgetSpending(savedTx);
@@ -161,6 +171,7 @@ public class TransactionServiceImpl implements ITransactionService{
 		
 		revertBalance(oldTx);
 		revertBudgetSpending(oldTx);
+		revertJarBalance(oldTx);
 		
 		oldTx.setAmount(request.getAmount());
 	    oldTx.setNote(request.getNote());
@@ -169,6 +180,7 @@ public class TransactionServiceImpl implements ITransactionService{
 	    
 	    applyBalance(oldTx);
 	    applyBudgetSpending(oldTx);
+	    applyJarBalance(oldTx, request.getBudgetJarId(), request.getAutoAllocateToJars());
 
 	    return transactionRepo.save(oldTx);
 	}
@@ -239,6 +251,8 @@ public class TransactionServiceImpl implements ITransactionService{
 			accountRepo.save(fromAccount);
 			accountRepo.save(toAccount);
 		}
+		
+		revertJarBalance(tx);
 		
 		transactionRepo.delete(tx);
 	}
@@ -358,6 +372,77 @@ public class TransactionServiceImpl implements ITransactionService{
 			double current = budget.getCurrentSpending() != null ? budget.getCurrentSpending() : 0.0;
 			budget.setCurrentSpending(Math.max(0.0, current - tx.getAmount()));
 			budgetRepo.save(budget);
+		}
+	}
+
+	private void revertJarBalance(Transaction tx) {
+		if (tx.getType() == TransactionType.INCOME) {
+			if (Boolean.TRUE.equals(tx.getAutoAllocateToJars())) {
+				List<BudgetJar> jars = budgetJarRepo.findByUser_Email(tx.getUser().getEmail());
+				for (BudgetJar j : jars) {
+					double allocated = tx.getAmount() * (j.getPercentage() / 100.0);
+					j.setAllocatedAmount(Math.max(0.0, j.getAllocatedAmount() - allocated));
+					j.setRemainingAmount(j.getAllocatedAmount() - j.getSpentAmount());
+					budgetJarRepo.save(j);
+				}
+			} else if (tx.getBudgetJar() != null) {
+				BudgetJar j = tx.getBudgetJar();
+				j.setAllocatedAmount(Math.max(0.0, j.getAllocatedAmount() - tx.getAmount()));
+				j.setRemainingAmount(j.getAllocatedAmount() - j.getSpentAmount());
+				budgetJarRepo.save(j);
+			}
+		} else if (tx.getType() == TransactionType.EXPENSE) {
+			if (tx.getBudgetJar() != null) {
+				BudgetJar j = tx.getBudgetJar();
+				j.setSpentAmount(Math.max(0.0, j.getSpentAmount() - tx.getAmount()));
+				j.setRemainingAmount(j.getAllocatedAmount() - j.getSpentAmount());
+				budgetJarRepo.save(j);
+			}
+		}
+	}
+
+	private void applyJarBalance(Transaction tx, Long requestJarId, Boolean autoAllocateToJars) {
+		if (tx.getType() == TransactionType.INCOME) {
+			if (Boolean.TRUE.equals(autoAllocateToJars)) {
+				tx.setAutoAllocateToJars(true);
+				tx.setBudgetJar(null);
+				List<BudgetJar> jars = budgetJarService.getJarsByUser(tx.getUser().getEmail());
+				for (BudgetJar j : jars) {
+					double allocated = tx.getAmount() * (j.getPercentage() / 100.0);
+					j.setAllocatedAmount(j.getAllocatedAmount() + allocated);
+					j.setRemainingAmount(j.getAllocatedAmount() - j.getSpentAmount());
+					budgetJarRepo.save(j);
+				}
+			} else if (requestJarId != null) {
+				BudgetJar jar = budgetJarRepo.findById(requestJarId)
+						.orElseThrow(() -> new RuntimeException("Không tìm thấy chiếc lọ"));
+				if (!jar.getUser().getEmail().equals(tx.getUser().getEmail())) {
+					throw new RuntimeException("Bạn không có quyền sử dụng chiếc lọ này");
+				}
+				tx.setBudgetJar(jar);
+				tx.setAutoAllocateToJars(false);
+				jar.setAllocatedAmount(jar.getAllocatedAmount() + tx.getAmount());
+				jar.setRemainingAmount(jar.getAllocatedAmount() - jar.getSpentAmount());
+				budgetJarRepo.save(jar);
+			} else {
+				tx.setAutoAllocateToJars(false);
+				tx.setBudgetJar(null);
+			}
+		} else if (tx.getType() == TransactionType.EXPENSE) {
+			tx.setAutoAllocateToJars(false);
+			if (requestJarId != null) {
+				BudgetJar jar = budgetJarRepo.findById(requestJarId)
+						.orElseThrow(() -> new RuntimeException("Không tìm thấy chiếc lọ"));
+				if (!jar.getUser().getEmail().equals(tx.getUser().getEmail())) {
+					throw new RuntimeException("Bạn không có quyền sử dụng chiếc lọ này");
+				}
+				tx.setBudgetJar(jar);
+				jar.setSpentAmount(jar.getSpentAmount() + tx.getAmount());
+				jar.setRemainingAmount(jar.getAllocatedAmount() - jar.getSpentAmount());
+				budgetJarRepo.save(jar);
+			} else {
+				tx.setBudgetJar(null);
+			}
 		}
 	}
 }

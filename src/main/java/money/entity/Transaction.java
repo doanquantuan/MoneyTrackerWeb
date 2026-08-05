@@ -52,6 +52,13 @@ public class Transaction {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "CategoryID")
 	private Category category;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "BudgetJarID")
+	private BudgetJar budgetJar;
+
+	@Column(name = "AutoAllocateToJars")
+	private Boolean autoAllocateToJars;
 	
 	@Enumerated(EnumType.STRING)
 	@Column(name = "TransactionType", length = 20)

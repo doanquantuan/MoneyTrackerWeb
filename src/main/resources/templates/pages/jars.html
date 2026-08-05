@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/sidebar}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý 6 chiếc lọ - Money Tracker</title>
+    <!-- ApexCharts CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        .jar-card {
+            border: none;
+            border-radius: 16px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .jar-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+        }
+        .jar-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+        }
+        .jar-nec::before { background-color: #3b82f6; }
+        .jar-ffa::before { background-color: #f59e0b; }
+        .jar-ltss::before { background-color: #10b981; }
+        .jar-edu::before { background-color: #8b5cf6; }
+        .jar-play::before { background-color: #ec4899; }
+        .jar-give::before { background-color: #14b8a6; }
+
+        .jar-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        .jar-nec .jar-icon-wrapper { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .jar-ffa .jar-icon-wrapper { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .jar-ltss .jar-icon-wrapper { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .jar-edu .jar-icon-wrapper { background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+        .jar-play .jar-icon-wrapper { background-color: rgba(236, 72, 153, 0.1); color: #ec4899; }
+        .jar-give .jar-icon-wrapper { background-color: rgba(20, 184, 166, 0.1); color: #14b8a6; }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <!-- Title and actions -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h4 class="mb-1 text-capitalize fw-bold text-dark">Phương pháp 6 chiếc lọ (6 Jars)</h4>
+                <p class="text-muted mb-0">Quản lý tài chính thông minh bằng cách phân chia ngân sách một cách khoa học.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-primary" id="configPercentBtn">
+                    <i class="fas fa-sliders-h me-2"></i>Cấu hình tỷ lệ
+                </button>
+                <button type="button" class="btn btn-primary" id="transferBtn">
+                    <i class="fas fa-exchange-alt me-2"></i>Chuyển tiền giữa các lọ
+                </button>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Left Side: Jars list -->
+            <div class="col-lg-8">
+                <!-- Total Balance Banner -->
+                <div class="card border-0 shadow-sm p-4 mb-4 rounded-4 bg-primary text-white position-relative overflow-hidden" style="min-height: 120px;">
+                    <div class="position-relative z-1">
+                        <h6 class="text-white-50 text-uppercase fw-bold mb-1">Tổng số dư khả dụng (Remaining)</h6>
+                        <h2 class="fw-bold mb-0" id="totalJarsBalance">0 VND</h2>
+                    </div>
+                    <!-- decorative background shape -->
+                    <div style="position: absolute; right: -20px; top: -50px; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,0.1); pointer-events: none;"></div>
+                </div>
+
+                <!-- Jars Grid -->
+                <div class="row g-4" id="jarsContainer">
+                    <!-- Cards will be injected dynamically -->
+                    <div class="col-12 text-center py-5 text-muted">
+                        <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                        <p>Đang tải dữ liệu 6 chiếc lọ...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Chart Summary -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 mb-4 h-100">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                        <h6 class="fw-bold text-dark mb-0"><i class="fas fa-chart-pie me-2 text-primary"></i>Cơ cấu số dư các hũ</h6>
+                    </div>
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-4">
+                        <div id="jarsDonutChart" style="min-height: 290px; width: 100%;"></div>
+                        <div id="chartEmptyPlaceholder" class="text-muted text-center py-5 d-none">
+                            <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                            <p>Không có dữ liệu số dư để hiển thị biểu đồ</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modals Section -->
+
+        <!-- 1. Config Percentages Modal -->
+        <div class="modal fade" id="percentModal" tabindex="-1" aria-labelledby="percentModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header border-0 pb-0 px-4 pt-4">
+                        <h5 class="modal-title fw-bold text-dark" id="percentModalLabel">Cấu hình tỷ lệ 6 chiếc lọ</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body px-4 pt-3">
+                        <div class="alert alert-danger d-none" id="percentErrorAlert"></div>
+                        <form id="percentForm">
+                            <div class="row" id="percentFormInputs">
+                                <!-- Inputs will be dynamically generated -->
+                            </div>
+                            <!-- Live sum display -->
+                            <div class="d-flex justify-content-between align-items-center p-3 mt-3 rounded bg-light">
+                                <span class="fw-bold text-dark">Tổng tỷ lệ:</span>
+                                <span class="badge fs-6 bg-secondary" id="totalPercentBadge">0%</span>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer border-0 px-4 pb-4 pt-3">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn btn-primary rounded-pill px-4" id="savePercentBtn">Lưu thay đổi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Transfer Between Jars Modal -->
+        <div class="modal fade" id="transferModal" tabindex="-1" aria-labelledby="transferModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header border-0 pb-0 px-4 pt-4">
+                        <h5 class="modal-title fw-bold text-dark" id="transferModalLabel">Chuyển tiền giữa các lọ</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body px-4 pt-3">
+                        <div class="alert alert-danger d-none" id="transferErrorAlert"></div>
+                        <form id="transferForm">
+                            <div class="mb-3">
+                                <label for="fromJarSelect" class="form-label fw-bold text-secondary">Lọ trích tiền (Lọ nguồn) <span class="text-danger">*</span></label>
+                                <select class="form-select border-0 bg-light p-3 rounded-3" id="fromJarSelect" required>
+                                    <option value="">-- Chọn lọ nguồn --</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="toJarSelect" class="form-label fw-bold text-secondary">Lọ nhận tiền (Lọ đích) <span class="text-danger">*</span></label>
+                                <select class="form-select border-0 bg-light p-3 rounded-3" id="toJarSelect" required>
+                                    <option value="">-- Chọn lọ đích --</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="transferAmount" class="form-label fw-bold text-secondary">Số tiền chuyển (VND) <span class="text-danger">*</span></label>
+                                <input type="number" min="1" step="any" class="form-control border-0 bg-light p-3 rounded-3" id="transferAmount" placeholder="Nhập số tiền..." required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer border-0 px-4 pb-4 pt-3">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn btn-primary rounded-pill px-4" id="saveTransferBtn">Thực hiện chuyển</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard JavaScript -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                $(function () {
+                    let jarsList = [];
+                    let chartInstance = null;
+
+                    const percentModal = new bootstrap.Modal(document.getElementById('percentModal'));
+                    const transferModal = new bootstrap.Modal(document.getElementById('transferModal'));
+
+                    // Format money helper
+                    function formatMoney(amount) {
+                        return new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND'
+                        }).format(amount);
+                    }
+
+                    // Get Jar Class mapping
+                    function getJarClass(type) {
+                        return type.toLowerCase();
+                    }
+
+                    // Get Jar Icon mapping
+                    function getJarIcon(type) {
+                        switch(type) {
+                            case 'NEC': return 'fa-shopping-basket';
+                            case 'FFA': return 'fa-chart-line';
+                            case 'LTSS': return 'fa-piggy-bank';
+                            case 'EDU': return 'fa-graduation-cap';
+                            case 'PLAY': return 'fa-gamepad';
+                            case 'GIVE': return 'fa-hand-holding-heart';
+                            default: return 'fa-archive';
+                        }
+                    }
+
+                    // Render Jars list
+                    function loadJars() {
+                        $.ajax({
+                            url: '/api/jars',
+                            type: 'GET',
+                            success: function (data) {
+                                jarsList = data;
+                                renderJarsList(data);
+                                updateChart(data);
+                                populateTransferDropdowns(data);
+                            },
+                            error: function (xhr) {
+                                $('#jarsContainer').html(`
+                                    <div class="col-12 text-center py-5 text-danger">
+                                        <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                                        <p>Lỗi tải dữ liệu 6 chiếc lọ: ${xhr.responseText || 'Không rõ nguyên nhân'}</p>
+                                    </div>
+                                `);
+                            }
+                        });
+                    }
+
+                    function renderJarsList(jars) {
+                        const $container = $('#jarsContainer');
+                        $container.empty();
+
+                        let totalRemaining = 0;
+                        jars.forEach(j => totalRemaining += (j.remainingAmount || 0));
+
+                        $('#totalJarsBalance').text(formatMoney(totalRemaining));
+
+                        if (!jars || jars.length === 0) {
+                            $container.html('<div class="col-12 text-center text-muted py-4">Chưa có chiếc lọ nào được cấu hình.</div>');
+                            return;
+                        }
+
+                        jars.forEach(jar => {
+                            const typeClass = getJarClass(jar.jarType);
+                            const iconClass = getJarIcon(jar.jarType);
+                            const remainingVal = jar.remainingAmount || 0;
+                            const percentOfTotal = totalRemaining > 0 ? Math.round((remainingVal / totalRemaining) * 100) : 0;
+                            
+                            // progress bar color styling
+                            let progressBarColor = 'bg-primary';
+                            if (jar.jarType === 'NEC') progressBarColor = 'bg-primary';
+                            else if (jar.jarType === 'FFA') progressBarColor = 'bg-warning';
+                            else if (jar.jarType === 'LTSS') progressBarColor = 'bg-success';
+                            else if (jar.jarType === 'EDU') progressBarColor = 'bg-info';
+                            else if (jar.jarType === 'PLAY') progressBarColor = 'bg-danger';
+                            else if (jar.jarType === 'GIVE') progressBarColor = 'bg-teal';
+
+                            const cardHtml = `
+                                <div class="col-md-6 col-xl-4">
+                                    <div class="card h-100 shadow-sm jar-card jar-${typeClass}">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div class="jar-icon-wrapper">
+                                                    <i class="fas ${iconClass}"></i>
+                                                </div>
+                                                <span class="badge bg-light text-dark fw-bold border" style="font-size: 13px;">${jar.percentage}%</span>
+                                            </div>
+                                            <h5 class="fw-bold text-dark mb-1" style="font-size: 16px;">${jar.name}</h5>
+                                            <h3 class="fw-bold text-primary mb-2 mt-1" style="font-size: 20px;">${formatMoney(remainingVal)}</h3>
+                                            
+                                            <!-- Detailed values: Allocated vs Spent -->
+                                            <div class="row g-0 mb-3 border-top border-bottom py-2 my-2 text-center" style="font-size: 12px; background-color: #fafafa; border-radius: 8px;">
+                                                <div class="col-6 border-end">
+                                                    <span class="text-muted d-block" style="font-size: 10px; font-weight: 600;">ĐÃ CHIA</span>
+                                                    <strong class="text-success">${formatMoney(jar.allocatedAmount || 0)}</strong>
+                                                </div>
+                                                <div class="col-6">
+                                                    <span class="text-muted d-block" style="font-size: 10px; font-weight: 600;">ĐÃ CHI TIÊU</span>
+                                                    <strong class="text-danger">${formatMoney(jar.spentAmount || 0)}</strong>
+                                                </div>
+                                            </div>
+
+                                            <div class="mt-2">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <small class="text-muted">Chiếm trong số dư còn lại</small>
+                                                    <small class="fw-semibold text-dark">${percentOfTotal}%</small>
+                                                </div>
+                                                <div class="progress" style="height: 6px; border-radius: 10px;">
+                                                    <div class="progress-bar ${progressBarColor}" role="progressbar" style="width: ${percentOfTotal}%;" aria-valuenow="${percentOfTotal}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            $container.append(cardHtml);
+                        });
+                    }
+
+                    // Update donut chart
+                    function updateChart(jars) {
+                        const labels = jars.map(j => j.name);
+                        const series = jars.map(j => j.remainingAmount || 0);
+                        const total = series.reduce((a, b) => a + b, 0);
+
+                        if (total === 0) {
+                            $('#jarsDonutChart').addClass('d-none');
+                            $('#chartEmptyPlaceholder').removeClass('d-none');
+                            return;
+                        }
+
+                        $('#jarsDonutChart').removeClass('d-none');
+                        $('#chartEmptyPlaceholder').addClass('d-none');
+
+                        const chartOptions = {
+                            series: series,
+                            chart: {
+                                type: 'donut',
+                                height: 320
+                            },
+                            labels: labels,
+                            colors: ['#3b82f6', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899', '#14b8a6'],
+                            legend: {
+                                position: 'bottom',
+                                horizontalAlign: 'center',
+                                labels: {
+                                    colors: '#555'
+                                }
+                            },
+                            dataLabels: {
+                                enabled: true,
+                                formatter: function (val) {
+                                    return Math.round(val) + "%";
+                                }
+                            },
+                            tooltip: {
+                                y: {
+                                    formatter: function (val) {
+                                        return formatMoney(val);
+                                    }
+                                }
+                            },
+                            responsive: [{
+                                breakpoint: 480,
+                                options: {
+                                    chart: {
+                                        width: 280
+                                    },
+                                    legend: {
+                                        position: 'bottom'
+                                    }
+                                }
+                            }]
+                        };
+
+                        if (chartInstance) {
+                            chartInstance.destroy();
+                        }
+                        
+                        chartInstance = new ApexCharts(document.querySelector("#jarsDonutChart"), chartOptions);
+                        chartInstance.render();
+                    }
+
+                    // Populate Transfer source/destination dropdowns
+                    function populateTransferDropdowns(jars) {
+                        const $from = $('#fromJarSelect');
+                        const $to = $('#toJarSelect');
+
+                        $from.empty().append('<option value="">-- Chọn lọ nguồn --</option>');
+                        $to.empty().append('<option value="">-- Chọn lọ đích --</option>');
+
+                        jars.forEach(j => {
+                            const optionText = `${j.name} (Còn lại: ${formatMoney(j.remainingAmount)})`;
+                            $from.append($('<option>', { value: j.id, text: optionText }));
+                            $to.append($('<option>', { value: j.id, text: j.name }));
+                        });
+                    }
+
+                    // Render config percentage inputs in modal
+                    function buildPercentageForm() {
+                        const $formBody = $('#percentFormInputs');
+                        $formBody.empty();
+
+                        jarsList.forEach(jar => {
+                            const inputHtml = `
+                                <div class="col-6 mb-3">
+                                    <label class="form-label fw-semibold text-secondary mb-1">${jar.name}</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control jar-pct-input" 
+                                               data-id="${jar.id}" 
+                                               value="${jar.percentage}" 
+                                               min="0" max="100" step="any" required>
+                                        <span class="input-group-text bg-light border-start-0">%</span>
+                                    </div>
+                                </div>
+                            `;
+                            $formBody.append(inputHtml);
+                        });
+
+                        calculateTotalPercent();
+
+                        // Listen to input changes
+                        $('.jar-pct-input').on('input', function() {
+                            calculateTotalPercent();
+                        });
+                    }
+
+                    function calculateTotalPercent() {
+                        let sum = 0;
+                        $('.jar-pct-input').each(function() {
+                            sum += parseFloat($(this).val()) || 0;
+                        });
+
+                        // format display
+                        $('#totalPercentBadge').text(sum.toFixed(1) + '%');
+
+                        if (Math.abs(sum - 100) < 0.01) {
+                            $('#totalPercentBadge').removeClass('bg-danger bg-secondary').addClass('bg-success');
+                        } else {
+                            $('#totalPercentBadge').removeClass('bg-success bg-secondary').addClass('bg-danger');
+                        }
+                    }
+
+                    // Open modals
+                    $('#configPercentBtn').on('click', function () {
+                        $('#percentErrorAlert').addClass('d-none');
+                        buildPercentageForm();
+                        percentModal.show();
+                    });
+
+                    $('#transferBtn').on('click', function () {
+                        $('#transferErrorAlert').addClass('d-none');
+                        $('#transferForm')[0].reset();
+                        transferModal.show();
+                    });
+
+                    // Save percentage changes
+                    $('#savePercentBtn').on('click', function () {
+                        const requests = [];
+                        let sum = 0;
+                        let valid = true;
+
+                        $('.jar-pct-input').each(function() {
+                            const val = parseFloat($(this).val());
+                            if (isNaN(val) || val < 0) {
+                                valid = false;
+                                return false;
+                            }
+                            sum += val;
+                            requests.push({
+                                id: $(this).data('id'),
+                                percentage: val
+                            });
+                        });
+
+                        if (!valid) {
+                            $('#percentErrorAlert').text('Tỷ lệ không được để trống hoặc nhỏ hơn 0').removeClass('d-none');
+                            return;
+                        }
+
+                        if (Math.abs(sum - 100) > 0.01) {
+                            $('#percentErrorAlert').text('Tổng tỷ lệ của 6 hũ phải bằng đúng 100% (Hiện tại là ' + sum.toFixed(1) + '%)').removeClass('d-none');
+                            return;
+                        }
+
+                        $.ajax({
+                            url: '/api/jars/percentages',
+                            type: 'PUT',
+                            contentType: 'application/json',
+                            data: JSON.stringify(requests),
+                            success: function () {
+                                percentModal.hide();
+                                loadJars();
+                            },
+                            error: function (xhr) {
+                                $('#percentErrorAlert').text(xhr.responseText || 'Lỗi cập nhật tỷ lệ hũ').removeClass('d-none');
+                            }
+                        });
+                    });
+
+                    // Save money transfer
+                    $('#saveTransferBtn').on('click', function () {
+                        const fromId = $('#fromJarSelect').val();
+                        const toId = $('#toJarSelect').val();
+                        const amount = parseFloat($('#transferAmount').val());
+
+                        if (!fromId || !toId || isNaN(amount) || amount <= 0) {
+                            $('#transferErrorAlert').text('Vui lòng chọn hũ và nhập số tiền hợp lệ').removeClass('d-none');
+                            return;
+                        }
+
+                        if (fromId === toId) {
+                            $('#transferErrorAlert').text('Hũ nguồn và hũ đích không được trùng nhau').removeClass('d-none');
+                            return;
+                        }
+
+                        const fromJar = jarsList.find(j => j.id == fromId);
+                        if (fromJar && fromJar.remainingAmount < amount) {
+                            $('#transferErrorAlert').text('Số dư hũ nguồn không đủ để chuyển (Hiện tại có ' + formatMoney(fromJar.remainingAmount) + ')').removeClass('d-none');
+                            return;
+                        }
+
+                        $.ajax({
+                            url: '/api/jars/transfer',
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                fromJarId: fromId,
+                                toJarId: toId,
+                                amount: amount
+                            }),
+                            success: function () {
+                                transferModal.hide();
+                                loadJars();
+                            },
+                            error: function (xhr) {
+                                $('#transferErrorAlert').text(xhr.responseText || 'Lỗi chuyển tiền hũ').removeClass('d-none');
+                            }
+                        });
+                    });
+
+                    // Initial Load
+                    loadJars();
+                });
+            });
+        </script>
+    </div>
+</body>
+
+</html>
