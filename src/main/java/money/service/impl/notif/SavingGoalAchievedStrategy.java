@@ -1,6 +1,8 @@
 package money.service.impl.notif;
 
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
+import java.util.Locale;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import money.dto.notification.NotificationRequest;
@@ -30,9 +32,13 @@ public class SavingGoalAchievedStrategy implements NotificationStrategy {
 
 		if (event.getPayload() instanceof SavingGoal) {
 			SavingGoal goal = (SavingGoal) event.getPayload();
+			
+			String formattedCurrent = formatMoney(goal.getCurrentAmount());
+			String formattedTarget = formatMoney(goal.getTargetAmount());
+
 			notif.setTitle("Đạt mục tiêu tiết kiệm!");
 			notif.setMessage("Chúc mừng! Bạn đã hoàn thành mục tiêu tiết kiệm '" + goal.getName() 
-					+ "' với tổng số tiền tích lũy: " + goal.getCurrentAmount() + " / " + goal.getTargetAmount() + " VND!");
+					+ "' với tổng số tiền tích lũy: " + formattedCurrent + " / " + formattedTarget + " VND!");
 		} else if (event.getPayload() instanceof NotificationRequest) {
 			NotificationRequest req = (NotificationRequest) event.getPayload();
 			notif.setTitle(req.getTitle());
@@ -42,5 +48,10 @@ public class SavingGoalAchievedStrategy implements NotificationStrategy {
 		}
 
 		notificationRepo.save(notif);
+	}
+
+	private String formatMoney(double amount) {
+		NumberFormat formatter = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+		return formatter.format(amount);
 	}
 }

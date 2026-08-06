@@ -1,7 +1,9 @@
 package money.service.impl.notif;
 
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -40,6 +42,7 @@ public class DebtDueStrategy implements NotificationStrategy {
 
 			String partner = debt.getPartnerName();
 			double principal = debt.getPrincipalAmount();
+			String formattedPrincipal = formatMoney(principal);
 			String typeText = debt.getType() == money.enums.DebtType.BORROW ? "trả nợ cho" : "thu nợ từ";
 			String debtSnippet = "[Mã khoản nợ: " + debt.getDebtId() + "]";
 			
@@ -48,11 +51,11 @@ public class DebtDueStrategy implements NotificationStrategy {
 			
 			if (daysDiff < 0) {
 				title = "Khoản nợ quá hạn!";
-				message = "Khoản nợ phải " + typeText + " " + partner + " trị giá " + principal 
+				message = "Khoản nợ phải " + typeText + " " + partner + " trị giá " + formattedPrincipal 
 						+ " VND đã quá hạn từ ngày " + debt.getDueDate().format(formatter) + ". Vui lòng tất toán sớm. " + debtSnippet;
 			} else {
 				title = "Khoản nợ sắp đến hạn";
-				message = "Bạn có lịch cần " + typeText + " " + partner + " trị giá " + principal 
+				message = "Bạn có lịch cần " + typeText + " " + partner + " trị giá " + formattedPrincipal 
 						+ " VND vào ngày " + debt.getDueDate().format(formatter) + " (còn " + daysDiff + " ngày). " + debtSnippet;
 			}
 			notif.setTitle(title);
@@ -66,5 +69,10 @@ public class DebtDueStrategy implements NotificationStrategy {
 		}
 
 		notificationRepo.save(notif);
+	}
+
+	private String formatMoney(double amount) {
+		NumberFormat formatter = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+		return formatter.format(amount);
 	}
 }
