@@ -41,9 +41,10 @@ public class NotificationImpl implements INotification {
 
 	@Override
 	public List<Notification> getNotifList(String email) {
-		// Tự động kiểm tra các khoản nợ và phát sự kiện thông báo nếu có khoản nợ đến hạn
+		// Tự động kiểm tra các khoản nợ và phát sự kiện thông báo nếu có khoản nợ đến
+		// hạn
 		checkAndCreateDebtNotifications(email);
-		
+
 		return notificationRepo.findByUser_EmailOrderByCreatedAtDesc(email);
 	}
 
@@ -113,7 +114,8 @@ public class NotificationImpl implements INotification {
 
 			List<Debt> debts = debtRepo.findByUser_Email(email);
 
-			for (Debt debt : debts) {
+			for (Debt debt : 
+				debts) {
 				if (debt.getStatus() == DebtStatus.ACTIVE || debt.getStatus() == DebtStatus.OVERDUE) {
 					if (debt.getDueDate() != null) {
 						LocalDateTime now = LocalDateTime.now();
@@ -123,21 +125,23 @@ public class NotificationImpl implements INotification {
 						String debtSnippet = "[Mã khoản nợ: " + debt.getDebtId() + "]";
 						
 						// Kiểm tra xem đã có thông báo nào chứa mã khoản nợ này chưa
-						boolean alreadyNotified = notificationRepo.existsByEmailAndMessageContaining(email, debtSnippet);
+
 						
-						if (!alreadyNotified && (daysDiff <= 3)) {
+
 							Map<String, Object> payload = new HashMap<>();
 							payload.put("debt", debt);
-							payload.put("daysDiff", daysDiff);
+								
 
+						
 							// Phát sự kiện thông báo nợ đến hạn (loại DEBT)
 							eventPublisher.publishEvent(new GenericNotificationEvent(NotificationType.DEBT, user, payload));
 						}
 					}
 				}
 			}
-		} catch (Exception e) {
+									catch (Exception e) {
 			System.err.println("Lỗi khi tự động kiểm tra thông báo khoản nợ: " + e.getMessage());
 		}
 	}
 }
+
