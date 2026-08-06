@@ -15,6 +15,9 @@ import money.entity.Transaction;
 import money.entity.User;
 import money.enums.SavingStatus;
 import money.enums.TransactionType;
+import org.springframework.context.ApplicationEventPublisher;
+import money.enums.NotificationType;
+import money.service.impl.notif.GenericNotificationEvent;
 import money.repository.AccountRepository;
 import money.repository.SavingGoalRepository;
 import money.repository.TransactionRepository;
@@ -35,6 +38,9 @@ public class SavingGoalServiceImpl implements ISavingGoalService {
 	
 	@Autowired
 	private TransactionRepository transactionRepo;
+
+	@Autowired
+	private ApplicationEventPublisher eventPublisher;
 
 	@Override
 	public List<SavingGoal> getListSavingGoal(String email) {
@@ -126,9 +132,17 @@ public class SavingGoalServiceImpl implements ISavingGoalService {
 		accountRepo.save(account);
 		
 		// Update saving goal
-		goal.setCurrentAmount(goal.getCurrentAmount() + amount);
+		double originalAmount = goal.getCurrentAmount();
+		goal.setCurrentAmount(originalAmount + amount);
 		if (goal.getCurrentAmount() >= goal.getTargetAmount()) {
 			goal.setStatus(SavingStatus.ACHIEVED);
+			if (originalAmount < goal.getTargetAmount()) {
+				try {
+					eventPublisher.publishEvent(new GenericNotificationEvent(NotificationType.SAVING_GOAL, user, goal));
+				} catch (Exception e) {
+					System.err.println("Lỗi tạo thông báo khi hoàn thành mục tiêu tiết kiệm: " + e.getMessage());
+				}
+			}
 		} else {
 			goal.setStatus(SavingStatus.IN_PROGRESS);
 		}

@@ -1,0 +1,17 @@
+- [ ] Triển khai Observer Pattern
+  - [ ] Tạo mới [NotificationEvent.java](file:///c:/Users/TUF%20GAMING%20F15/Documents/workspace-spring-tools-for-eclipse-4.31.0.RELEASE/MoneyTrackerWeb/src/main/java/money/observer/NotificationEvent.java)
+  - [ ] Tạo mới [NotificationPublisher.java](file:///c:/Users/TUF%20GAMING%20F15/Documents/workspace-spring-tools-for-eclipse-4.31.0.RELEASE/MoneyTrackerWeb/src/main/java/money/observer/NotificationPublisher.java)
+  - [ ] Tạo mới [NotificationObserver.java](file:///c:/Users/TUF%20GAMING%20F15/Documents/workspace-spring-tools-for-eclipse-4.31.0.RELEASE/MoneyTrackerWeb/src/main/java/money/observer/NotificationObserver.java)
+  - [ ] Tạo mới [NotificationObserverImpl.java](file:///c:/Users/TUF%20GAMING%20F15/Documents/workspace-spring-tools-for-eclipse-4.31.0.RELEASE/MoneyTrackerWeb/src/main/java/money/observer/NotificationObserverImpl.java)
+- [ ] Triển khai Strategy Pattern
+  - [ ] Tạo mới [NotificationStrategy.java](file:///c:/Users/TUF%20GAMING%20F15/Documents/workspace-spring-tools-for-eclipse-4.31.0.RELEASE/MoneyTrackerWeb/src/main/java/money/strategy/NotificationStrategy.java)
+  - [ ] Tạo mới [BudgetWarningStrategy.java](file:///c:/Users/TUF%20GAMING%20F15/Documents/workspace-spring-tools-for-eclipse-4.31.0.RELEASE/MoneyTrackerWeb/src/main/java/money/strategy/BudgetWarningStrategy.java)
+  - [ ] Tạo mới [DebtDueStrategy.java](file:///c:/Users/TUF%20GAMING%20F15/Documents/workspace-spring-tools-for-eclipse-4.31.0.RELEASE/MoneyTrackerWeb/src/main/java/money/strategy/DebtDueStrategy.java)
+  - [ ] Tạo mới [SavingGoalAchievedStrategy.java](file:///c:/Users/TUF%20GAMING%20F15/Documents/workspace-spring-tools-for-eclipse-4.31.0.RELEASE/MoneyTrackerWeb/src/main/java/money/strategy/SavingGoalAchievedStrategy.java)
+  - [ ] Tạo mới [DefaultNotificationStrategy.java](file:///c:/Users/TUF%20GAMING%20F15/Documents/workspace-spring-tools-for-eclipse-4.31.0.RELEASE/MoneyTrackerWeb/src/main/java/money/strategy/DefaultNotificationStrategy.java)
+- [ ] Tích hợp và cập nhật mã nguồn hiện có
+  - [ ] Cập nhật [NotificationImpl.java](file:///c:/Users/TUF%20GAMING%20F15/Documents/workspace-spring-tools-for-eclipse-4.31.0.RELEASE/MoneyTrackerWeb/src/main/java/money/service/impl/NotificationImpl.java) (Thêm `@Service`, `@Transactional`, phát sự kiện khi quét nợ)
+  - [ ] Cập nhật [TransactionServiceImpl.java](file:///c:/Users/TUF%20GAMING%20F15/Documents/workspace-spring-tools-for-eclipse-4.31.0.RELEASE/MoneyTrackerWeb/src/main/java/money/service/impl/TransactionServiceImpl.java) (Phát sự kiện hũ ngân sách)
+  - [ ] Cập nhật [SavingGoalServiceImpl.java](file:///c:/Users/TUF%20GAMING%20F15/Documents/workspace-spring-tools-for-eclipse-4.31.0.RELEASE/MoneyTrackerWeb/src/main/java/money/service/impl/SavingGoalServiceImpl.java) (Phát sự kiện mục tiêu tiết kiệm)
+- [ ] Xây dựng & Xác minh
+  - [ ] Chạy kiểm tra biên dịch bằng Maven (`mvn clean compile`)

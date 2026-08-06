@@ -44,46 +44,20 @@
                         <h6 class="fw-bold mb-3" th:text="${fullName}"></h6>
                         <ul class="list-inline">
                             <!-- Notification -->
-                            <li class="list-inline-item position-relative me-3">
-                                <a class="nav-link p-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <li class="list-inline-item position-relative me-3" id="notificationDropdownContainer">
+                                <a class="nav-link p-0 position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="notificationBellLink">
                                     <i class="fas fa-bell fa-fw"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-secondary border rounded-circle"></span>
+                                    <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem; padding: 0.25em 0.4em; transform: translate(-25%, -25%) !important;">0</span>
                                 </a>
-                                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow border-0 py-0 mt-3">
-                                    <h6 class="dropdown-header text-white bg-primary rounded-top py-3">Notifications</h6>
-                                    <a class="dropdown-item d-flex align-items-center" th:href="@{/pages/elements/notification.html}">
-                                        <div class="text-truncate d-block">
-                                            <p class="mb-0"><small>19 sec ago</small></p>
-                                            <h6 class="mb-0">Hi there! I am wondering if you can help me with a problem I've been having.</h6>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" th:href="@{/pages/elements/notification.html}">
-                                        <div class="text-truncate d-block">
-                                            <p class="mb-0"><small>2 min ago</small></p>
-                                            <h6 class="mb-0">
-                                                I have the photos that you ordered last month, how would
-                                                you like them sent to you?
-                                            </h6>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" th:href="@{/pages/elements/notification.html}">
-                                        <div class="text-truncate d-block">
-                                            <p class="mb-0"><small>3 min ago</small></p>
-                                            <h6 class="mb-0">Last month's report looks great, I am very happy with
-                                                the progress so far, keep up the good work!</h6>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" th:href="@{/pages/elements/notification.html}">
-                                        <div class="text-truncate d-block">
-                                            <p class="mb-0"><small>4 min ago</small></p>
-                                            <h6 class="mb-0">Am I a good boy? The reason I ask is because someone
-                                                told me that people say this to all dogs, even if they
-                                                aren't good...</h6>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item text-center small text-gray-500 py-2" th:href="@{/pages/elements/notification.html}">See All
-                                        Notifications</a>
-
+                                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow border-0 py-0 mt-3" style="width: 320px; max-height: 450px; overflow-y: auto;">
+                                    <div class="dropdown-header text-white bg-primary rounded-top py-3 d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0 text-white fw-bold">Thông báo</h6>
+                                        <button class="btn btn-sm btn-link text-white p-0 text-decoration-none small" id="markAllReadBtn" style="font-size: 0.8rem; display: none;">Đọc tất cả</button>
+                                    </div>
+                                    <div id="notificationDropdownItems">
+                                        <div class="text-center py-4 text-muted small"><i class="fas fa-spinner fa-spin me-2"></i>Đang tải...</div>
+                                    </div>
+                                    <a class="dropdown-item text-center small text-gray-500 py-2 border-top fw-semibold text-primary" th:href="@{/notifications}">Xem tất cả thông báo</a>
                                     <div class="dropdown-arrow bg-info"></div>
                                 </div>
                             </li>
@@ -255,12 +229,12 @@
 
                                     <!-- Sub Menu Item -->
                                     <li class="nav-item">
-                                        <a class="sub-menu-link" th:href="@{/budgets}">
+                                        <a class="sub-menu-link" th:href="@{/jars}">
                                             <span class="d2c_icon">
-                                                <i class="fas fa-chart-pie"></i>
+                                                <i class="fas fa-archive"></i>
                                             </span>
                                             <span>
-                                                Ngân sách
+                                                Ngân sách (6 chiếc lọ)
                                             </span>
                                         </a>
                                     </li>
@@ -287,19 +261,6 @@
                                             </span>
                                             <span>
                                                 Khoản nợ
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" th:href="@{/jars}">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-archive"></i>
-                                            </span>
-                                            <span>
-                                                6 chiếc lọ
                                             </span>
                                         </a>
                                     </li>
@@ -416,6 +377,87 @@
     <script th:src="@{/assets/js/main.js}"></script>
 
     <script>
+        // Notifications handler
+        function formatRelativeTime(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMins / 60);
+            const diffDays = Math.floor(diffHours / 24);
+
+            if (diffMins < 1) return 'Vừa xong';
+            if (diffMins < 60) return diffMins + ' phút trước';
+            if (diffHours < 24) return diffHours + ' giờ trước';
+            if (diffDays === 1) return 'Hôm qua';
+            return diffDays + ' ngày trước';
+        }
+
+        function loadGlobalNotifications() {
+            $.ajax({
+                url: '/api/notifications',
+                type: 'GET',
+                success: function (notifications) {
+                    const unreadCount = notifications.filter(n => !n.isRead).length;
+                    const $badge = $('#notificationBadge');
+                    const $markAll = $('#markAllReadBtn');
+                    
+                    if (unreadCount > 0) {
+                        $badge.text(unreadCount).show();
+                        $markAll.show();
+                    } else {
+                        $badge.hide();
+                        $markAll.hide();
+                    }
+
+                    const $container = $('#notificationDropdownItems');
+                    $container.empty();
+
+                    if (notifications.length === 0) {
+                        $container.html('<div class="text-center py-4 text-muted small">Không có thông báo mới</div>');
+                        return;
+                    }
+
+                    // Render up to 5 newest notifications
+                    const limitList = notifications.slice(0, 5);
+                    limitList.forEach(function (n) {
+                        let iconClass = 'fa-bell text-secondary';
+                        if (n.type === 'BUDGET') {
+                            iconClass = 'fa-exclamation-triangle text-warning';
+                        } else if (n.type === 'DEBT') {
+                            iconClass = 'fa-hand-holding-usd text-danger';
+                        } else if (n.type === 'SAVING_GOAL') {
+                            iconClass = 'fa-piggy-bank text-success';
+                        }
+
+                        const readStyle = n.isRead ? 'opacity: 0.65;' : 'font-weight: 600; background-color: #f4fbf7;';
+                        
+                        const itemHtml = `
+                            <a class="dropdown-item d-flex align-items-center py-2 px-3 border-bottom notification-dropdown-item" href="/notifications" style="${readStyle}" data-id="${n.notificationId}">
+                                <div class="me-3">
+                                    <div class="avatar bg-opacity-10 rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background-color: rgba(0,0,0,0.05);">
+                                        <i class="fas ${iconClass}"></i>
+                                    </div>
+                                </div>
+                                <div class="w-100">
+                                    <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                        <span class="small text-dark fw-bold text-truncate" style="max-width: 150px;">${n.title}</span>
+                                        <small class="text-muted" style="font-size: 0.7rem;">${formatRelativeTime(n.createdAt)}</small>
+                                    </div>
+                                    <p class="mb-0 text-muted text-wrap" style="font-size: 0.75rem; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${n.message}</p>
+                                </div>
+                            </a>
+                        `;
+                        $container.append(itemHtml);
+                    });
+                },
+                error: function(err) {
+                    console.error('Lỗi khi tải thông báo: ', err);
+                }
+            });
+        }
+
         $(document).ready(function() {
             const currentPath = window.location.pathname;
             
@@ -432,6 +474,27 @@
                         $(this).closest('.nav-item').addClass('active');
                     }
                 }
+            });
+
+            loadGlobalNotifications();
+
+            // Mark all read button handler
+            $('#markAllReadBtn').on('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $.ajax({
+                    url: '/api/notifications/read-all',
+                    type: 'PUT',
+                    success: function() {
+                        loadGlobalNotifications();
+                        // Nếu đang ở trang thông báo chi tiết, load lại trang đó luôn
+                        if (window.location.pathname === '/notifications') {
+                            if (typeof loadAllNotifications === 'function') {
+                                loadAllNotifications();
+                            }
+                        }
+                    }
+                });
             });
         });
     </script>

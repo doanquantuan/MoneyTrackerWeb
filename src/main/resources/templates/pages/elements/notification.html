@@ -1,858 +1,287 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/sidebar}">
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="../../assets/images/logo/logo-sm.png" type="image/gif" sizes="16x16">
-    <title>Notification</title>
-    <meta name="og:description" content="FinDeshY is a free financial Bootstrap dashboard template to manage your financial data easily. This free financial dashboard uses Bootstrap to provide a responsive and user-friendly interface. Whether you're a small business owner seeking insights into your company's financial health or an individual looking to simplify your personal finances, this free Bootstrap dashboard template has you covered.">
-    <meta name="robots" content="index, follow">
-    <meta name="og:title" property="og:title" content="FinDeshY - Free Financial Bootstrap Dashboard Template">
-    <meta property="og:image" content="https://www.designtocodes.com/wp-content/uploads/2023/10/FinDeshY-Professional-Financial-Bootstrap-Dashboard-Template.jpg">
-    <!-- bootstrap css link -->
-    <link rel="stylesheet" href="../../lib/bootstrap_5/bootstrap.min.css">
-    <!-- Font Awesome CDN -->
-    <link rel="stylesheet" href="../../lib/fontawesome/css/all.min.css">
-    <!-- main css -->
-    <link rel="stylesheet" href="../../assets/css/global.css">
-    <link rel="stylesheet" href="../../assets/css/style.css">
-    <!-- responsive css -->
-    <link rel="stylesheet" href="../../assets/css/responsive.css">
+    <title>Thông báo - Money Tracker</title>
+    <style>
+        .notification-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        .notification-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
+        }
+        .notification-unread {
+            background-color: #f4fbf7 !important;
+            border-left: 4px solid #00aa5d !important;
+        }
+        .notification-read {
+            background-color: #ffffff !important;
+            border-left: 4px solid transparent !important;
+        }
+        .unread-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #00aa5d;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .filter-btn.active {
+            background-color: #00aa5d !important;
+            color: #ffffff !important;
+            border-color: #00aa5d !important;
+        }
+    </style>
 </head>
 
-<body class="d2c_theme_light">
-    <!-- Preloader Start -->
-    <div class="preloader">
-        <img src="../../assets/images/logo/logo.png" alt="DesignToCodes">
-    </div>
-    <!-- Preloader End -->
+<body>
+    <div layout:fragment="content">
+        <!-- Dashboard Header -->
+        <div class="row align-items-center mb-4">
+            <div class="col">
+                <h4 class="mb-1 text-capitalize text-dark fw-bold">Thông báo của bạn</h4>
+                <p class="text-muted mb-0">Theo dõi các cảnh báo ngân sách, lịch nợ và cập nhật hệ thống.</p>
+            </div>
+            <div class="col-auto">
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary btn-sm px-3" id="pageMarkAllReadBtn">
+                        <i class="fas fa-check-double me-1"></i> Đọc tất cả
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm px-3" id="pageClearAllBtn">
+                        <i class="fas fa-trash-alt me-1"></i> Xóa tất cả
+                    </button>
+                </div>
+            </div>
+        </div>
 
-    <div class="d2c_wrapper">
+        <!-- Filter and content card -->
+        <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 16px;">
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom flex-wrap gap-3">
+                <!-- Filters -->
+                <div class="d-flex gap-2" id="notificationFilters">
+                    <button class="btn btn-sm btn-outline-secondary filter-btn active" data-filter="all">Tất cả</button>
+                    <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter="unread">Chưa đọc</button>
+                    <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter="read">Đã đọc</button>
+                </div>
+                <div class="text-muted small">
+                    Còn <span id="unreadCountText" class="fw-bold text-success">0</span> thông báo chưa đọc
+                </div>
+            </div>
 
-        <!-- Main sidebar -->
-        <div class="d2c_sidebar offcanvas-lg offcanvas-start p-4 pe-lg-2" tabindex="-1" id="d2c_sidebar">
-            <div class="d-flex flex-column">
-                <!-- Logo -->
-                <a href="../../index.html" class="mb-5 brand-icon">
-                    <img class="navbar-brand" src="../../assets/images/logo/logo.png" alt="logo">
-                </a>
-                <!-- End:Logo -->
+            <!-- Notifications List -->
+            <div id="notificationsListContainer" class="d-flex flex-column gap-3">
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-spinner fa-spin fa-2x mb-3 text-primary"></i>
+                    <p class="mb-0">Đang tải danh sách thông báo...</p>
+                </div>
+            </div>
+        </div>
 
-                <!-- Profile -->
-                <div class="card d2c_profile_card text-center mb-4">
-                    <!-- Profile Image -->
-                    <a href="../../pages/elements/profile.html">
-                        <img class="rounded-circle d2c_profile_image position-absolute top-0 start-50 translate-middle mb-2" src="../../assets/images/profile/profile-1.jpg" alt="d2c Profile Image">
-                    </a>
-                    <!-- End:Profile Image-->
+        <script>
+            let localNotifications = [];
+            let currentFilter = 'all';
 
-                    <div class="card-body mt-4">
-                        <h6 class="fw-bold mb-3">Wade Warren</h6>
-                        <ul class="list-inline">
-                            <!-- Notification -->
-                            <li class="list-inline-item position-relative me-3">
-                                <a class="nav-link p-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-bell fa-fw"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-secondary border rounded-circle"></span>
-                                </a>
-                                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow border-0 py-0 mt-3">
-                                    <h6 class="dropdown-header text-white bg-primary rounded-top py-3">Notifications</h6>
-                                    <a class="dropdown-item d-flex align-items-center" href="../../pages/elements/notification.html">
-                                        <div class="text-truncate d-block">
-                                            <p class="mb-0"><small>19 sec ago</small></p>
-                                            <h6 class="mb-0">Hi there! I am wondering if you can help me with a problem I've been having.</h6>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="../../pages/elements/notification.html">
-                                        <div class="text-truncate d-block">
-                                            <p class="mb-0"><small>2 min ago</small></p>
-                                            <h6 class="mb-0">
-                                                I have the photos that you ordered last month, how would
-                                                you like them sent to you?
-                                            </h6>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="../../pages/elements/notification.html">
-                                        <div class="text-truncate d-block">
-                                            <p class="mb-0"><small>3 min ago</small></p>
-                                            <h6 class="mb-0">Last month's report looks great, I am very happy with
-                                                the progress so far, keep up the good work!</h6>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="../../pages/elements/notification.html">
-                                        <div class="text-truncate d-block">
-                                            <p class="mb-0"><small>4 min ago</small></p>
-                                            <h6 class="mb-0">Am I a good boy? The reason I ask is because someone
-                                                told me that people say this to all dogs, even if they
-                                                aren't good...</h6>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item text-center small text-gray-500 py-2" href="../../pages/elements/notification.html">See All
-                                        Notifications</a>
-
-                                    <div class="dropdown-arrow bg-info"></div>
-                                </div>
-                            </li>
-                            <!-- End:Notification -->
-
-                            <!-- MailBox -->
-                            <li class="list-inline-item position-relative me-3">
-                                <a class="nav-link p-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-envelope-open-text"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-                                </a>
-                                <div class="dropdown-list dropdown-menu shadow border-0 end-0 py-0 mt-3">
-                                    <h6 class="dropdown-header text-white bg-primary rounded-top py-3">Mail</h6>
-                                    <a class="dropdown-item d-flex align-items-center" href="../../pages/mailDetails.html">
-                                        <div class="text-truncate d-flex align-items-center">
-                                            <div>
-                                                <img src="../../assets/images/avatar/man-1.png" class="d2c_mail_avatar" alt="profile avatar">
-                                            </div>
-                                            <div>
-                                                <p class="mb-0"><small>3 min ago</small></p>
-                                                <h6 class="mb-0">Hi there! I am wondering if you can help me with a
-                                                    problem I've been having.</h6>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="../../pages/mailDetails.html">
-                                        <div class="text-truncate d-flex align-items-center">
-                                            <div>
-                                                <img src="../../assets/images/avatar/man-2.png" class="d2c_mail_avatar" alt="profile avatar">
-                                            </div>
-                                            <div>
-                                                <p class="mb-0"><small>4 min ago</small></p>
-                                                <h6 class="mb-0">I have the photos that you ordered last month, how would you like them sent to you?</h6>
-                                            </div>
-
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="../../pages/mailDetails.html">
-                                        <div class="text-truncate d-flex align-items-center">
-                                            <div>
-                                                <img src="../../assets/images/avatar/man-3.png" class="d2c_mail_avatar" alt="profile avatar">
-                                            </div>
-                                            <div>
-                                                <p class="mb-0"><small>6 min ago</small></p>
-                                                <h6 class="mb-0">Last month's report looks great, I am very happy with
-                                                    the progress so far, keep up the good work!</h6>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="../../pages/mailDetails.html">
-                                        <div class="text-truncate d-flex align-items-center">
-                                            <div>
-                                                <img src="../../assets/images/avatar/man-4.png" class="d2c_mail_avatar" alt="profile avatar">
-                                            </div>
-                                            <div>
-                                                <p class="mb-0"><small>10 min ago</small></p>
-                                                <h6 class="mb-0">Am I a good boy? The reason I ask is because someone
-                                                    told me that people say this to all dogs, even if they
-                                                    aren't good..</h6>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a class="dropdown-item text-center small text-gray-500 py-2" href="../../pages/mailDetails.html">See All Mail</a>
-
-                                    <div class="dropdown-arrow bg-info"></div>
-                                </div>
-                            </li>
-                            <!-- End:MailBox -->
-
-                            <!-- Setting-->
-                            <li class="list-inline-item position-relative">
-                                <a class="nav-link p-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-cog"></i>
-                                </a>
-                                <div class="dropdown-list dropdown-menu shadow border-0 end-0 py-0 mt-3">
-                                    <h6 class="dropdown-header text-white bg-primary rounded-top py-3">Settings</h6>
-                                    <div class="d2c_profile_settings">
-                                        <a class="dropdown-item d-flex align-items-center py-2" href="../../pages/support.html">
-                                            <i class="fas fa-sms"></i>
-                                            <p class="mb-0 ms-2 fw-normal">Messages</p>
-                                        </a>
-                                        <a class="dropdown-item d-flex align-items-center py-2" href="../../pages/elements/profile.html">
-                                            <i class="fas fa-user-cog"></i>
-                                            <p class="mb-0 ms-2 fw-normal">Profile Settings</p>
-                                        </a>
-                                        <a class="dropdown-item d-flex align-items-center py-2" href="#">
-                                            <i class="fas fa-sign-out-alt"></i>
-                                            <p class="mb-0 ms-2 fw-normal">Log Out</p>
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-                            <!-- End:Setting -->
-                        </ul>
-
-                        <!-- Search -->
-                        <form>
-                            <div class="input-group">
-                                <input class="form-control" type="search" placeholder="Search">
+            function loadAllNotifications() {
+                $.ajax({
+                    url: '/api/notifications',
+                    type: 'GET',
+                    success: function (notifications) {
+                        localNotifications = notifications;
+                        renderNotifications();
+                        // Đồng thời cập nhật chuông thông báo ở sidebar nếu có
+                        if (typeof loadGlobalNotifications === 'function') {
+                            loadGlobalNotifications();
+                        }
+                    },
+                    error: function (err) {
+                        console.error('Lỗi khi tải thông báo chi tiết: ', err);
+                        $('#notificationsListContainer').html(`
+                            <div class="text-center py-5 text-danger">
+                                <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
+                                <p class="mb-0">Có lỗi xảy ra khi tải thông báo. Vui lòng thử lại sau.</p>
                             </div>
-                        </form>
-                        <!-- End:Search -->
-                    </div>
-                </div>
-                <!-- End:Profile -->
+                        `);
+                    }
+                });
+            }
 
-                <!-- Menu -->
-                <div class="card d2c_menu_card mb-4">
-                    <div class="card-body">
-                        <ul class="navbar-nav flex-grow-1">
-                            <!-- Menu Item -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <span>Menu</span>
-                                </a>
-                                <!-- Sub Menu -->
-                                <ul class="sub-menu collapse show">
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../../index.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-home"></i>
-                                            </span>
-                                            <span>
-                                                Overview
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
+            function renderNotifications() {
+                const $container = $('#notificationsListContainer');
+                $container.empty();
 
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../../pages/payment.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-money-check-alt"></i>
-                                            </span>
-                                            <span>
-                                                Payment
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
+                // Lọc danh sách
+                let filtered = localNotifications;
+                if (currentFilter === 'unread') {
+                    filtered = localNotifications.filter(n => !n.isRead);
+                } else if (currentFilter === 'read') {
+                    filtered = localNotifications.filter(n => n.isRead);
+                }
 
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../../pages/transaction.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-list-alt"></i>
-                                            </span>
-                                            <span>
-                                                Transaction
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
+                // Cập nhật số lượng chưa đọc
+                const unreadCount = localNotifications.filter(n => !n.isRead).length;
+                $('#unreadCountText').text(unreadCount);
 
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../../pages/wallet.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-wallet"></i>
-                                            </span>
-                                            <span>
-                                                Wallet
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../../pages/investment.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-network-wired"></i>
-                                            </span>
-                                            <span>
-                                                Investment
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../../pages/stocksFund.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-chart-line"></i>
-                                            </span>
-                                            <span>
-                                                Stock & Fund
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-                                </ul>
-                                <!-- End:Sub Menu -->
-                            </li>
-                            <!-- End:Menu Item -->
-
-
-
-                            <!-- Menu Item -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <span>Extra</span>
-                                </a>
-
-                                <!-- Sub Menu-->
-                                <ul class="sub-menu collapse show" id="extra">
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../../pages/faq.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-question-circle"></i>
-                                            </span>
-                                            <span>
-                                                FAQ
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#authentication" aria-expanded="false" href="#">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-sticky-note"></i>
-                                            </span>
-                                            <span>
-                                                Authentication
-                                            </span>
-                                            <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                        </a>
-                                        <!-- Child Sub Menu -->
-                                        <ul class="sub-menu collapse" id="authentication">
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="../../pages/authentication/signUp.html">
-                                                    <span>
-                                                        Sing up
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="../../pages/authentication/signIn.html">
-                                                    <span>
-                                                        Login
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="../../pages/authentication/forgetPassword.html">
-                                                    <span>
-                                                        Forget Password
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="../../pages/authentication/404.html">
-                                                    <span>
-                                                        404
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-                                        </ul>
-                                        <!-- End:Child Sub Menu -->
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item active">
-                                        <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#elements" aria-expanded="true" href="#">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-th"></i>
-                                            </span>
-                                            <span>
-                                                Elements
-                                            </span>
-                                            <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                        </a>
-                                        <!-- Child Sub Menu -->
-                                        <ul class="sub-menu collapse show" id="elements">
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link active" href="../../pages/elements/notification.html">
-                                                    <span>
-                                                        Notification
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="../../pages/elements/profile.html">
-                                                    <span>
-                                                        User Profile
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="../../pages/elements/invoice.html">
-                                                    <span>
-                                                        Invoice
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#charts-elements" aria-expanded="false" href="#">
-                                                    <span>
-                                                        Charts
-                                                    </span>
-                                                    <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                                </a>
-
-                                                <!-- Start:Submenu List-->
-                                                <ul class="sub-menu collapse" id="charts-elements">
-                                                    <!-- Child Sub Menu Item -->
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="../../pages/elements/chartsjs.html">
-                                                            <span>
-                                                                ChartJs
-                                                            </span>
-                                                        </a>
-                                                    </li>
-                                                    <!-- End:Child Sub Menu Item -->
-                                                    <!-- Child Sub Menu Item -->
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="../../pages/elements/apexchart.html">
-                                                            <span>
-                                                                ApexChart
-                                                            </span>
-                                                        </a>
-                                                    </li>
-                                                    <!-- End:Child Sub Menu Item -->
-
-
-
-
-                                                </ul>
-                                                <!-- End:Submenu List-->
-
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#table-elements" aria-expanded="false" href="#">
-                                                    <span>
-                                                        Table
-                                                    </span>
-                                                    <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                                </a>
-
-                                                <!-- Start:Submenu List-->
-                                                <ul class="sub-menu collapse" id="table-elements">
-                                                    <!-- Child Sub Menu Item -->
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="../../pages/elements/basictables.html">
-                                                            <span>
-                                                                Basic Table
-                                                            </span>
-                                                        </a>
-                                                    </li>
-                                                    <!-- End:Child Sub Menu Item -->
-
-
-                                                </ul>
-                                                <!-- End:Submenu List-->
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#form-elements" aria-expanded="false" href="#">
-                                                    <span>
-                                                        Form
-                                                    </span>
-                                                    <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                                </a>
-
-                                                <!-- Start:Submenu List-->
-                                                <ul class="sub-menu collapse" id="form-elements">
-                                                    <!-- Child Sub Menu Item -->
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="../../pages/elements/basicformselement.html">
-                                                            <span> Basic Element </span>
-                                                        </a>
-                                                    </li>
-
-
-
-
-
-
-                                                    <!-- End:Child Sub Menu Item -->
-                                                </ul>
-                                                <!-- End:Submenu List-->
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-
-                                            <!-- End:Child Sub Menu Item -->
-                                            <!-- Child Sub Menu Item -->
-
-                                            <!-- End:Child Sub Menu Item -->
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="../../pages/elements/tab.html">
-                                                    <span>
-                                                        Tab
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="sub-menu-link" data-bs-toggle="collapse" data-bs-target="#modal-elements" aria-expanded="false" href="#">
-                                                    <span>
-                                                        Modal
-                                                    </span>
-                                                    <span class="fas fa-chevron-right ms-auto text-end"></span>
-                                                </a>
-
-                                                <!-- Start:Submenu List-->
-                                                <ul class="sub-menu collapse" id="modal-elements">
-                                                    <!-- Child Sub Menu Item -->
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="../../pages/elements/basicmodal.html">
-                                                            <span> Basic Modal </span>
-                                                        </a>
-                                                    </li>
-
-
-                                                    <!-- End:Child Sub Menu Item -->
-
-                                                </ul>
-                                                <!-- End:Submenu List-->
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                            <!-- Child Sub Menu Item -->
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="../../pages/elements/breadcrumbs.html">
-                                                    <span>
-                                                        Breadcrumbs
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <!-- End:Child Sub Menu Item -->
-
-                                        </ul>
-                                        <!-- End:Child Sub Menu -->
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-                                </ul>
-                                <!-- End:Sub Menu -->
-                            </li>
-                            <!-- End:Menu Item -->
-
-                            <!-- Menu Item -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <span>Support</span>
-                                </a>
-                                <!-- Sub Menu -->
-                                <ul class="sub-menu collapse show" id="support">
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../../pages/community.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-users"></i>
-                                            </span>
-                                            <span>
-                                                Community
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../../pages/support.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-hands-helping"></i>
-                                            </span>
-                                            <span>
-                                                Help & Support
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-
-                                    <!-- Sub Menu Item -->
-                                    <li class="nav-item">
-                                        <a class="sub-menu-link" href="../../pages/documentation.html">
-                                            <span class="d2c_icon">
-                                                <i class="fas fa-book-open"></i>
-                                            </span>
-                                            <span>
-                                                Documentation
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <!-- End:Sub Menu Item -->
-                                </ul>
-                                <!-- End:Sub Menu -->
-                            </li>
-                            <!-- End:Menu Item -->
-                        </ul>
-                    </div>
-                </div>
-                <!-- End:Menu -->
-
-                <!-- Logout -->
-                <div class="card d2c_single_menu mb-4">
-                    <div class="card-body p-0">
-                        <ul class="navbar-nav">
-                            <!-- Item -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <span class="d2c_icon text-danger">
-                                        <i class="fas fa-sign-out-alt"></i>
-                                    </span>
-                                    <span>
-                                        Logout
-                                    </span>
-                                </a>
-                            </li>
-                            <!-- End:Item -->
-                        </ul>
-                    </div>
-                </div>
-                <!-- End:Logout -->
-
-                <!-- Theme Mode -->
-                <div class="card d2c_switch_card">
-                    <div class="card-body p-0">
-                        <ul class="navbar-nav">
-                            <!-- Item -->
-                            <li class="nav-item d-flex align-items-center">
-                                <span class="d2c_icon">
-                                    <i class="fas fa-moon"></i>
-                                </span>
-                                <span>Dark Mood</span>
-                                <span class="form-switch d-flex ms-auto">
-                                    <input class="form-check-input" id="d2c_theme_changer" type="checkbox" role="switch">
-                                </span>
-                            </li>
-                            <!-- End:Item -->
-                        </ul>
-                    </div>
-                </div>
-                <!-- End:Theme Mode -->
-            </div>
-        </div>
-        <!-- End:Sidebar -->
-
-        <!-- Main Body-->
-        <div class="d2c_main p-4 ps-lg-3">
-
-            <!-- Title -->
-            <h4 class="mb-4 text-capitalize">Notifications</h4>
-            <!-- End:Title -->
-
-            <div class="card">
-                <div class="card-header p-4">
-                    <div class="row">
-                        <div class="col-8">
-                            <h5 class="text-capitalize mb-0">Findeshdev Notifications</h5>
+                if (filtered.length === 0) {
+                    $container.html(`
+                        <div class="text-center py-5 text-muted">
+                            <i class="far fa-bell-slash fa-3x mb-3 text-secondary opacity-50"></i>
+                            <p class="mb-0">Không có thông báo nào trong danh mục này.</p>
                         </div>
-                        <div class="col text-end">
-                            <a href="#" class="text-primary text-capitalize">Mark as read</a>
+                    `);
+                    return;
+                }
+
+                filtered.forEach(function (n) {
+                    let iconClass = 'fa-bell text-secondary';
+                    if (n.type === 'BUDGET') {
+                        iconClass = 'fa-exclamation-triangle text-warning';
+                    } else if (n.type === 'DEBT') {
+                        iconClass = 'fa-hand-holding-usd text-danger';
+                    } else if (n.type === 'SAVING_GOAL') {
+                        iconClass = 'fa-piggy-bank text-success';
+                    }
+
+                    // Format LocalDateTime nicely (e.g. 2026-08-06T20:47:27 -> 20:47 - 06/08/2026)
+                    let formattedTime = '';
+                    if (n.createdAt) {
+                        const dateObj = new Date(n.createdAt);
+                        const mins = String(dateObj.getMinutes()).padStart(2, '0');
+                        const hours = String(dateObj.getHours()).padStart(2, '0');
+                        const day = String(dateObj.getDate()).padStart(2, '0');
+                        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                        const year = dateObj.getFullYear();
+                        formattedTime = `${hours}:${mins} - ${day}/${month}/${year}`;
+                    }
+
+                    const cardStatusClass = n.isRead ? 'notification-read' : 'notification-unread';
+                    const titleStyle = n.isRead ? 'color: #555;' : 'font-weight: 700; color: #111;';
+
+                    const actionBtn = n.isRead ? '' : `
+                        <button class="btn btn-sm btn-light text-primary me-2 mark-read-btn" data-id="${n.notificationId}" title="Đánh dấu đã đọc">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    `;
+
+                    const itemHtml = `
+                        <div class="card notification-card shadow-sm p-3 ${cardStatusClass}" data-id="${n.notificationId}">
+                            <div class="d-flex align-items-center gap-3">
+                                <!-- Icon type -->
+                                <div class="avatar rounded-circle p-3 d-flex align-items-center justify-content-center bg-light" style="width: 48px; height: 48px; min-width: 48px;">
+                                    <i class="fas ${iconClass} fa-lg"></i>
+                                </div>
+                                <!-- Text content -->
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-baseline flex-wrap gap-2">
+                                        <h6 class="mb-1 d-flex align-items-center gap-2" style="${titleStyle}">
+                                            ${!n.isRead ? '<span class="unread-dot"></span>' : ''}
+                                            ${n.title}
+                                        </h6>
+                                        <span class="text-muted small" style="font-size: 0.8rem;"><i class="far fa-clock me-1"></i>${formattedTime}</span>
+                                    </div>
+                                    <p class="mb-0 text-muted" style="font-size: 0.9rem; line-height: 1.4;">${n.message}</p>
+                                </div>
+                                <!-- Actions -->
+                                <div class="d-flex align-items-center ps-2">
+                                    ${actionBtn}
+                                    <button class="btn btn-sm btn-light text-danger delete-btn" data-id="${n.notificationId}" title="Xóa thông báo">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <!-- notification -->
-                <div class="card-body pt-0">
-                    <div class="d2c_notification p-4">
-                        <ul class="list-group list-group-flush">
-                            <!-- notification item -->
-                            <li class="list-group-item ps-0 d-flex justify-content-between">
-                                <div class="d-flex align-items-md-center">
-                                    <img src="../../assets/images/avatar/man-4.png" class="me-4 rounded-circle" alt="avatar">
-                                    <p class="mb-0">Statement belting with double - Duis nec ligula sed augue consequat mattis sed egat urna, gravida id orci in... ent belting with double - Duis nec ligula sed augue consequat mattis sed egat urna, gravida id</p>
-                                </div>
-                                <div class="ps-1 ps-md-3">
-                                    <p class="mb-0">12:40:22</p>
-                                </div>
-                            </li>
-                            <!-- notification item -->
-                            <li class="list-group-item ps-0 d-flex justify-content-between">
-                                <div class="d-flex align-items-md-center">
-                                    <img src="../../assets/images/avatar/man-1.png" class="me-4 rounded-circle" alt="avatar">
-                                    <p class="mb-0">Our email subject line tool lets you get some quick ideas for email subject lines based on proven templates there is a new is... Our email subject line tool lets you get some quick ideas for email subject...</p>
-                                </div>
-                                <div class="ps-1 ps-md-3">
-                                    <p class="mb-0">12:20:45</p>
-                                </div>
-                            </li>
-                            <!-- notification item -->
-                            <li class="list-group-item ps-0 d-flex justify-content-between">
-                                <div class="d-flex align-items-md-center">
-                                    <img src="../../assets/images/avatar/man-2.png" class="me-4 rounded-circle" alt="avatar">
-                                    <p class="mb-0">but what if you want more customization? What if you want to write your own email subject lines.What if you want to... but what if you want more customization? What if you want to write your own...</p>
-                                </div>
-                                <div class="ps-1 ps-md-3">
-                                    <p class="mb-0">12:20:33</p>
-                                </div>
-                            </li>
-                            <!-- notification item -->
-                            <li class="list-group-item ps-0 d-flex justify-content-between">
-                                <div class="d-flex align-items-md-center">
-                                    <img src="../../assets/images/avatar/man-3.png" class="me-4 rounded-circle" alt="avatar">
-                                    <p class="mb-0">though they’re stunningly effective, they need to be more customized for your business (and the specific email you’re sending)... though they’re stunningly effective, they need to be more...</p>
-                                </div>
-                                <div class="ps-1 ps-md-3">
-                                    <p class="mb-0">12:00:23</p>
-                                </div>
-                            </li>
-                            <!-- notification item -->
-                            <li class="list-group-item ps-0 d-flex justify-content-between">
-                                <div class="d-flex align-items-md-center">
-                                    <img src="../../assets/images/avatar/man-4.png" class="me-4 rounded-circle" alt="avatar">
-                                    <p class="mb-0">When we were building this tool, there were a lot of subject line templates we couldn’t use – because even.there were a lot of... When we were building this tool, there were a lot of subject line...</p>
-                                </div>
-                                <div class="ps-1 ps-md-3">
-                                    <p class="mb-0">12:09:13</p>
-                                </div>
-                            </li>
-                            <!-- notification item -->
-                            <li class="list-group-item ps-0 d-flex justify-content-between">
-                                <div class="d-flex align-items-md-center">
-                                    <img src="../../assets/images/avatar/man-5.png" class="me-4 rounded-circle" alt="avatar">
-                                    <p class="mb-0">Our email subject line tool lets you get some quick ideas for email subject lines based on proven templates there is a new is... Our email subject line tool lets you get some quick ideas for email subject line...</p>
-                                </div>
-                                <div class="ps-1 ps-md-3">
-                                    <p class="mb-0">11:58:35</p>
-                                </div>
-                            </li>
-                            <!-- notification item -->
-                            <li class="list-group-item ps-0 d-flex justify-content-between">
-                                <div class="d-flex align-items-md-center">
-                                    <img src="../../assets/images/avatar/man-6.png" class="me-4 rounded-circle" alt="avatar">
-                                    <p class="mb-0">Statement belting with double - Duis nec ligula sed augue consequat mattis sed egat urna, gravida id orci in... ent belting with double - Duis nec ligula sed augue consequat mattis sed egat urna, gravida id</p>
-                                </div>
-                                <div class="ps-1 ps-md-3">
-                                    <p class="mb-0">11:50:12</p>
-                                </div>
-                            </li>
-                            <!-- notification item -->
-                            <li class="list-group-item ps-0 d-flex justify-content-between">
-                                <div class="d-flex align-items-md-center">
-                                    <img src="../../assets/images/avatar/man-4.png" class="me-4 rounded-circle" alt="avatar">
-                                    <p class="mb-0">Statement belting with double - Duis nec ligula sed augue consequat mattis sed egat urna, gravida id orci in... ent belting with double - Duis nec ligula sed augue consequat mattis sed egat urna, gravida id</p>
-                                </div>
-                                <div class="ps-1 ps-md-3">
-                                    <p class="mb-0">11:20:45</p>
-                                </div>
-                            </li>
-                            <!-- notification item -->
-                            <li class="list-group-item ps-0 d-flex justify-content-between">
-                                <div class="d-flex align-items-md-center">
-                                    <img src="../../assets/images/avatar/man-1.png" class="me-4 rounded-circle" alt="avatar">
-                                    <p class="mb-0">Our email subject line tool lets you get some quick ideas for email subject lines based on proven templates there is a new is... Our email subject line tool lets you get some quick ideas for email subject...</p>
-                                </div>
-                                <div class="ps-1 ps-md-3">
-                                    <p class="mb-0">10:10:20</p>
-                                </div>
-                            </li>
-                            <!-- notification item -->
-                            <li class="list-group-item ps-0 d-flex justify-content-between">
-                                <div class="d-flex align-items-md-center">
-                                    <img src="../../assets/images/avatar/man-2.png" class="me-4 rounded-circle" alt="avatar">
-                                    <p class="mb-0">but what if you want more customization? What if you want to write your own email subject lines.What if you want to... but what if you want more customization? What if you want to write your own...</p>
-                                </div>
-                                <div class="ps-1 ps-md-3">
-                                    <p class="mb-0">10:00:00</p>
-                                </div>
-                            </li>
-                            <!-- notification item -->
-                            <li class="list-group-item ps-0 d-flex justify-content-between">
-                                <div class="d-flex align-items-md-center">
-                                    <img src="../../assets/images/avatar/man-3.png" class="me-4 rounded-circle" alt="avatar">
-                                    <p class="mb-0">though they’re stunningly effective, they need to be more customized for your business (and the specific email you’re sending)... though they’re stunningly effective, they need to be more...</p>
-                                </div>
-                                <div class="ps-1 ps-md-3">
-                                    <p class="mb-0">09:03:56</p>
-                                </div>
-                            </li>
-                            <!-- notification item -->
-                            <li class="list-group-item ps-0 d-flex justify-content-between">
-                                <div class="d-flex align-items-md-center">
-                                    <img src="../../assets/images/avatar/man-4.png" class="me-4 rounded-circle" alt="avatar">
-                                    <p class="mb-0">When we were building this tool, there were a lot of subject line templates we couldn’t use – because even.there were a lot of... When we were building this tool, there were a lot of subject line...</p>
-                                </div>
-                                <div class="ps-1 ps-md-3">
-                                    <p class="mb-0">08:55:44</p>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- End:Main Body -->
+                    `;
+                    $container.append(itemHtml);
+                });
+            }
+
+            $(document).ready(function () {
+                loadAllNotifications();
+
+                // Filters Handler
+                $('#notificationFilters .filter-btn').on('click', function () {
+                    $('#notificationFilters .filter-btn').removeClass('active');
+                    $(this).addClass('active');
+                    currentFilter = $(this).data('filter');
+                    renderNotifications();
+                });
+
+                // Mark a single as read
+                $(document).on('click', '.mark-read-btn', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const notifId = $(this).data('id');
+                    $.ajax({
+                        url: `/api/notifications/${notifId}/read`,
+                        type: 'PUT',
+                        success: function () {
+                            loadAllNotifications();
+                        }
+                    });
+                });
+
+                // Delete a single
+                $(document).on('click', '.delete-btn', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const notifId = $(this).data('id');
+                    $.ajax({
+                        url: `/api/notifications/${notifId}`,
+                        type: 'DELETE',
+                        success: function () {
+                            loadAllNotifications();
+                        }
+                    });
+                });
+
+                // Mark all read
+                $('#pageMarkAllReadBtn').on('click', function () {
+                    $.ajax({
+                        url: '/api/notifications/read-all',
+                        type: 'PUT',
+                        success: function () {
+                            loadAllNotifications();
+                        }
+                    });
+                });
+
+                // Clear all
+                $('#pageClearAllBtn').on('click', function () {
+                    if (confirm('Bạn có chắc chắn muốn xóa tất cả thông báo không?')) {
+                        $.ajax({
+                            url: '/api/notifications',
+                            type: 'DELETE',
+                            success: function () {
+                                loadAllNotifications();
+                            }
+                        });
+                    }
+                });
+
+                // Clicking on the notification card also marks it as read (if unread)
+                $(document).on('click', '.notification-card', function (e) {
+                    // Tránh trigger khi nhấn vào các nút Action bên phải
+                    if ($(e.target).closest('.mark-read-btn, .delete-btn').length > 0) {
+                        return;
+                    }
+                    if ($(this).hasClass('notification-unread')) {
+                        const notifId = $(this).data('id');
+                        $.ajax({
+                            url: `/api/notifications/${notifId}/read`,
+                            type: 'PUT',
+                            success: function () {
+                                loadAllNotifications();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
     </div>
-
-    <!-- Offcanvas Toggler -->
-    <button class="d2c_offcanvas_toggle position-fixed top-50 start-0 translate-middle-y d-block d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#d2c_sidebar" aria-controls="d2c_sidebar">
-        <i class="far fa-hand-point-right"></i>
-    </button>
-    <!-- End:Offcanvas Toggler -->
-
-    <!-- Initial  Javascript -->
-    <script src="../../lib/jQuery/jquery-3.5.1.min.js"></script>
-    <script src="../../lib/bootstrap_5/bootstrap.bundle.min.js"></script>
-
-    <!-- custom js -->
-    <script src="../../assets/js/main.js"></script>
 </body>
-</html>
 
-<!-- 
-    Template Name: FinDeshY - Free Financial Bootstrap Dashboard Template
-    Template URI:  https://www.designtocodes.com/product/findeshy-free-financial-bootstrap-dashboard-template
-    Description:   FinDeshY is a free financial Bootstrap dashboard template to manage your financial data easily. This free financial dashboard uses Bootstrap to provide a responsive and user-friendly interface. Whether you're a small business owner seeking insights into your company's financial health or an individual looking to simplify your personal finances, this free Bootstrap dashboard template has you covered.
-    Author:        DesignToCodes
-    Author URI:    https://www.designtocodes.com/
-    Text Domain:   FinDeshY 
-    -->
+</html>

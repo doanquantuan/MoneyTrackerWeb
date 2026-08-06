@@ -92,6 +92,11 @@ public class WebViewController {
         return "pages/documentation";
     }
 
+    @GetMapping("/notifications")
+    public String notifications() {
+        return "pages/elements/notification";
+    }
+
     @GetMapping("/categories")
     public String categories() {
         return "pages/category";
@@ -99,7 +104,7 @@ public class WebViewController {
 
     @GetMapping("/budgets")
     public String budgets() {
-        return "pages/budget";
+        return "pages/jars";
     }
 
     @GetMapping("/jars")

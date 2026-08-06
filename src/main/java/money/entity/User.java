@@ -77,9 +77,12 @@ public class User {
 	@JsonIgnore
 	private List<SavingGoal> savingGoals;
 	
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JsonIgnore
-	private List<Budget> budgets;
+	/*
+	 * @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade =
+	 * CascadeType.ALL)
+	 * 
+	 * @JsonIgnore private List<Budget> budgets;
+	 */
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JsonIgnore

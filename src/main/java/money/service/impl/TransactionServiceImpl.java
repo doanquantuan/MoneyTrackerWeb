@@ -8,21 +8,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
 import money.dto.transaction.TransactionInExRequest;
 import money.dto.transaction.TransferRequest;
 import money.entity.Account;
-import money.entity.Budget;
 import money.entity.Category;
-import money.entity.Notification;
 import money.entity.Transaction;
 import money.entity.User;
 import money.enums.CategoryType;
-import money.enums.NotificationType;
 import money.enums.TransactionType;
+import org.springframework.context.ApplicationEventPublisher;
+import money.enums.NotificationType;
+import money.service.impl.notif.GenericNotificationEvent;
 import money.repository.AccountRepository;
-import money.repository.BudgetRepository;
 import money.repository.CategoryRepository;
-import money.repository.NotificationRepository;
 import money.repository.TransactionRepository;
 import money.repository.UserRepository;
 import money.repository.BudgetJarRepository;
@@ -47,10 +47,7 @@ public class TransactionServiceImpl implements ITransactionService{
 	private TransactionRepository transactionRepo;
 	
 	@Autowired
-	private BudgetRepository budgetRepo;
-	
-	@Autowired
-	private NotificationRepository notificationRepo;
+	private ApplicationEventPublisher eventPublisher;
 
 	@Autowired
 	private BudgetJarRepository budgetJarRepo;
@@ -93,7 +90,6 @@ public class TransactionServiceImpl implements ITransactionService{
 		applyJarBalance(trans, request.getBudgetJarId(), request.getAutoAllocateToJars());
 		
 		Transaction savedTx = transactionRepo.save(trans);
-		applyBudgetSpending(savedTx);
 		
 		return savedTx;
 	}
@@ -170,7 +166,6 @@ public class TransactionServiceImpl implements ITransactionService{
 		}
 		
 		revertBalance(oldTx);
-		revertBudgetSpending(oldTx);
 		revertJarBalance(oldTx);
 		
 		oldTx.setAmount(request.getAmount());
@@ -179,7 +174,6 @@ public class TransactionServiceImpl implements ITransactionService{
 	    oldTx.setAccount(account);
 	    
 	    applyBalance(oldTx);
-	    applyBudgetSpending(oldTx);
 	    applyJarBalance(oldTx, request.getBudgetJarId(), request.getAutoAllocateToJars());
 
 	    return transactionRepo.save(oldTx);
@@ -242,7 +236,6 @@ public class TransactionServiceImpl implements ITransactionService{
 			Account account = tx.getAccount();
 			account.setCurrentBalance(account.getCurrentBalance() + tx.getAmount());
 			accountRepo.save(account);
-			revertBudgetSpending(tx);
 		} else if (tx.getType() == TransactionType.TRANSFER) {
 			Account fromAccount = tx.getAccount();
 			Account toAccount = tx.getToAccount();
@@ -336,45 +329,6 @@ public class TransactionServiceImpl implements ITransactionService{
 	    accountRepo.save(to);
 	}
 
-	private void applyBudgetSpending(Transaction tx) {
-		if (tx.getType() != TransactionType.EXPENSE) {
-			return;
-		}
-		LocalDate txDate = tx.getTransactionDate().toLocalDate();
-		List<Budget> activeBudgets = budgetRepo.findActiveBudgets(tx.getUser(), tx.getCategory(), txDate);
-		for (Budget budget : activeBudgets) {
-			double oldSpending = budget.getCurrentSpending() != null ? budget.getCurrentSpending() : 0.0;
-			double newSpending = oldSpending + tx.getAmount();
-			budget.setCurrentSpending(newSpending);
-			budgetRepo.save(budget);
-			
-			// Send warning notification if budget is exceeded
-			if (newSpending > budget.getAmountLimit() && oldSpending <= budget.getAmountLimit()) {
-				Notification notif = new Notification();
-				notif.setUser(tx.getUser());
-				notif.setTitle("Cảnh báo vượt hạn mức ngân sách");
-				notif.setMessage("Hạn mức ngân sách '" + budget.getBudgetName() 
-						+ "' là " + budget.getAmountLimit() + " VND, hiện tại bạn đã chi tiêu vượt quá giới hạn với tổng cộng: " 
-						+ newSpending + " VND!");
-				notif.setType(NotificationType.BUDGET_WARNING);
-				notificationRepo.save(notif);
-			}
-		}
-	}
-
-	private void revertBudgetSpending(Transaction tx) {
-		if (tx.getType() != TransactionType.EXPENSE) {
-			return;
-		}
-		LocalDate txDate = tx.getTransactionDate().toLocalDate();
-		List<Budget> activeBudgets = budgetRepo.findActiveBudgets(tx.getUser(), tx.getCategory(), txDate);
-		for (Budget budget : activeBudgets) {
-			double current = budget.getCurrentSpending() != null ? budget.getCurrentSpending() : 0.0;
-			budget.setCurrentSpending(Math.max(0.0, current - tx.getAmount()));
-			budgetRepo.save(budget);
-		}
-	}
-
 	private void revertJarBalance(Transaction tx) {
 		if (tx.getType() == TransactionType.INCOME) {
 			if (Boolean.TRUE.equals(tx.getAutoAllocateToJars())) {
@@ -437,9 +391,19 @@ public class TransactionServiceImpl implements ITransactionService{
 					throw new RuntimeException("Bạn không có quyền sử dụng chiếc lọ này");
 				}
 				tx.setBudgetJar(jar);
-				jar.setSpentAmount(jar.getSpentAmount() + tx.getAmount());
+				double oldSpent = jar.getSpentAmount();
+				double newSpent = oldSpent + tx.getAmount();
+				jar.setSpentAmount(newSpent);
 				jar.setRemainingAmount(jar.getAllocatedAmount() - jar.getSpentAmount());
 				budgetJarRepo.save(jar);
+
+				// Send warning notification if budget jar limit is exceeded
+				if (newSpent > jar.getAllocatedAmount() && oldSpent <= jar.getAllocatedAmount()) {
+					Map<String, Object> payload = new HashMap<>();
+					payload.put("jar", jar);
+					payload.put("newSpent", newSpent);
+					eventPublisher.publishEvent(new GenericNotificationEvent(NotificationType.BUDGET, tx.getUser(), payload));
+				}
 			} else {
 				tx.setBudgetJar(null);
 			}
