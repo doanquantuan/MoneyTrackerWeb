@@ -7,205 +7,192 @@
     <title>Thông báo - Money Tracker</title>
     <style>
         .notification-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(0,0,0,0.06);
-            border-radius: 12px;
-            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .notification-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
         }
         .notification-unread {
-            background-color: #f4fbf7 !important;
-            border-left: 4px solid #00aa5d !important;
-        }
-        .notification-read {
-            background-color: #ffffff !important;
-            border-left: 4px solid transparent !important;
-        }
-        .unread-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #00aa5d;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        .filter-btn.active {
-            background-color: #00aa5d !important;
-            color: #ffffff !important;
-            border-color: #00aa5d !important;
+            border-left: 4px solid var(--bs-primary) !important;
         }
     </style>
 </head>
 
 <body>
     <div layout:fragment="content">
-        <!-- Dashboard Header -->
-        <div class="row align-items-center mb-4">
-            <div class="col">
-                <h4 class="mb-1 text-capitalize text-dark fw-bold">Thông báo của bạn</h4>
-                <p class="text-muted mb-0">Theo dõi các cảnh báo ngân sách, lịch nợ và cập nhật hệ thống.</p>
+        <!-- Header -->
+        <div class="row align-items-center mb-4 g-3">
+            <div class="col d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3" style="width: 48px; height: 48px; font-size: 1.25rem;">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div>
+                    <h4 class="mb-1 text-capitalize fw-bold">Trung tâm thông báo</h4>
+                    <p class="text-muted mb-0 small">Cập nhật cảnh báo ngân sách, mục tiêu và hạn nợ của bạn.</p>
+                </div>
             </div>
             <div class="col-auto">
                 <div class="d-flex gap-2">
-                    <button class="btn btn-outline-secondary btn-sm px-3" id="pageMarkAllReadBtn">
+                    <button class="btn btn-sm btn-outline-secondary px-3" id="pageMarkAllReadBtn" style="border-radius: 8px;">
                         <i class="fas fa-check-double me-1"></i> Đọc tất cả
                     </button>
-                    <button class="btn btn-outline-danger btn-sm px-3" id="pageClearAllBtn">
+                    <button class="btn btn-sm btn-outline-danger px-3" id="pageClearAllBtn" style="border-radius: 8px;">
                         <i class="fas fa-trash-alt me-1"></i> Xóa tất cả
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Filter and content card -->
+        <!-- Filters Container -->
         <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 16px;">
             <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom flex-wrap gap-3">
-                <!-- Filters -->
                 <div class="d-flex gap-2" id="notificationFilters">
-                    <button class="btn btn-sm btn-outline-secondary filter-btn active" data-filter="all">Tất cả</button>
-                    <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter="unread">Chưa đọc</button>
-                    <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter="read">Đã đọc</button>
+                    <button class="btn btn-sm btn-primary px-3 rounded-pill filter-btn active" data-filter="all">Tất cả</button>
+                    <button class="btn btn-sm btn-outline-secondary px-3 rounded-pill filter-btn" data-filter="unread">Chưa đọc</button>
+                    <button class="btn btn-sm btn-outline-secondary px-3 rounded-pill filter-btn" data-filter="read">Đã đọc</button>
                 </div>
-                <div class="text-muted small">
-                    Còn <span id="unreadCountText" class="fw-bold text-success">0</span> thông báo chưa đọc
+                <div class="text-muted small fw-medium">
+                    Còn <span id="unreadCountText" class="fw-bold text-success" style="font-size: 1rem;">0</span> thông báo chưa đọc
                 </div>
             </div>
 
-            <!-- Notifications List -->
+            <!-- List -->
             <div id="notificationsListContainer" class="d-flex flex-column gap-3">
                 <div class="text-center py-5 text-muted">
-                    <i class="fas fa-spinner fa-spin fa-2x mb-3 text-primary"></i>
+                    <i class="fas fa-spinner fa-spin fa-2x mb-3 text-success"></i>
                     <p class="mb-0">Đang tải danh sách thông báo...</p>
                 </div>
             </div>
         </div>
 
         <script>
-            let localNotifications = [];
-            let currentFilter = 'all';
+            window.addEventListener('DOMContentLoaded', (event) => {
+                let localNotifications = [];
+                let currentFilter = 'all';
 
-            function loadAllNotifications() {
-                $.ajax({
-                    url: '/api/notifications',
-                    type: 'GET',
-                    success: function (notifications) {
-                        localNotifications = notifications;
-                        renderNotifications();
-                        // Đồng thời cập nhật chuông thông báo ở sidebar nếu có
-                        if (typeof loadGlobalNotifications === 'function') {
-                            loadGlobalNotifications();
+                window.loadAllNotifications = function() {
+                    $.ajax({
+                        url: '/api/notifications',
+                        type: 'GET',
+                        success: function (notifications) {
+                            localNotifications = notifications;
+                            renderNotifications();
+                            if (typeof loadGlobalNotifications === 'function') {
+                                loadGlobalNotifications();
+                            }
+                        },
+                        error: function (err) {
+                            console.error('Lỗi khi tải thông báo chi tiết: ', err);
+                            $('#notificationsListContainer').html(`
+                                <div class="text-center py-5 text-danger">
+                                    <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
+                                    <p class="mb-0">Có lỗi xảy ra khi tải thông báo. Vui lòng thử lại sau.</p>
+                                </div>
+                            `);
                         }
-                    },
-                    error: function (err) {
-                        console.error('Lỗi khi tải thông báo chi tiết: ', err);
-                        $('#notificationsListContainer').html(`
-                            <div class="text-center py-5 text-danger">
-                                <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
-                                <p class="mb-0">Có lỗi xảy ra khi tải thông báo. Vui lòng thử lại sau.</p>
+                    });
+                };
+
+                function renderNotifications() {
+                    const $container = $('#notificationsListContainer');
+                    $container.empty();
+
+                    // Lọc
+                    let filtered = localNotifications;
+                    if (currentFilter === 'unread') {
+                        filtered = localNotifications.filter(n => !n.isRead);
+                    } else if (currentFilter === 'read') {
+                        filtered = localNotifications.filter(n => n.isRead);
+                    }
+
+                    // Cập nhật số lượng chưa đọc
+                    const unreadCount = localNotifications.filter(n => !n.isRead).length;
+                    $('#unreadCountText').text(unreadCount);
+
+                    if (filtered.length === 0) {
+                        $container.html(`
+                            <div class="text-center py-5 rounded-4 border border-dashed p-4">
+                                <i class="far fa-bell-slash fa-3x mb-3 text-secondary opacity-50"></i>
+                                <h5 class="fw-semibold">Hộp thư trống</h5>
+                                <p class="mb-0 text-muted">Không có thông báo nào trong danh mục này.</p>
                             </div>
                         `);
-                    }
-                });
-            }
-
-            function renderNotifications() {
-                const $container = $('#notificationsListContainer');
-                $container.empty();
-
-                // Lọc danh sách
-                let filtered = localNotifications;
-                if (currentFilter === 'unread') {
-                    filtered = localNotifications.filter(n => !n.isRead);
-                } else if (currentFilter === 'read') {
-                    filtered = localNotifications.filter(n => n.isRead);
-                }
-
-                // Cập nhật số lượng chưa đọc
-                const unreadCount = localNotifications.filter(n => !n.isRead).length;
-                $('#unreadCountText').text(unreadCount);
-
-                if (filtered.length === 0) {
-                    $container.html(`
-                        <div class="text-center py-5 text-muted">
-                            <i class="far fa-bell-slash fa-3x mb-3 text-secondary opacity-50"></i>
-                            <p class="mb-0">Không có thông báo nào trong danh mục này.</p>
-                        </div>
-                    `);
-                    return;
-                }
-
-                filtered.forEach(function (n) {
-                    let iconClass = 'fa-bell text-secondary';
-                    if (n.type === 'BUDGET') {
-                        iconClass = 'fa-exclamation-triangle text-warning';
-                    } else if (n.type === 'DEBT') {
-                        iconClass = 'fa-hand-holding-usd text-danger';
-                    } else if (n.type === 'SAVING_GOAL') {
-                        iconClass = 'fa-piggy-bank text-success';
+                        return;
                     }
 
-                    // Format LocalDateTime nicely (e.g. 2026-08-06T20:47:27 -> 20:47 - 06/08/2026)
-                    let formattedTime = '';
-                    if (n.createdAt) {
-                        const dateObj = new Date(n.createdAt);
-                        const mins = String(dateObj.getMinutes()).padStart(2, '0');
-                        const hours = String(dateObj.getHours()).padStart(2, '0');
-                        const day = String(dateObj.getDate()).padStart(2, '0');
-                        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-                        const year = dateObj.getFullYear();
-                        formattedTime = `${hours}:${mins} - ${day}/${month}/${year}`;
-                    }
+                    filtered.forEach(function (n) {
+                        let iconClass = 'fa-bell';
+                        let avatarClass = 'bg-secondary bg-opacity-10 text-secondary';
+                        if (n.type === 'BUDGET') {
+                            iconClass = 'fa-exclamation-triangle';
+                            avatarClass = 'bg-warning bg-opacity-10 text-warning';
+                        } else if (n.type === 'DEBT') {
+                            iconClass = 'fa-hand-holding-usd';
+                            avatarClass = 'bg-danger bg-opacity-10 text-danger';
+                        } else if (n.type === 'SAVING_GOAL') {
+                            iconClass = 'fa-piggy-bank';
+                            avatarClass = 'bg-success bg-opacity-10 text-success';
+                        }
 
-                    const cardStatusClass = n.isRead ? 'notification-read' : 'notification-unread';
-                    const titleStyle = n.isRead ? 'color: #555;' : 'font-weight: 700; color: #111;';
+                        // Format LocalDateTime
+                        let formattedTime = '';
+                        if (n.createdAt) {
+                            const dateObj = new Date(n.createdAt);
+                            const mins = String(dateObj.getMinutes()).padStart(2, '0');
+                            const hours = String(dateObj.getHours()).padStart(2, '0');
+                            const day = String(dateObj.getDate()).padStart(2, '0');
+                            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                            const year = dateObj.getFullYear();
+                            formattedTime = `${hours}:${mins} - ${day}/${month}/${year}`;
+                        }
 
-                    const actionBtn = n.isRead ? '' : `
-                        <button class="btn btn-sm btn-light text-primary me-2 mark-read-btn" data-id="${n.notificationId}" title="Đánh dấu đã đọc">
-                            <i class="fas fa-check"></i>
-                        </button>
-                    `;
+                        const cardStatusClass = n.isRead ? '' : 'notification-unread';
+                        const titleStyle = n.isRead ? 'color: var(--bs-gray-600); font-weight: 500;' : 'font-weight: 700;';
 
-                    const itemHtml = `
-                        <div class="card notification-card shadow-sm p-3 ${cardStatusClass}" data-id="${n.notificationId}">
-                            <div class="d-flex align-items-center gap-3">
-                                <!-- Icon type -->
-                                <div class="avatar rounded-circle p-3 d-flex align-items-center justify-content-center bg-light" style="width: 48px; height: 48px; min-width: 48px;">
-                                    <i class="fas ${iconClass} fa-lg"></i>
-                                </div>
-                                <!-- Text content -->
-                                <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-baseline flex-wrap gap-2">
-                                        <h6 class="mb-1 d-flex align-items-center gap-2" style="${titleStyle}">
-                                            ${!n.isRead ? '<span class="unread-dot"></span>' : ''}
-                                            ${n.title}
-                                        </h6>
-                                        <span class="text-muted small" style="font-size: 0.8rem;"><i class="far fa-clock me-1"></i>${formattedTime}</span>
+                        const actionBtn = n.isRead ? '' : `
+                            <button class="btn btn-sm btn-light text-success mark-read-btn" data-id="${n.notificationId}" title="Đánh dấu đã đọc" style="width: 32px; height: 32px; border-radius: 50%; padding: 0;">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        `;
+
+                        const itemHtml = `
+                            <div class="card notification-card shadow-sm p-3 border-0 ${cardStatusClass}" data-id="${n.notificationId}">
+                                <div class="d-flex align-items-center gap-3">
+                                    <!-- Icon type -->
+                                    <div class="avatar rounded-circle d-flex align-items-center justify-content-center ${avatarClass}" style="width: 48px; height: 48px; min-width: 48px;">
+                                        <i class="fas ${iconClass} fa-lg"></i>
                                     </div>
-                                    <p class="mb-0 text-muted" style="font-size: 0.9rem; line-height: 1.4;">${n.message}</p>
-                                </div>
-                                <!-- Actions -->
-                                <div class="d-flex align-items-center ps-2">
-                                    ${actionBtn}
-                                    <button class="btn btn-sm btn-light text-danger delete-btn" data-id="${n.notificationId}" title="Xóa thông báo">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    <!-- Text content -->
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-baseline flex-wrap gap-2">
+                                            <h6 class="mb-1 d-flex align-items-center gap-2" style="${titleStyle}">
+                                                ${!n.isRead ? '<span class="unread-dot bg-success rounded-circle" style="width: 8px; height: 8px; display: inline-block;"></span>' : ''}
+                                                ${n.title}
+                                            </h6>
+                                            <span class="text-muted small" style="font-size: 0.8rem;"><i class="far fa-clock me-1"></i>${formattedTime}</span>
+                                        </div>
+                                        <p class="mb-0 text-muted" style="font-size: 0.9rem; line-height: 1.4;">${n.message}</p>
+                                    </div>
+                                    <!-- Actions -->
+                                    <div class="d-flex align-items-center gap-2 ps-2">
+                                        ${actionBtn}
+                                        <button class="btn btn-sm btn-light text-danger delete-btn" data-id="${n.notificationId}" title="Xóa thông báo" style="width: 32px; height: 32px; border-radius: 50%; padding: 0;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    `;
-                    $container.append(itemHtml);
-                });
-            }
+                        `;
+                        $container.append(itemHtml);
+                    });
+                }
 
-            $(document).ready(function () {
                 loadAllNotifications();
 
                 // Filters Handler
                 $('#notificationFilters .filter-btn').on('click', function () {
-                    $('#notificationFilters .filter-btn').removeClass('active');
-                    $(this).addClass('active');
+                    $('#notificationFilters .filter-btn').removeClass('btn-primary').addClass('btn-outline-secondary');
+                    $(this).removeClass('btn-outline-secondary').addClass('btn-primary');
                     currentFilter = $(this).data('filter');
                     renderNotifications();
                 });
@@ -264,7 +251,6 @@
 
                 // Clicking on the notification card also marks it as read (if unread)
                 $(document).on('click', '.notification-card', function (e) {
-                    // Tránh trigger khi nhấn vào các nút Action bên phải
                     if ($(e.target).closest('.mark-read-btn, .delete-btn').length > 0) {
                         return;
                     }
