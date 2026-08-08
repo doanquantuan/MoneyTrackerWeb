@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <title>SignUp</title>
     <!-- bootstrap css link -->
     <link rel="stylesheet" th:href="@{/lib/bootstrap_5/bootstrap.min.css}">
@@ -26,7 +26,8 @@
                     <div class="d2c_login_wrapper">
                         <div class="text-center mb-4">
                             <h4 class="text-capitalize">Create your account</h4>
-                            <p class="text-muted">Already have an account? <a th:href="@{/login}" class="text-capitalize text-primary text-decoration-none d2c_link">Sign in here</a>
+                            <p class="text-muted">Already have an account? <a th:href="@{/login}"
+                                    class="text-capitalize text-primary text-decoration-none d2c_link">Sign in here</a>
                             </p>
                         </div>
                         <form class="form-validation" novalidate>
@@ -34,46 +35,62 @@
                                 <label class="form-label">Full Name:</label>
                                 <div class="row">
                                     <div class="col-md mb-3 mb-md-0">
-                                        <input type="text" name='firstName' class="form-control" placeholder="First Name" required>
+                                        <input type="text" name='firstName' class="form-control"
+                                            placeholder="First Name" required>
                                     </div>
                                     <div class="col-md">
                                         <label class="form-label d-md-none">last Name:</label>
-                                        <input type="text" name='lastName' class="form-control" placeholder="Last Name" required>
+                                        <input type="text" name='lastName' class="form-control" placeholder="Last Name"
+                                            required>
                                     </div>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Your Email</label>
-                                <input type="email" name="email" class="form-control" placeholder="Enter your mail" required>
+                                <input type="email" name="email" class="form-control" placeholder="Enter your mail"
+                                    required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Password</label>
                                 <div class="input-group">
-                                    <input type="password" id="password" name="password" class="form-control border-end-0" placeholder="8+ character required" aria-describedby="button-addon2" required>
-                                    <button class="btn ps-0 border-start-0 m-0" type="button" onclick="togglePassword('password', 'icon1')"><i id="icon1" class="far fa-eye-slash"></i></button>
+                                    <input type="password" id="password" name="password"
+                                        class="form-control border-end-0" placeholder="8+ character required"
+                                        aria-describedby="button-addon2" required>
+                                    <button class="btn ps-0 border-start-0 m-0" type="button"
+                                        onclick="togglePassword('password', 'icon1')"><i id="icon1"
+                                            class="far fa-eye-slash"></i></button>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Confirm Password</label>
                                 <div class="input-group">
-                                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control border-end-0 m-0" placeholder="Re-enter Password" aria-describedby="button-addon3" required>
-                                    <button class="btn ps-0 border-start-0 m-0" type="button" onclick="togglePassword('confirmPassword', 'icon2')"><i id="icon2" class="far fa-eye-slash"></i></button>
+                                    <input type="password" id="confirmPassword" name="confirmPassword"
+                                        class="form-control border-end-0 m-0" placeholder="Re-enter Password"
+                                        aria-describedby="button-addon3" required>
+                                    <button class="btn ps-0 border-start-0 m-0" type="button"
+                                        onclick="togglePassword('confirmPassword', 'icon2')"><i id="icon2"
+                                            class="far fa-eye-slash"></i></button>
                                 </div>
-                                <small id="passwordError" class="text-danger" style="display:none;">Mật khẩu không khớp!</small>
+                                <small id="passwordError" class="text-danger" style="display:none;">Mật khẩu không
+                                    khớp!</small>
                             </div>
 
                             <!-- Alert placeholder for AJAX feedback -->
-                            <div id="alertMessage" class="alert" style="display:none; padding: 12px; margin-bottom: 15px; border-radius: 8px; font-weight: 500;"></div>
+                            <div id="alertMessage" class="alert"
+                                style="display:none; padding: 12px; margin-bottom: 15px; border-radius: 8px; font-weight: 500;">
+                            </div>
 
                             <div class="mb-3 form-check">
                                 <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                                <label class="form-check-label text-muted" for="exampleCheck1">I accept the <a href="#" class="d2c_link text-primary text-capitalize">Terms and Conditions</a></label>
+                                <label class="form-check-label text-muted" for="exampleCheck1">I accept the <a href="#"
+                                        class="d2c_link text-primary text-capitalize">Terms and Conditions</a></label>
                             </div>
                             <div class="mb-3">
                                 <button type="submit" class="btn btn-primary w-100 text-capitalize">Sign Up</button>
                             </div>
                         </form>
-                        <button class="d2c_link_btn btn w-100 d-flex align-items-center justify-content-center text-capitalize">
+                        <button
+                            class="d2c_link_btn btn w-100 d-flex align-items-center justify-content-center text-capitalize">
                             <img th:src="@{/assets/images/google.png}" class="me-2" alt="google image">
                             Sing up With Google
                         </button>
@@ -89,77 +106,77 @@
 
     <!-- custom js -->
     <script th:src="@{/assets/js/main.js}"></script>
-    
-    <script>
-    // 1. Hàm bật tắt chế độ xem mật khẩu
-	    function togglePassword(inputId, iconId) {
-	        const input = document.getElementById(inputId);
-	        const icon = document.getElementById(iconId);
-	
-	        if (input.type === "password") {
-	            input.type = "text"; 
-	            icon.classList.remove("fa-eye-slash");
-	            icon.classList.add("fa-eye");
-	        } else {
-	            input.type = "password"; 
-	            icon.classList.remove("fa-eye");
-	            icon.classList.add("fa-eye-slash");
-	        }
-	    }
-	
-	    // 2. Kiểm tra mật khẩu khớp nhau ngay lập tức khi gõ
-	    const password = document.getElementById("password");
-	    const confirmPassword = document.getElementById("confirmPassword");
-	    const errorMsg = document.getElementById("passwordError");
-	
-	    function checkMatch() {
-	        if (confirmPassword.value && password.value !== confirmPassword.value) {
-	            errorMsg.style.display = "block";
-	            confirmPassword.classList.add("is-invalid"); // Class màu đỏ của Bootstrap
-	            return false;
-	        } else {
-	            errorMsg.style.display = "none";
-	            confirmPassword.classList.remove("is-invalid");
-	            return true;
-	        }
-	    }
-	
-	    // Lắng nghe sự kiện khi người dùng gõ phím
-	    confirmPassword.addEventListener("keyup", checkMatch);
-	    password.addEventListener("keyup", checkMatch);
 
-        $(document).ready(function() {
-            $('form').on('submit', function(e) {
+    <script>
+        // 1. Hàm bật tắt chế độ xem mật khẩu
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            }
+        }
+
+        // 2. Kiểm tra mật khẩu khớp nhau ngay lập tức khi gõ
+        const password = document.getElementById("password");
+        const confirmPassword = document.getElementById("confirmPassword");
+        const errorMsg = document.getElementById("passwordError");
+
+        function checkMatch() {
+            if (confirmPassword.value && password.value !== confirmPassword.value) {
+                errorMsg.style.display = "block";
+                confirmPassword.classList.add("is-invalid"); // Class màu đỏ của Bootstrap
+                return false;
+            } else {
+                errorMsg.style.display = "none";
+                confirmPassword.classList.remove("is-invalid");
+                return true;
+            }
+        }
+
+        // Lắng nghe sự kiện khi người dùng gõ phím
+        confirmPassword.addEventListener("keyup", checkMatch);
+        password.addEventListener("keyup", checkMatch);
+
+        $(document).ready(function () {
+            $('form').on('submit', function (e) {
                 e.preventDefault();
-                
+
                 const $form = $(this);
                 const $alert = $('#alertMessage');
                 const $btn = $form.find('button[type="submit"]');
-                
+
                 // Form validation
                 if ($form[0].checkValidity() === false) {
                     e.stopPropagation();
                     $form.addClass('was-validated');
                     return;
                 }
-                
+
                 // Double check passwords match
                 if (!checkMatch()) {
                     return;
                 }
-                
+
                 const firstName = $('input[name="firstName"]').val();
                 const lastName = $('input[name="lastName"]').val();
                 const email = $('input[name="email"]').val();
                 const passwordVal = $('#password').val();
                 const confirmPasswordVal = $('#confirmPassword').val();
-                
+
                 // Reset alert
                 $alert.hide().removeClass('alert-danger alert-success');
-                
+
                 // Disable button and show spinner
                 $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Creating Account...');
-                
+
                 const signupData = {
                     firstName: firstName,
                     lastName: lastName,
@@ -167,40 +184,56 @@
                     password: passwordVal,
                     confirmPassword: confirmPasswordVal
                 };
-                
+
                 $.ajax({
                     url: '/api/auth/signup',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(signupData),
-                    success: function(response) {
+                    success: function (response) {
                         sessionStorage.setItem('signUpEmail', email);
-                        
+
                         $alert.addClass('alert-success')
-                              .text("Đăng ký thành công! Đang chuyển hướng sang trang xác thực...")
-                              .fadeIn();
-                              
-                        setTimeout(function() {
+                            .text("Đăng ký thành công! Đang chuyển hướng sang trang xác thực...")
+                            .fadeIn();
+
+                        setTimeout(function () {
                             window.location.href = '/verify-otp-signup';
                         }, 1500);
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         $btn.prop('disabled', false).text('Sign Up');
                         let errMsg = "Đăng ký không thành công. Vui lòng kiểm tra lại thông tin!";
                         if (xhr.status === 400 || xhr.status === 500) {
-                            if (xhr.responseText) {
-                                errMsg = xhr.responseText;
+                            try {
+                                const errObj = JSON.parse(xhr.responseText);
+                                if (errObj) {
+                                    if (errObj.error && typeof errObj.error === 'object' && !Array.isArray(errObj.error)) {
+                                        errMsg = Object.values(errObj.error).join(', ');
+                                    } else if (errObj.error && Array.isArray(errObj.error) && errObj.error.length > 0) {
+                                        errMsg = errObj.error.map(function (err) { return err.defaultMessage; }).join(', ');
+                                    } else if (errObj.errors && Array.isArray(errObj.errors) && errObj.errors.length > 0) {
+                                        errMsg = errObj.errors.map(function (err) { return err.defaultMessage; }).join(', ');
+                                    } else if (errObj.message) {
+                                        errMsg = errObj.message;
+                                    }
+                                }
+                            } catch (e) {
+                                if (xhr.responseText) {
+                                    errMsg = xhr.responseText;
+                                }
                             }
                         } else {
                             errMsg = "Lỗi kết nối máy chủ. Vui lòng thử lại sau!";
                         }
                         $alert.addClass('alert-danger')
-                              .text(errMsg)
-                              .fadeIn();
+                            .text(errMsg)
+                            .fadeIn();
                     }
                 });
             });
         });
-	</script>
+    </script>
 </body>
+
 </html>

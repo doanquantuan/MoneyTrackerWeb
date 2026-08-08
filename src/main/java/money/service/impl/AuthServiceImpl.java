@@ -1,6 +1,7 @@
 package money.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 
@@ -40,8 +41,12 @@ public class AuthServiceImpl implements IAuthService{
     
 	@Override
 	public User register(SignupRequest request) {
+		if (!Objects.equals(request.getPassword(), request.getConfirmPassword())) {
+            throw new RuntimeException("Confirm password phải giống password");
+        } 
+		
         if (userRepo.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email đăng nhập đã tồn tại!");
+            throw new RuntimeException("Email đăng ký đã tồn tại!");
         }
 
         User user = new User();
@@ -50,7 +55,7 @@ public class AuthServiceImpl implements IAuthService{
         user.setLastName(request.getLastName());
         user.setCreatedAt(LocalDateTime.now());
         user.setVerified(false);
-
+        
         String encodedPassword = passwordEncoder.encode(request.getPassword());
         user.setPassword(encodedPassword); 
         
@@ -90,12 +95,19 @@ public class AuthServiceImpl implements IAuthService{
 
 	@Override
 	public void resetPassword(ResetPasswordRequest request) {
+		
+		
+		
 		if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             throw new RuntimeException("Mật khẩu xác nhận không khớp");
         }
 
         User user = userRepo.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+        
+        if (passwordEncoder.encode(request.getNewPassword()).equals(user.getPassword())) {
+            throw new RuntimeException("Mật khẩu mới trùng với mật khẩu cũ");
+        }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepo.save(user);
@@ -113,6 +125,7 @@ public class AuthServiceImpl implements IAuthService{
         userRepo.save(user);
         emailService.sendOTP(email, otp);
 	}
+	
 
 	@Override
 	public void verifyOtp(String email, String otp) {

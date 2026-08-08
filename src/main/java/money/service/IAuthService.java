@@ -12,6 +12,7 @@ public interface IAuthService {
 //	public JwtResponse login(LoginRequest request)
 	
 	public void sendOTP(String email);
+
 	
 	public void verifyOtp(String email, String otp);
 	

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+import money.dto.auth.ApiResponse;
 import money.dto.auth.ForgetPasswordRequest;
 import money.dto.auth.JwtResponse;
 import money.dto.auth.LoginRequest;
@@ -24,77 +26,152 @@ import money.util.JwtUtil;
 public class AuthAPIController {
 
 	@Autowired
-    private IAuthService authService;
-	
+	private IAuthService authService;
+
 	@Autowired
 	private JwtUtil jwtUtil;
-	
+
 	@Autowired
 	private UserRepository userRepo;
 
+	@PostMapping("/signup")
+	public ResponseEntity<ApiResponse<Void>> signup(
+			@Valid @RequestBody SignupRequest request) {
 
-    @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignupRequest request) {
-        try {
-            authService.register(request);
-            return ResponseEntity.ok("Đăng ký thành công!");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-    
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        boolean isValid = authService.verifyLogin(request); 
-        
-        if (isValid) {
-            String token = jwtUtil.generateToken(request.getEmail());
+		try {
+			authService.register(request);
 
-            return ResponseEntity.ok(new JwtResponse(token, request.getEmail()));
-        } else {
-            return ResponseEntity.status(401).body("Sai tên đăng nhập hoặc mật khẩu");
-        }
-    }
-    
-    @PostMapping("/forget-password")
-    public ResponseEntity<?> forgetPassword(@RequestBody ForgetPasswordRequest request) {
-    	authService.sendOTP(request.getEmail());
+			ApiResponse<Void> response = new ApiResponse<>();
+			response.setSuccess(true);
+			response.setMessage("OTP xác thực đã được gửi về email của bạn");
+			response.setData(null);
+			response.setError(null);
 
-        return ResponseEntity.ok(
-            Map.of("message", "Nếu email tồn tại, mã OTP đã được gửi")
-        );
-    }
-    
-    @PostMapping("/verify-otp")
-    public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtpRequest request) {
+			return ResponseEntity.ok(response);
 
-        authService.verifyOtp(request.getEmail(), request.getOtp());
+		} catch (RuntimeException e) {
 
-        return ResponseEntity.ok(
-            Map.of("message", "OTP hợp lệ")
-        );
-    }
-    
-    @PostMapping("/resend-otp")
-    public ResponseEntity<?> resendOtp(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
-        try {
-            authService.sendOTP(email);
-            return ResponseEntity.ok(
-                Map.of("message", "Mã OTP mới đã được gửi thành công")
-            );
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-    
-    @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+			ApiResponse<Void> response = new ApiResponse<>();
+			response.setSuccess(false);
+			response.setMessage(e.getMessage());
+			response.setData(null);
+			response.setError(null);
 
-        authService.resetPassword(request);
+			return ResponseEntity.badRequest().body(response);
+		}
+	}
 
-        return ResponseEntity.ok(
-            Map.of("message", "Đặt lại mật khẩu thành công")
-        );
-    }
+	@PostMapping("/login")
+	public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+		try {
+			boolean isValid = authService.verifyLogin(request);
+
+			if (isValid) {
+				String token = jwtUtil.generateToken(request.getEmail());
+
+				return ResponseEntity.ok(new JwtResponse(token, request.getEmail()));
+			} else {
+				return ResponseEntity.status(401).body("Sai tên đăng nhập hoặc mật khẩu");
+			}
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(400).body(e.getMessage());
+		}
+	}
+
+	@PostMapping("/forget-password")
+	public ResponseEntity<?> forgetPassword(@RequestBody ForgetPasswordRequest request) {
+
+		try {
+			authService.sendOTP(request.getEmail());
+
+			ApiResponse<Void> response = new ApiResponse<>();
+			response.setSuccess(true);
+			response.setMessage("OTP đã được gửi lại email của bạn");
+			response.setData(null);
+			response.setError(null);
+
+			return ResponseEntity.ok(response);
+		} catch (RuntimeException e) {
+			ApiResponse<Void> response = new ApiResponse<>();
+			response.setSuccess(false);
+			response.setMessage(e.getMessage());
+			response.setData(null);
+			response.setError(null);
+
+			return ResponseEntity.badRequest().body(response);
+		}
+	}
+
+	@PostMapping("/verify-otp")
+	public ResponseEntity<ApiResponse<Void>> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
+
+		try {
+			authService.verifyOtp(request.getEmail(), request.getOtp());
+
+			ApiResponse<Void> response = new ApiResponse<>();
+			response.setSuccess(true);
+			response.setMessage("OTP xác thực thành công");
+			response.setData(null);
+			response.setError(null);
+
+			return ResponseEntity.ok(response);
+		} catch (RuntimeException e) {
+
+			ApiResponse<Void> response = new ApiResponse<>();
+			response.setSuccess(false);
+			response.setMessage(e.getMessage());
+			response.setData(null);
+			response.setError(null);
+
+			return ResponseEntity.badRequest().body(response);
+		}
+	}
+
+	@PostMapping("/resend-otp")
+	public ResponseEntity<ApiResponse<Void>> resendOtp(@Valid @RequestBody Map<String, String> email) {
+
+		try {
+			authService.sendOTP(email.get("email"));
+
+			ApiResponse<Void> response = new ApiResponse<>();
+			response.setSuccess(true);
+			response.setMessage("OTP xác thực đã được gửi lại email của bạn");
+			response.setData(null);
+			response.setError(null);
+
+			return ResponseEntity.ok(response);
+		} catch (RuntimeException e) {
+			ApiResponse<Void> response = new ApiResponse<>();
+			response.setSuccess(false);
+			response.setMessage(e.getMessage());
+			response.setData(null);
+			response.setError(null);
+
+			return ResponseEntity.badRequest().body(response);
+		}
+	}
+
+	@PostMapping("/reset-password")
+	public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+
+		try {
+			authService.resetPassword(request);
+
+			ApiResponse<Void> response = new ApiResponse<>();
+			response.setSuccess(true);
+			response.setMessage("Password đã được thay đổi");
+			response.setData(null);
+			response.setError(null);
+
+			return ResponseEntity.ok(response);
+		} catch (RuntimeException e) {
+			ApiResponse<Void> response = new ApiResponse<>();
+			response.setSuccess(false);
+			response.setMessage(e.getMessage());
+			response.setData(null);
+			response.setError(null);
+
+			return ResponseEntity.badRequest().body(response);
+		}
+	}
 }
