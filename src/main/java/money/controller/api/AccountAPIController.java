@@ -12,10 +12,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import money.dto.account.AccountRequest;
 import money.dto.account.UpdateAccountRequest;
+import money.dto.auth.ApiResponse;
 import money.entity.Account;
+import money.enums.AccountType;
 import money.service.IAccountService;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -25,32 +31,90 @@ public class AccountAPIController {
     private IAccountService accountService;
 
 	@GetMapping
-	public ResponseEntity<?> getAccounts(){
+	public ResponseEntity<ApiResponse<Map<AccountType, List<Account>>>> getAccounts(){
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return ResponseEntity.ok(accountService.getAccountListByAccountType(email));
+		
+		ApiResponse<Map<AccountType, List<Account>>> response = new ApiResponse<>();
+		response.setSuccess(true);
+		response.setMessage("Lấy danh sách tài khoản thành công");
+		response.setData(accountService.getAccountListByAccountType(email));
+		response.setError(null);
+		
+		return ResponseEntity.ok(response);
 	}
 	
 	@PostMapping
-	public ResponseEntity<?> addAccount(@RequestBody AccountRequest request){
+	public ResponseEntity<ApiResponse<Account>> addAccount(@Valid @RequestBody AccountRequest request){
 		String email = SecurityContextHolder.getContext().getAuthentication().getName(); 
 
-	    Account account = accountService.addAccount(email, request);
-	    return ResponseEntity.ok(account);
+		try {
+			Account account = accountService.addAccount(email, request);
+			
+			ApiResponse<Account> response = new ApiResponse<>();
+			response.setSuccess(true);
+			response.setMessage("Thêm tài khoản thành công");
+			response.setData(account);
+			response.setError(null);
+			
+			return ResponseEntity.ok(response);
+		} catch (RuntimeException e) {
+			ApiResponse<Account> response = new ApiResponse<>();
+			response.setSuccess(false);
+			response.setMessage(e.getMessage());
+			response.setData(null);
+			response.setError(null);
+			
+			return ResponseEntity.badRequest().body(response);
+		}
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<?> editAccount(@PathVariable Long id, @RequestBody UpdateAccountRequest request){
+	public ResponseEntity<ApiResponse<Account>> editAccount(@PathVariable Long id, @Valid @RequestBody UpdateAccountRequest request){
 		String email = SecurityContextHolder.getContext().getAuthentication().getName(); 
 
-	    Account account = accountService.editAccount(email, id, request);
-	    return ResponseEntity.ok(account);
+		try {
+			Account account = accountService.editAccount(email, id, request);
+			
+			ApiResponse<Account> response = new ApiResponse<>();
+			response.setSuccess(true);
+			response.setMessage("Cập nhật tài khoản thành công");
+			response.setData(account);
+			response.setError(null);
+			
+			return ResponseEntity.ok(response);
+		} catch (RuntimeException e) {
+			ApiResponse<Account> response = new ApiResponse<>();
+			response.setSuccess(false);
+			response.setMessage(e.getMessage());
+			response.setData(null);
+			response.setError(null);
+			
+			return ResponseEntity.badRequest().body(response);
+		}
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> deleteAccount(@PathVariable Long id){
+	public ResponseEntity<ApiResponse<Void>> deleteAccount(@PathVariable Long id){
 		String email = SecurityContextHolder.getContext().getAuthentication().getName(); 
-		accountService.deleteAccount(email, id);
-
-	    return ResponseEntity.ok("Xóa tài khoản thành công");
+		
+		try {
+			accountService.deleteAccount(email, id);
+			
+			ApiResponse<Void> response = new ApiResponse<>();
+			response.setSuccess(true);
+			response.setMessage("Xóa tài khoản thành công");
+			response.setData(null);
+			response.setError(null);
+			
+			return ResponseEntity.ok(response);
+		} catch (RuntimeException e) {
+			ApiResponse<Void> response = new ApiResponse<>();
+			response.setSuccess(false);
+			response.setMessage(e.getMessage());
+			response.setData(null);
+			response.setError(null);
+			
+			return ResponseEntity.badRequest().body(response);
+		}
 	}
 }

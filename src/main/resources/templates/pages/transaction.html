@@ -269,9 +269,10 @@
                         const accountPromise = $.ajax({
                             url: '/api/accounts',
                             type: 'GET',
-                            success: function (data) {
+                            success: function (response) {
                                 accountList = [];
                                 // Flatten grouped map
+                                const data = response.data;
                                 for (const key in data) {
                                     if (data.hasOwnProperty(key) && Array.isArray(data[key])) {
                                         accountList = accountList.concat(data[key]);

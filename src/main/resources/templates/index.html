@@ -236,7 +236,7 @@
                         $.when(pAccounts, pTransactions, pBudgets, pSavings, pDebts, pCategories)
                             .done(function (resAcc, resTx, resBud, resSav, resDebt, resCat) {
                                 // 1. Accounts
-                                const accountsGroup = resAcc[0];
+                                const accountsGroup = resAcc[0].data;
                                 allAccounts = [];
                                 for (const key in accountsGroup) {
                                     if (accountsGroup.hasOwnProperty(key)) {

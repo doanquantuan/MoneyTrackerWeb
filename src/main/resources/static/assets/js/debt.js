@@ -48,8 +48,9 @@ document.addEventListener("DOMContentLoaded", function () {
             $.ajax({
                 url: '/api/accounts',
                 type: 'GET',
-                success: function (data) {
+                success: function (response) {
                     accountsList = [];
+                    const data = response.data;
                     for (const key in data) {
                         if (data.hasOwnProperty(key)) {
                             accountsList = accountsList.concat(data[key]);

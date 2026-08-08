@@ -319,10 +319,27 @@
                             error: function (xhr) {
                                 $saveBtn.prop('disabled', false).text('Lưu');
                                 let errorMsg = 'Có lỗi xảy ra, vui lòng thử lại.';
-                                if (xhr.responseJSON && xhr.responseJSON.message) {
-                                    errorMsg = xhr.responseJSON.message;
-                                } else if (xhr.responseText) {
-                                    errorMsg = xhr.responseText;
+                                if (xhr.status === 400 || xhr.status === 500) {
+                                    try {
+                                        const errObj = typeof xhr.responseJSON === 'object' ? xhr.responseJSON : JSON.parse(xhr.responseText);
+                                        if (errObj) {
+                                            if (errObj.error && typeof errObj.error === 'object' && !Array.isArray(errObj.error)) {
+                                                errorMsg = Object.values(errObj.error).join(', ');
+                                            } else if (errObj.error && Array.isArray(errObj.error) && errObj.error.length > 0) {
+                                                errorMsg = errObj.error.map(function (err) { return err.defaultMessage; }).join(', ');
+                                            } else if (errObj.errors && Array.isArray(errObj.errors) && errObj.errors.length > 0) {
+                                                errorMsg = errObj.errors.map(function (err) { return err.defaultMessage; }).join(', ');
+                                            } else if (errObj.message) {
+                                                errorMsg = errObj.message;
+                                            }
+                                        }
+                                    } catch (e) {
+                                        if (xhr.responseText) {
+                                            errorMsg = xhr.responseText;
+                                        }
+                                    }
+                                } else {
+                                    errorMsg = "Lỗi kết nối máy chủ. Vui lòng thử lại sau!";
                                 }
                                 showError(errorMsg);
                             }
@@ -354,8 +371,27 @@
                             error: function (xhr) {
                                 $deleteBtn.prop('disabled', false).text('Xóa');
                                 let errorMsg = 'Có lỗi xảy ra, vui lòng thử lại.';
-                                if (xhr.responseText) {
-                                    errorMsg = xhr.responseText;
+                                if (xhr.status === 400 || xhr.status === 500) {
+                                    try {
+                                        const errObj = typeof xhr.responseJSON === 'object' ? xhr.responseJSON : JSON.parse(xhr.responseText);
+                                        if (errObj) {
+                                            if (errObj.error && typeof errObj.error === 'object' && !Array.isArray(errObj.error)) {
+                                                errorMsg = Object.values(errObj.error).join(', ');
+                                            } else if (errObj.error && Array.isArray(errObj.error) && errObj.error.length > 0) {
+                                                errorMsg = errObj.error.map(function (err) { return err.defaultMessage; }).join(', ');
+                                            } else if (errObj.errors && Array.isArray(errObj.errors) && errObj.errors.length > 0) {
+                                                errorMsg = errObj.errors.map(function (err) { return err.defaultMessage; }).join(', ');
+                                            } else if (errObj.message) {
+                                                errorMsg = errObj.message;
+                                            }
+                                        }
+                                    } catch (e) {
+                                        if (xhr.responseText) {
+                                            errorMsg = xhr.responseText;
+                                        }
+                                    }
+                                } else {
+                                    errorMsg = "Lỗi kết nối máy chủ. Vui lòng thử lại sau!";
                                 }
                                 alert(errorMsg);
                             }
